@@ -1,0 +1,87 @@
+{
+  "@@locale": "en",
+  "appTitle": "Lando Dictionary",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings page title"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile page title"
+  },
+  "about": "About",
+  "@about": {
+    "description": "About page title"
+  },
+  "notFound": "404",
+  "@notFound": {
+    "description": "Not found page title"
+  },
+  "pageNotFound": "Page not found",
+  "@pageNotFound": {
+    "description": "Page not found message"
+  },
+  "themeMode": "Theme Mode",
+  "@themeMode": {
+    "description": "Theme mode setting title"
+  },
+  "themeModeDescription": "Switch between light, dark, or follow system",
+  "@themeModeDescription": {
+    "description": "Theme mode setting description"
+  },
+  "followSystem": "Follow System",
+  "@followSystem": {
+    "description": "Follow system theme option"
+  },
+  "light": "Light",
+  "@light": {
+    "description": "Light theme option"
+  },
+  "dark": "Dark",
+  "@dark": {
+    "description": "Dark theme option"
+  },
+  "translation": "Translation",
+  "@translation": {
+    "description": "Translation tab label"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language setting title"
+  },
+  "selectLanguage": "Select Language",
+  "@selectLanguage": {
+    "description": "Select language prompt"
+  },
+  "chinese": "Chinese",
+  "@chinese": {
+    "description": "Chinese language option"
+  },
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+  "japanese": "Japanese",
+  "@japanese": {
+    "description": "Japanese language option"
+  },
+  "hindi": "Hindi",
+  "@hindi": {
+    "description": "Hindi language option"
+  },
+  "indonesian": "Indonesian",
+  "@indonesian": {
+    "description": "Indonesian language option"
+  },
+  "portuguese": "Portuguese",
+  "@portuguese": {
+    "description": "Portuguese language option"
+  },
+  "russian": "Russian",
+  "@russian": {
+    "description": "Russian language option"
+  }
+}

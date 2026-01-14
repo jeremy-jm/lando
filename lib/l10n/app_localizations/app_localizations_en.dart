@@ -1,0 +1,74 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Lando Dictionary';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get notFound => '404';
+
+  @override
+  String get pageNotFound => 'Page not found';
+
+  @override
+  String get themeMode => 'Theme Mode';
+
+  @override
+  String get themeModeDescription =>
+      'Switch between light, dark, or follow system';
+
+  @override
+  String get followSystem => 'Follow System';
+
+  @override
+  String get light => 'Light';
+
+  @override
+  String get dark => 'Dark';
+
+  @override
+  String get translation => 'Translation';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get selectLanguage => 'Select Language';
+
+  @override
+  String get chinese => 'Chinese';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get japanese => 'Japanese';
+
+  @override
+  String get hindi => 'Hindi';
+
+  @override
+  String get indonesian => 'Indonesian';
+
+  @override
+  String get portuguese => 'Portuguese';
+
+  @override
+  String get russian => 'Russian';
+}
