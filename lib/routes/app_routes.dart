@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/features/home/home_page.dart';
 import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/not_found_page.dart';
@@ -23,7 +24,10 @@ class AppRoutes {
     switch (routeSettings.name) {
       case home:
         return MaterialPageRoute(
-          builder: (_) => const MyHomePage(title: 'Lando Dictionary'),
+          builder: (context) {
+            final l10n = AppLocalizations.of(context);
+            return MyHomePage(title: l10n?.appTitle ?? 'Lando Dictionary');
+          },
           settings: routeSettings,
         );
       case settings:
@@ -53,7 +57,10 @@ class AppRoutes {
   /// Used for MaterialApp's routes parameter
   static Map<String, WidgetBuilder> getRoutes() {
     return {
-      home: (_) => const MyHomePage(title: 'Lando Dictionary'),
+      home: (context) {
+        final l10n = AppLocalizations.of(context);
+        return MyHomePage(title: l10n?.appTitle ?? 'Lando Dictionary');
+      },
       settings: (_) => const SettingsPage(),
       profile: (_) => const ProfilePage(),
       about: (_) => const AboutPage(),
@@ -116,7 +123,10 @@ class AppNavigator {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (_) => const MyHomePage(title: 'Lando Dictionary'),
+        builder: (context) {
+          final l10n = AppLocalizations.of(context);
+          return MyHomePage(title: l10n?.appTitle ?? 'Lando Dictionary');
+        },
       ),
       (route) => false,
     );

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:lando/l10n/app_localizations/app_localizations.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('个人资料')),
-      body: const Center(child: Text('个人资料页面')),
+      appBar: AppBar(title: Text(l10n.profile)),
+      body: Center(child: Text(l10n.profile)),
     );
   }
 }

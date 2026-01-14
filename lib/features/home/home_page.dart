@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -75,39 +76,50 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ),
       // Bottom navigation bar example
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Theme.of(
-          context,
-        ).bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor: Theme.of(
-          context,
-        ).bottomNavigationBarTheme.selectedItemColor,
-        unselectedItemColor: Theme.of(
-          context,
-        ).bottomNavigationBarTheme.unselectedItemColor,
-        selectedLabelStyle: Theme.of(
-          context,
-        ).bottomNavigationBarTheme.selectedLabelStyle,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '翻译'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置'),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              AppNavigator.pushNamed(context, AppRoutes.home);
-              break;
-            case 1:
-              AppNavigator.pushNamed(context, AppRoutes.settings);
-              break;
-            case 2:
-              AppNavigator.pushNamed(context, AppRoutes.profile);
-              break;
-            case 3:
-              AppNavigator.pushNamed(context, AppRoutes.about);
-              break;
-          }
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          final l10n = AppLocalizations.of(context)!;
+          return BottomNavigationBar(
+            backgroundColor: Theme.of(
+              context,
+            ).bottomNavigationBarTheme.backgroundColor,
+            selectedItemColor: Theme.of(
+              context,
+            ).bottomNavigationBarTheme.selectedItemColor,
+            unselectedItemColor: Theme.of(
+              context,
+            ).bottomNavigationBarTheme.unselectedItemColor,
+            selectedLabelStyle: Theme.of(
+              context,
+            ).bottomNavigationBarTheme.selectedLabelStyle,
+            type: BottomNavigationBarType.fixed,
+            items: [
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.home),
+                label: l10n.translation,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.settings),
+                label: l10n.settings,
+              ),
+            ],
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  AppNavigator.pushNamed(context, AppRoutes.home);
+                  break;
+                case 1:
+                  AppNavigator.pushNamed(context, AppRoutes.settings);
+                  break;
+                case 2:
+                  AppNavigator.pushNamed(context, AppRoutes.profile);
+                  break;
+                case 3:
+                  AppNavigator.pushNamed(context, AppRoutes.about);
+                  break;
+              }
+            },
+          );
         },
       ),
     );
