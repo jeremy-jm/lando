@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
-import 'routes/app_routes.dart';
-import 'theme/theme_controller.dart';
-import 'theme/app_colors.dart';
-import 'localization/locale_controller.dart';
+import 'package:lando/localization/locale_controller.dart';
+import 'package:lando/routes/app_routes.dart';
+import 'package:lando/storage/preferences_storage.dart';
+import 'package:lando/theme/app_colors.dart';
+import 'package:lando/theme/theme_controller.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize storage
+  await PreferencesStorage.init();
+
+  // Initialize controllers with saved preferences
+  await ThemeController.instance.init();
+  await LocaleController.instance.init();
+
   runApp(const MyApp());
 }
 

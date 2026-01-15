@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/storage/preferences_storage.dart';
 
 /// Locale controller that manages app language settings
 class LocaleController extends ChangeNotifier {
@@ -7,6 +8,7 @@ class LocaleController extends ChangeNotifier {
   static final LocaleController instance = LocaleController._();
 
   Locale _locale = const Locale('en');
+  bool _initialized = false;
 
   Locale get locale => _locale;
 
@@ -21,19 +23,35 @@ class LocaleController extends ChangeNotifier {
     Locale('ru'), // Russian
   ];
 
-  /// Set locale
-  void setLocale(Locale locale) {
+  /// Initialize locale from storage
+  Future<void> init() async {
+    if (_initialized) return;
+
+    final savedLanguageCode = PreferencesStorage.getLocaleLanguageCode();
+    if (savedLanguageCode != null) {
+      final locale = Locale(savedLanguageCode);
+      if (supportedLocales.contains(locale)) {
+        _locale = locale;
+      }
+    }
+    _initialized = true;
+    notifyListeners();
+  }
+
+  /// Set locale and save to storage
+  Future<void> setLocale(Locale locale) async {
     if (_locale == locale) return;
     if (!supportedLocales.contains(locale)) {
       throw ArgumentError('Unsupported locale: $locale');
     }
     _locale = locale;
+    await PreferencesStorage.saveLocaleLanguageCode(locale.languageCode);
     notifyListeners();
   }
 
   /// Set locale by language code
-  void setLocaleByCode(String languageCode) {
+  Future<void> setLocaleByCode(String languageCode) async {
     final locale = Locale(languageCode);
-    setLocale(locale);
+    await setLocale(locale);
   }
 }
