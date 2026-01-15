@@ -40,6 +40,9 @@ dependencies:
   # Local storage for user preferences
   shared_preferences: ^2.2.2
 
+  # HTTP client for API access (similar to axios)
+  dio: ^5.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

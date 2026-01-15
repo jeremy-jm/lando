@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/features/home/query/query_page.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 
@@ -12,6 +13,66 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // Navigate when TextField gains focus (user taps on it)
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        // Small delay to allow user to see the focus effect
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted && _focusNode.hasFocus) {
+            _navigateToQueryPage(
+              _controller.text.trim().isEmpty ? null : _controller.text.trim(),
+            );
+            _focusNode.unfocus();
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _navigateToQueryPage(String? query) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            QueryPage(initialQuery: query),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          // Fade and slide animation
+          const begin = Offset(0.0, 0.1);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          var slideAnimation = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve)).animate(animation);
+
+          var fadeAnimation = Tween(
+            begin: 0.0,
+            end: 1.0,
+          ).chain(CurveTween(curve: curve)).animate(animation);
+
+          return SlideTransition(
+            position: slideAnimation,
+            child: FadeTransition(opacity: fadeAnimation, child: child),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,13 +85,32 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextField(
-                decoration: InputDecoration(hintText: 'Enter your text'),
+              Builder(
+                builder: (context) {
+                  final l10n = AppLocalizations.of(context)!;
+                  return TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    decoration: InputDecoration(
+                      hintText: l10n.translation,
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      filled: true,
+                    ),
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (value) {
+                      // Navigate to query page when submitted
+                      _navigateToQueryPage(
+                        value.trim().isEmpty ? null : value.trim(),
+                      );
+                    },
+                  );
+                },
               ),
-              const SizedBox(height: 16.0),
-              Text('Translation'),
-              const SizedBox(height: 16.0),
             ],
           ),
         ),

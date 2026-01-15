@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/features/home/home_page.dart';
+import 'package:lando/features/home/query/query_page.dart';
 import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/not_found_page.dart';
 import 'package:lando/features/me/profile_page.dart';
@@ -14,6 +15,7 @@ class AppRoutes {
 
   // Route name constants
   static const String home = '/';
+  static const String query = '/query';
   static const String settings = '/settings';
   static const String profile = '/profile';
   static const String about = '/about';
@@ -28,6 +30,14 @@ class AppRoutes {
             final l10n = AppLocalizations.of(context);
             return MyHomePage(title: l10n?.appTitle ?? 'Lando Dictionary');
           },
+          settings: routeSettings,
+        );
+      case query:
+        final args = routeSettings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (context) => QueryPage(
+            initialQuery: args?['query'] as String?,
+          ),
           settings: routeSettings,
         );
       case settings:
