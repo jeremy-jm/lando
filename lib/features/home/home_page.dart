@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_page.dart';
+import 'package:lando/features/home/widgets/language_selector_widget.dart';
+import 'package:lando/features/home/widgets/translation_input_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 
@@ -15,6 +17,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  String? _detectedLanguage;
 
   @override
   void initState() {
@@ -33,6 +36,35 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
+
+    // Detect language from input
+    _controller.addListener(_detectLanguage);
+  }
+
+  void _detectLanguage() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) {
+      setState(() {
+        _detectedLanguage = null;
+      });
+      return;
+    }
+
+    // Simple language detection (can be improved with ML or API)
+    final detected = _simpleLanguageDetection(text);
+    setState(() {
+      _detectedLanguage = detected;
+    });
+  }
+
+  String? _simpleLanguageDetection(String text) {
+    // Simple heuristic: check for Chinese, Japanese, etc.
+    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return '中文';
+    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return '日语';
+    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return '印地语';
+    // Default to English for Latin scripts
+    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return '英语';
+    return '英语'; // Default fallback
   }
 
   @override
@@ -90,20 +122,12 @@ class _MyHomePageState extends State<MyHomePage> {
               Builder(
                 builder: (context) {
                   final l10n = AppLocalizations.of(context)!;
-                  return TextField(
+                  return TranslationInputWidget(
                     controller: _controller,
                     focusNode: _focusNode,
-                    decoration: InputDecoration(
-                      hintText: l10n.translation,
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      filled: true,
-                    ),
-                    textInputAction: TextInputAction.search,
+                    hintText: l10n.translation,
+                    detectedLanguage: _detectedLanguage,
                     onSubmitted: (value) {
-                      // Navigate to query page when submitted
                       _navigateToQueryPage(
                         value.trim().isEmpty ? null : value.trim(),
                       );
@@ -111,6 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
               ),
+              const SizedBox(height: 16.0),
+              const LanguageSelectorWidget(),
             ],
           ),
         ),

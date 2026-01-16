@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:lando/features/home/home_repository.dart';
+import 'package:lando/features/home/query/query_repository.dart';
 
 /// Events for [HomeBloc].
 sealed class HomeEvent {
@@ -53,7 +53,7 @@ class HomeBloc {
     _eventSubscription = _eventController.stream.listen(_handleEvent);
   }
 
-  final HomeRepository _repository;
+  final QueryRepository _repository;
 
   final _stateController = StreamController<HomeState>.broadcast();
   final _eventController = StreamController<HomeEvent>();
@@ -78,28 +78,12 @@ class HomeBloc {
   Future<void> _handleEvent(HomeEvent event) async {
     if (event is HomeSearchSubmitted) {
       final query = event.query;
-      _emit(
-        _state.copyWith(
-          query: query,
-          isLoading: true,
-          errorMessage: null,
-        ),
-      );
+      _emit(_state.copyWith(query: query, isLoading: true, errorMessage: null));
       try {
         final result = await _repository.lookup(query);
-        _emit(
-          _state.copyWith(
-            isLoading: false,
-            result: result,
-          ),
-        );
+        _emit(_state.copyWith(isLoading: false, result: result));
       } catch (e) {
-        _emit(
-          _state.copyWith(
-            isLoading: false,
-            errorMessage: e.toString(),
-          ),
-        );
+        _emit(_state.copyWith(isLoading: false, errorMessage: e.toString()));
       }
     }
   }
@@ -110,4 +94,3 @@ class HomeBloc {
     _stateController.close();
   }
 }
-

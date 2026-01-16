@@ -43,6 +43,9 @@ dependencies:
   # HTTP client for API access (similar to axios)
   dio: ^5.4.0
 
+  # Audio player for pronunciation
+  audioplayers: ^6.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

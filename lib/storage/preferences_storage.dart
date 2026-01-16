@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StorageKeys {
   static const String themeMode = 'theme_mode';
   static const String localeLanguageCode = 'locale_language_code';
+  static const String translationFromLanguage = 'translation_from_language';
+  static const String translationToLanguage = 'translation_to_language';
 }
 
 /// Storage service for managing user preferences
@@ -47,6 +49,43 @@ class PreferencesStorage {
   /// Get locale language code
   static String? getLocaleLanguageCode() {
     return prefs.getString(StorageKeys.localeLanguageCode);
+  }
+
+  // ==================== Translation Language Pair ====================
+
+  /// Save translation language pair
+  /// If fromLanguage or toLanguage is null, it means auto-detect
+  static Future<bool> saveTranslationLanguages({
+    String? fromLanguage,
+    String? toLanguage,
+  }) async {
+    final futures = <Future<bool>>[];
+    if (fromLanguage == null) {
+      futures.add(prefs.remove(StorageKeys.translationFromLanguage));
+    } else {
+      futures.add(
+        prefs.setString(StorageKeys.translationFromLanguage, fromLanguage),
+      );
+    }
+    if (toLanguage == null) {
+      futures.add(prefs.remove(StorageKeys.translationToLanguage));
+    } else {
+      futures.add(
+        prefs.setString(StorageKeys.translationToLanguage, toLanguage),
+      );
+    }
+    final results = await Future.wait(futures);
+    return results.every((r) => r);
+  }
+
+  /// Get translation from language
+  static String? getTranslationFromLanguage() {
+    return prefs.getString(StorageKeys.translationFromLanguage);
+  }
+
+  /// Get translation to language
+  static String? getTranslationToLanguage() {
+    return prefs.getString(StorageKeys.translationToLanguage);
   }
 
   // ==================== Clear ====================

@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:lando/features/home/home_repository.dart';
+import 'package:lando/features/home/query/query_repository.dart';
+import 'package:lando/services/translation/youdao/models/youdao_response.dart';
 
 /// Events for [QueryBloc].
 sealed class QueryEvent {
@@ -23,24 +24,36 @@ class QueryState {
     this.isLoading = false,
     this.result = '',
     this.errorMessage,
+    this.usPronunciationUrl,
+    this.ukPronunciationUrl,
+    this.youdaoResponse,
   });
 
   final String query;
   final bool isLoading;
   final String result;
   final String? errorMessage;
+  final String? usPronunciationUrl;
+  final String? ukPronunciationUrl;
+  final YoudaoResponse? youdaoResponse;
 
   QueryState copyWith({
     String? query,
     bool? isLoading,
     String? result,
     String? errorMessage,
+    String? usPronunciationUrl,
+    String? ukPronunciationUrl,
+    YoudaoResponse? youdaoResponse,
   }) {
     return QueryState(
       query: query ?? this.query,
       isLoading: isLoading ?? this.isLoading,
       result: result ?? this.result,
       errorMessage: errorMessage,
+      usPronunciationUrl: usPronunciationUrl,
+      ukPronunciationUrl: ukPronunciationUrl,
+      youdaoResponse: youdaoResponse,
     );
   }
 }
@@ -53,7 +66,7 @@ class QueryBloc {
     _eventSubscription = _eventController.stream.listen(_handleEvent);
   }
 
-  final HomeRepository _repository;
+  final QueryRepository _repository;
 
   final _stateController = StreamController<QueryState>.broadcast();
   final _eventController = StreamController<QueryEvent>();
@@ -78,12 +91,29 @@ class QueryBloc {
   Future<void> _handleEvent(QueryEvent event) async {
     if (event is QuerySearchSubmitted) {
       final query = event.query;
-      _emit(_state.copyWith(query: query, isLoading: true, errorMessage: null));
+      _emit(_state.copyWith(
+        query: query,
+        isLoading: true,
+        result: '',
+        errorMessage: null,
+        usPronunciationUrl: null,
+        ukPronunciationUrl: null,
+        youdaoResponse: null,
+      ));
       try {
-        final result = await _repository.lookup(query);
-        _emit(_state.copyWith(isLoading: false, result: result));
+        final result = await _repository.lookupWithPronunciation(query);
+        _emit(_state.copyWith(
+          isLoading: false,
+          result: result['translation'] ?? '',
+          usPronunciationUrl: result['usPronunciationUrl'] as String?,
+          ukPronunciationUrl: result['ukPronunciationUrl'] as String?,
+          youdaoResponse: result['youdaoResponse'] as YoudaoResponse?,
+        ));
       } catch (e) {
-        _emit(_state.copyWith(isLoading: false, errorMessage: e.toString()));
+        _emit(_state.copyWith(
+          isLoading: false,
+          errorMessage: e.toString(),
+        ));
       }
     }
   }
