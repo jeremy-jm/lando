@@ -435,6 +435,7 @@ class YoudaoSentencePair {
     this.source,
     this.url,
     this.sentenceSpeech,
+    this.sentenceTranslationSpeech,
   });
 
   factory YoudaoSentencePair.fromJson(Map<String, dynamic> json) {
@@ -451,6 +452,7 @@ class YoudaoSentencePair {
       source: json['source'] as String?,
       url: json['url'] as String?,
       sentenceSpeech: json['sentence-speech'] as String?,
+      sentenceTranslationSpeech: json['sentence-translation-speech'] as String?,
     );
   }
 
@@ -462,6 +464,7 @@ class YoudaoSentencePair {
   final String? source;
   final String? url;
   final String? sentenceSpeech;
+  final String? sentenceTranslationSpeech;
 }
 
 /// Aligned Words model (simplified, can be expanded if needed).

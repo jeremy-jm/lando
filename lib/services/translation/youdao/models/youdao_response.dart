@@ -1,3 +1,4 @@
+import 'package:lando/services/translation/youdao/models/youdao_ce.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ec.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ee.dart';
 import 'package:lando/services/translation/youdao/models/youdao_meta.dart';
@@ -40,6 +41,7 @@ class YoudaoResponse {
     this.fanyi,
     this.wordElaboration,
     this.relWord,
+    this.ce,
   });
 
   factory YoudaoResponse.fromJson(Map<String, dynamic> json) {
@@ -155,6 +157,9 @@ class YoudaoResponse {
       relWord: json['rel_word'] != null
           ? YoudaoRelWord.fromJson(json['rel_word'] as Map<String, dynamic>)
           : null,
+      ce: json['ce'] != null
+          ? YoudaoCe.fromJson(json['ce'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -189,6 +194,7 @@ class YoudaoResponse {
   final YoudaoFanyi? fanyi;
   final YoudaoWordElaboration? wordElaboration;
   final YoudaoRelWord? relWord;
+  final YoudaoCe? ce;
 }
 
 /// Encrypted data model (used for various encrypted fields).
