@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lando/services/translation/youdao/models/youdao_ce.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ec.dart';
 import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
 import 'package:lando/services/translation/youdao/models/youdao_phrs.dart';
@@ -30,26 +31,47 @@ class YoudaoResultWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final ec = response.ec;
     final ecWord = ec?.word;
+    final ce = response.ce;
+    final ceWord = ce?.word;
     final phrs = response.phrs;
     final webTrans = response.webTrans;
     final ee = response.ee;
+    final simple = response.simple;
+
+    // Determine input language
+    final guessLanguage = response.meta?.guessLanguage;
+    final lang = response.meta?.lang;
+    final isChineseInput =
+        guessLanguage == 'zh' || lang == 'zh' || lang == 'zh-CHS';
+    final isEnglishInput =
+        guessLanguage == 'eng' || lang == 'eng' || lang == 'en';
 
     // Try to get translations from different sources
     final translationsByPos = <String, List<String>>{};
     String? mainTranslation;
     // List<String>? examTypes;
 
-    // Priority 0: Fanyi (translation) - highest priority
-    if (response.fanyi != null &&
-        response.fanyi!.tran != null &&
-        response.fanyi!.tran!.isNotEmpty) {
-      mainTranslation = response.fanyi!.tran;
-      translationsByPos.putIfAbsent('翻译', () => []);
-      translationsByPos['翻译']!.add(response.fanyi!.tran!);
+    // Priority logic based on input language:
+    // 1. If Chinese input: prioritize CE (Chinese-English)
+    // 2. If English input: prioritize EC (English-Chinese)
+    // 3. If both EC and CE are empty: prioritize Simple, then Fanyi
+
+    // Priority 1: CE (Chinese-English) - for Chinese input
+    if (isChineseInput && ceWord != null) {
+      for (final tr in ceWord.trs ?? []) {
+        if (tr.text != null && tr.text!.isNotEmpty) {
+          final pos = '翻译';
+          translationsByPos.putIfAbsent(pos, () => []);
+          translationsByPos[pos]!.add(tr.text!);
+        }
+      }
+      if (ceWord.trs?.isNotEmpty == true && ceWord.trs!.first.text != null) {
+        mainTranslation = ceWord.trs!.first.text;
+      }
     }
 
-    // Priority 1: EC (basic dictionary) - for English words
-    if (ecWord != null && mainTranslation == null) {
+    // Priority 2: EC (English-Chinese) - for English input
+    if (isEnglishInput && ecWord != null && mainTranslation == null) {
       // examTypes = ec?.examType;
       for (final tr in ecWord.trs ?? []) {
         if (tr.tran != null && tr.tran!.isNotEmpty) {
@@ -63,7 +85,30 @@ class YoudaoResultWidget extends StatelessWidget {
       }
     }
 
-    // Priority 2: Web Translation - for Chinese and other languages
+    // Priority 3: If both EC and CE are empty, try Simple
+    if (mainTranslation == null && ecWord == null && ceWord == null) {
+      if (simple?.word != null && simple!.word!.isNotEmpty) {
+        final firstWord = simple.word!.first;
+        if (firstWord.returnPhrase != null &&
+            firstWord.returnPhrase!.isNotEmpty) {
+          mainTranslation = firstWord.returnPhrase;
+          translationsByPos.putIfAbsent('翻译', () => []);
+          translationsByPos['翻译']!.add(firstWord.returnPhrase!);
+        }
+      }
+    }
+
+    // Priority 4: Fanyi (translation) - fallback
+    if (mainTranslation == null &&
+        response.fanyi != null &&
+        response.fanyi!.tran != null &&
+        response.fanyi!.tran!.isNotEmpty) {
+      mainTranslation = response.fanyi!.tran;
+      translationsByPos.putIfAbsent('翻译', () => []);
+      translationsByPos['翻译']!.add(response.fanyi!.tran!);
+    }
+
+    // Priority 5: Web Translation - for Chinese and other languages
     // Note: Web translations are displayed separately, not merged into translationsByPos
     if (mainTranslation == null && webTrans?.webTranslation != null) {
       final firstWebItem = webTrans!.webTranslation!.first;
@@ -72,7 +117,7 @@ class YoudaoResultWidget extends StatelessWidget {
       }
     }
 
-    // Priority 3: EE (extended dictionary)
+    // Priority 6: EE (extended dictionary)
     if (translationsByPos.isEmpty &&
         mainTranslation == null &&
         ee?.word != null) {
@@ -142,6 +187,7 @@ class YoudaoResultWidget extends StatelessWidget {
               mainTranslation,
               // examTypes,
               ecWord,
+              ceWord,
               response.fanyi,
               onFanyiPronunciationTap,
             ),
@@ -223,6 +269,7 @@ class YoudaoResultWidget extends StatelessWidget {
     String? mainTranslation,
     // List<String>? examTypes,
     YoudaoEcWord? ecWord,
+    YoudaoCeWord? ceWord,
     YoudaoFanyi? fanyi,
     VoidCallback? onFanyiPronunciationTap,
   ) {

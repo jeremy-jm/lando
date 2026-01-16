@@ -173,10 +173,11 @@ class YoudaoCollinsEntryItem {
 
 /// Collins Translation Entry model.
 class YoudaoCollinsTranEntry {
-  YoudaoCollinsTranEntry({this.posEntry, this.examSents, this.tran});
+  YoudaoCollinsTranEntry({this.gram, this.posEntry, this.examSents, this.tran});
 
   factory YoudaoCollinsTranEntry.fromJson(Map<String, dynamic> json) {
     return YoudaoCollinsTranEntry(
+      gram: json['gram'] as String?,
       posEntry: json['pos_entry'] != null
           ? YoudaoPosEntry.fromJson(json['pos_entry'] as Map<String, dynamic>)
           : null,
@@ -187,6 +188,7 @@ class YoudaoCollinsTranEntry {
     );
   }
 
+  final String? gram;
   final YoudaoPosEntry? posEntry;
   final YoudaoExamSents? examSents;
   final String? tran;
@@ -1003,10 +1005,12 @@ class YoudaoMagicWordInfo {
 
 /// Media Sents Part model.
 class YoudaoMediaSentsPart {
-  YoudaoMediaSentsPart({this.query, this.sent});
+  YoudaoMediaSentsPart({this.sentenceCount, this.more, this.query, this.sent});
 
   factory YoudaoMediaSentsPart.fromJson(Map<String, dynamic> json) {
     return YoudaoMediaSentsPart(
+      sentenceCount: json['sentence-count'] as int?,
+      more: json['more'] as String?,
       query: json['query'] as String?,
       sent: json['sent'] != null
           ? (json['sent'] as List)
@@ -1016,6 +1020,8 @@ class YoudaoMediaSentsPart {
     );
   }
 
+  final int? sentenceCount;
+  final String? more;
   final String? query;
   final List<YoudaoMediaSent>? sent;
 }
