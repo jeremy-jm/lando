@@ -1,3 +1,5 @@
+import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
+
 /// Youdao EC (basic dictionary) model.
 class YoudaoEc {
   YoudaoEc({
@@ -84,6 +86,7 @@ class YoudaoEcWord {
     this.returnPhrase,
     this.usspeech,
     this.prototype,
+    this.wfs,
   });
 
   factory YoudaoEcWord.fromJson(Map<String, dynamic> json) {
@@ -99,6 +102,11 @@ class YoudaoEcWord {
       returnPhrase: json['return-phrase'] as String?,
       usspeech: json['usspeech'] as String?,
       prototype: json['prototype'] as String?,
+      wfs: json['wfs'] != null
+          ? (json['wfs'] as List<dynamic>)
+                .map((e) => YoudaoWf.fromJson(e['wf'] as Map<String, dynamic>))
+                .toList()
+          : null,
     );
   }
 
@@ -109,6 +117,8 @@ class YoudaoEcWord {
   final String? returnPhrase;
   final String? usspeech;
   final String? prototype;
+
+  final List<YoudaoWf>? wfs;
 }
 
 /// EC Word Translation model.

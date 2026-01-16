@@ -4,6 +4,7 @@ import 'package:lando/services/translation/youdao/models/youdao_ec.dart';
 import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
 import 'package:lando/services/translation/youdao/models/youdao_phrs.dart';
 import 'package:lando/services/translation/youdao/models/youdao_response.dart';
+import 'package:lando/services/translation/youdao/models/youdao_web_trans.dart';
 
 /// Widget for displaying Youdao dictionary result in a detailed format.
 class YoudaoResultWidget extends StatelessWidget {
@@ -63,21 +64,11 @@ class YoudaoResultWidget extends StatelessWidget {
     }
 
     // Priority 2: Web Translation - for Chinese and other languages
-    if (translationsByPos.isEmpty &&
-        mainTranslation == null &&
-        webTrans?.webTranslation != null) {
-      for (final webItem in webTrans!.webTranslation!) {
-        if (webItem.trans != null) {
-          for (final transItem in webItem.trans!) {
-            if (transItem.value != null && transItem.value!.isNotEmpty) {
-              translationsByPos.putIfAbsent('翻译', () => []);
-              translationsByPos['翻译']!.add(transItem.value!);
-            }
-          }
-        }
-        if (mainTranslation == null && webItem.trans?.isNotEmpty == true) {
-          mainTranslation = webItem.trans!.first.value;
-        }
+    // Note: Web translations are displayed separately, not merged into translationsByPos
+    if (mainTranslation == null && webTrans?.webTranslation != null) {
+      final firstWebItem = webTrans!.webTranslation!.first;
+      if (firstWebItem.trans?.isNotEmpty == true) {
+        mainTranslation = firstWebItem.trans!.first.value;
       }
     }
 
@@ -129,61 +120,98 @@ class YoudaoResultWidget extends StatelessWidget {
       );
     }
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Word header
-          _buildWordHeader(
-            context,
-            theme,
-            query,
-            mainTranslation,
-            // examTypes,
-            ecWord,
-            response.fanyi,
-            onFanyiPronunciationTap,
-          ),
-          const SizedBox(height: 24.0),
+    // Check both ec.word.wfs and individual.anagram.wfs for word forms
+    final wordForms =
+        response.ec?.word?.wfs ?? response.individual?.anagram?.wfs;
 
-          // Pronunciation section (only for EC words)
-          if (ecWord != null &&
-              (ecWord.usphone != null ||
-                  ecWord.ukphone != null ||
-                  onGeneralPronunciationTap != null))
-            _buildPronunciationSection(
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          color: theme.colorScheme.surfaceContainer,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Word header
+            _buildWordHeader(
               context,
               theme,
+              query,
+              mainTranslation,
+              // examTypes,
               ecWord,
-              onUsPronunciationTap,
-              onUkPronunciationTap,
-              onGeneralPronunciationTap,
+              response.fanyi,
+              onFanyiPronunciationTap,
             ),
-
-          // Translations by part of speech
-          if (translationsByPos.isNotEmpty) ...[
             const SizedBox(height: 24.0),
-            ...translationsByPos.entries.map(
-              (entry) => Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: _buildPosSection(
-                  context,
-                  theme,
-                  entry.key,
-                  entry.value,
-                  response.fanyi,
-                  onFanyiPronunciationTap,
+
+            // Pronunciation section (only for EC words)
+            if (ecWord != null &&
+                (ecWord.usphone != null ||
+                    ecWord.ukphone != null ||
+                    onGeneralPronunciationTap != null))
+              _buildPronunciationSection(
+                context,
+                theme,
+                ecWord,
+                onUsPronunciationTap,
+                onUkPronunciationTap,
+                onGeneralPronunciationTap,
+              ),
+
+            // Translations by part of speech
+            if (translationsByPos.isNotEmpty) ...[
+              if (ecWord != null &&
+                  (ecWord.usphone != null ||
+                      ecWord.ukphone != null ||
+                      onGeneralPronunciationTap != null))
+                const SizedBox(height: 24.0),
+              ...translationsByPos.entries.map(
+                (entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: _buildPosSection(
+                    context,
+                    theme,
+                    entry.key,
+                    entry.value,
+                    response.fanyi,
+                    onFanyiPronunciationTap,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
 
-          // Related phrases
-          if (phrs?.phrs != null && phrs!.phrs!.isNotEmpty) ...[
-            const SizedBox(height: 24.0),
-            _buildPhrasesSection(context, theme, phrs.phrs!),
+            // Web Translation section - display each webItem separately
+            if (webTrans?.webTranslation != null &&
+                webTrans!.webTranslation!.isNotEmpty) ...[
+              if (translationsByPos.isNotEmpty ||
+                  (ecWord != null &&
+                      (ecWord.usphone != null ||
+                          ecWord.ukphone != null ||
+                          onGeneralPronunciationTap != null)))
+                const SizedBox(height: 24.0),
+              _buildWebTranslationSection(
+                context,
+                theme,
+                webTrans.webTranslation!,
+              ),
+            ],
+
+            // Related phrases
+            if (phrs?.phrs != null && phrs!.phrs!.isNotEmpty) ...[
+              const SizedBox(height: 24.0),
+              _buildPhrasesSection(context, theme, phrs.phrs!),
+            ],
+
+            // Word forms (时态)
+            if (wordForms != null && wordForms.isNotEmpty) ...[
+              const SizedBox(height: 24.0),
+              _buildWordFormsSection(context, theme, wordForms),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -243,15 +271,15 @@ class YoudaoResultWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 4.0),
                   ],
-                  Expanded(
-                    child: Text(
-                      mainTranslation,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.primary,
-                      ),
-                      softWrap: true,
-                    ),
-                  ),
+                  // Expanded(
+                  //   child: Text(
+                  //     mainTranslation,
+                  //     style: theme.textTheme.titleMedium?.copyWith(
+                  //       color: theme.colorScheme.primary,
+                  //     ),
+                  //     softWrap: true,
+                  //   ),
+                  // ),
                 ],
               ),
             ],
@@ -304,11 +332,8 @@ class YoudaoResultWidget extends StatelessWidget {
     final hasGeneralPronunciation = onGeneralTap != null;
 
     return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0)),
       child: Column(
         children: [
           // US pronunciation (for English)
@@ -397,106 +422,25 @@ class YoudaoResultWidget extends StatelessWidget {
     YoudaoFanyi? fanyi,
     VoidCallback? onFanyiPronunciationTap,
   ) {
-    // Check if this is the fanyi translation section
-    final isFanyiSection =
-        pos == '翻译' &&
-        fanyi != null &&
-        fanyi.tran != null &&
-        translations.isNotEmpty &&
-        translations.first == fanyi.tran &&
-        fanyi.voice != null &&
-        fanyi.voice!.isNotEmpty &&
-        onFanyiPronunciationTap != null;
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Part of speech label
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 4.0,
-              ),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: Text(
-                pos,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8.0),
-
-        // Translations list
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(12.0),
+        Text(
+          pos,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: translations.asMap().entries.map((entry) {
-              final index = entry.key;
-              final translation = entry.value;
-              final isFanyiItem = isFanyiSection && index == 0;
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: index < translations.length - 1 ? 8.0 : 0,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${index + 1}.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.6,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    if (isFanyiItem) ...[
-                      IconButton(
-                        icon: Icon(
-                          Icons.volume_up,
-                          size: 18,
-                          color: theme.colorScheme.primary,
-                        ),
-                        onPressed: onFanyiPronunciationTap,
-                        tooltip: '播放语音',
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 28,
-                          minHeight: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 4.0),
-                    ],
-                    Expanded(
-                      child: Text(
-                        translation,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.colorScheme.onSurface,
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
+        ),
+        const SizedBox(width: 8.0),
+        Expanded(
+          child: Text(
+            translations.join('; '),
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.onSurface,
+            ),
+            softWrap: true,
           ),
         ),
       ],
@@ -522,10 +466,7 @@ class YoudaoResultWidget extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: phrases.asMap().entries.map((entry) {
@@ -596,6 +537,164 @@ class YoudaoResultWidget extends StatelessWidget {
             }).toList(),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildWordFormsSection(
+    BuildContext context,
+    ThemeData theme,
+    List<YoudaoWf> wordForms,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '单词时态',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12.0),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: wordForms.map((wf) {
+              if (wf.name == null || wf.value == null) {
+                return const SizedBox.shrink();
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 80,
+                      child: Text(
+                        wf.name!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: Text(
+                        wf.value!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWebTranslationSection(
+    BuildContext context,
+    ThemeData theme,
+    List<YoudaoWebTranslation> webTranslations,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '网络翻译',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12.0),
+        ...webTranslations.asMap().entries.map((entry) {
+          final index = entry.key;
+          final webItem = entry.value;
+
+          if (webItem.key == null ||
+              webItem.trans == null ||
+              webItem.trans!.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: index < webTranslations.length - 1 ? 16.0 : 0,
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Key (keyword)
+                  Text(
+                    webItem.key!,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  // Translations - one per line
+                  ...webItem.trans!.asMap().entries.map((transEntry) {
+                    final transIndex = transEntry.key;
+                    final transItem = transEntry.value;
+
+                    if (transItem.value == null || transItem.value!.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: transIndex < webItem.trans!.length - 1
+                            ? 8.0
+                            : 0,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            child: Text(
+                              transItem.value!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                                height: 1.5,
+                              ),
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ],
     );
   }

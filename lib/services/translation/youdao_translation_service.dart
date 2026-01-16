@@ -127,20 +127,15 @@ class YoudaoTranslationService implements TranslationService {
     required String query,
     required String le,
   }) {
-    // Step 1: ww = text + "webdict"
     final ww = '${query}webdict';
 
-    // Step 2: time = ww.length % 10
     final time = (ww.length % 10).toString();
 
-    // Step 3: salt = md5(ww)
     final wwBytes = utf8.encode(ww);
     final salt = md5.convert(wwBytes).toString();
 
-    // Step 4: key = "Mk6hqtUp33DGGtoS63tTJbMUYjRrG1Lu"
     const key = 'Mk6hqtUp33DGGtoS63tTJbMUYjRrG1Lu';
 
-    // Step 5: sign = md5("web" + text + time + key + salt)
     final signContent = 'web$query$time$key$salt';
     final signBytes = utf8.encode(signContent);
     final sign = md5.convert(signBytes).toString();
