@@ -26,6 +26,8 @@ class QueryState {
     this.errorMessage,
     this.usPronunciationUrl,
     this.ukPronunciationUrl,
+    this.generalPronunciationUrl,
+    this.inputPronunciationUrl,
     this.youdaoResponse,
   });
 
@@ -35,6 +37,8 @@ class QueryState {
   final String? errorMessage;
   final String? usPronunciationUrl;
   final String? ukPronunciationUrl;
+  final String? generalPronunciationUrl;
+  final String? inputPronunciationUrl;
   final YoudaoResponse? youdaoResponse;
 
   QueryState copyWith({
@@ -44,6 +48,8 @@ class QueryState {
     String? errorMessage,
     String? usPronunciationUrl,
     String? ukPronunciationUrl,
+    String? generalPronunciationUrl,
+    String? inputPronunciationUrl,
     YoudaoResponse? youdaoResponse,
   }) {
     return QueryState(
@@ -53,6 +59,8 @@ class QueryState {
       errorMessage: errorMessage,
       usPronunciationUrl: usPronunciationUrl,
       ukPronunciationUrl: ukPronunciationUrl,
+      generalPronunciationUrl: generalPronunciationUrl,
+      inputPronunciationUrl: inputPronunciationUrl,
       youdaoResponse: youdaoResponse,
     );
   }
@@ -91,29 +99,35 @@ class QueryBloc {
   Future<void> _handleEvent(QueryEvent event) async {
     if (event is QuerySearchSubmitted) {
       final query = event.query;
-      _emit(_state.copyWith(
-        query: query,
-        isLoading: true,
-        result: '',
-        errorMessage: null,
-        usPronunciationUrl: null,
-        ukPronunciationUrl: null,
-        youdaoResponse: null,
-      ));
+      _emit(
+        _state.copyWith(
+          query: query,
+          isLoading: true,
+          result: '',
+          errorMessage: null,
+          usPronunciationUrl: null,
+          ukPronunciationUrl: null,
+          generalPronunciationUrl: null,
+          inputPronunciationUrl: null,
+          youdaoResponse: null,
+        ),
+      );
       try {
         final result = await _repository.lookupWithPronunciation(query);
-        _emit(_state.copyWith(
-          isLoading: false,
-          result: result['translation'] ?? '',
-          usPronunciationUrl: result['usPronunciationUrl'] as String?,
-          ukPronunciationUrl: result['ukPronunciationUrl'] as String?,
-          youdaoResponse: result['youdaoResponse'] as YoudaoResponse?,
-        ));
+        _emit(
+          _state.copyWith(
+            isLoading: false,
+            result: result['translation'] ?? '',
+            usPronunciationUrl: result['usPronunciationUrl'] as String?,
+            ukPronunciationUrl: result['ukPronunciationUrl'] as String?,
+            generalPronunciationUrl:
+                result['generalPronunciationUrl'] as String?,
+            inputPronunciationUrl: result['inputPronunciationUrl'] as String?,
+            youdaoResponse: result['youdaoResponse'] as YoudaoResponse?,
+          ),
+        );
       } catch (e) {
-        _emit(_state.copyWith(
-          isLoading: false,
-          errorMessage: e.toString(),
-        ));
+        _emit(_state.copyWith(isLoading: false, errorMessage: e.toString()));
       }
     }
   }

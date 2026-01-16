@@ -32,15 +32,18 @@ class QueryRepository {
 
   /// Queries the translation service and returns translation with pronunciation URLs.
   ///
-  /// Returns a map with 'translation', 'usPronunciationUrl', 'ukPronunciationUrl', and 'youdaoResponse' keys.
+  /// Returns a map with 'translation', 'usPronunciationUrl', 'ukPronunciationUrl',
+  /// 'generalPronunciationUrl', 'inputPronunciationUrl', and 'youdaoResponse' keys.
   Future<Map<String, dynamic>> lookupWithPronunciation(String query) async {
     final translation = await lookup(query);
-    
+
     // For Youdao service, get pronunciation URLs and full response
     String? usUrl;
     String? ukUrl;
+    String? generalUrl;
+    String? inputPronunciationUrl;
     YoudaoResponse? youdaoResponse;
-    
+
     if (translationService is YoudaoTranslationService) {
       final youdaoService = translationService as YoudaoTranslationService;
       try {
@@ -48,6 +51,12 @@ class QueryRepository {
         final urls = youdaoService.getPronunciationUrls(youdaoResponse, query);
         usUrl = urls['us'];
         ukUrl = urls['uk'];
+        generalUrl = urls['general'];
+        // Get pronunciation URL for the input text
+        inputPronunciationUrl = youdaoService.getInputPronunciationUrl(
+          youdaoResponse,
+          query,
+        );
       } catch (e) {
         // If getting full response fails, still return translation
       }
@@ -57,6 +66,8 @@ class QueryRepository {
       'translation': translation,
       'usPronunciationUrl': usUrl,
       'ukPronunciationUrl': ukUrl,
+      'generalPronunciationUrl': generalUrl,
+      'inputPronunciationUrl': inputPronunciationUrl,
       'youdaoResponse': youdaoResponse,
     };
   }

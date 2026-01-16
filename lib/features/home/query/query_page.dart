@@ -128,15 +128,26 @@ class _QueryPageState extends State<QueryPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Search TextField
-              TranslationInputWidget(
-                controller: _controller,
-                focusNode: _focusNode,
-                hintText: l10n.translation,
-                detectedLanguage: _detectedLanguage,
-                onSubmitted: (value) {
-                  if (value.trim().isNotEmpty) {
-                    _bloc.add(QuerySearchSubmitted(value.trim()));
-                  }
+              StreamBuilder<QueryState>(
+                stream: _bloc.stream,
+                initialData: _bloc.state,
+                builder: (context, snapshot) {
+                  final state = snapshot.data ?? _bloc.state;
+                  return TranslationInputWidget(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    hintText: l10n.translation,
+                    detectedLanguage: _detectedLanguage,
+                    pronunciationUrl: state.inputPronunciationUrl,
+                    onPronunciationTap: state.inputPronunciationUrl != null
+                        ? () => _playPronunciation(state.inputPronunciationUrl)
+                        : null,
+                    onSubmitted: (value) {
+                      if (value.trim().isNotEmpty) {
+                        _bloc.add(QuerySearchSubmitted(value.trim()));
+                      }
+                    },
+                  );
                 },
               ),
               const SizedBox(height: 16.0),
@@ -203,6 +214,12 @@ class _QueryPageState extends State<QueryPage> {
                         onUkPronunciationTap: state.ukPronunciationUrl != null
                             ? () => _playPronunciation(state.ukPronunciationUrl)
                             : null,
+                        onGeneralPronunciationTap:
+                            state.generalPronunciationUrl != null
+                            ? () => _playPronunciation(
+                                state.generalPronunciationUrl,
+                              )
+                            : null,
                       );
                     }
 
@@ -236,14 +253,16 @@ class _QueryPageState extends State<QueryPage> {
                           Icon(
                             Icons.search,
                             size: 64,
-                            color: theme.colorScheme.onSurface.withOpacity(0.3),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                           const SizedBox(height: 16.0),
                           Text(
                             l10n.translation,
                             style: TextStyle(
-                              color: theme.colorScheme.onSurface.withOpacity(
-                                0.6,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
                               ),
                               fontSize: 16,
                             ),

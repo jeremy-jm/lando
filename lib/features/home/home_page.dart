@@ -18,6 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   String? _detectedLanguage;
+  int _languageSelectorKey = 0;
 
   @override
   void initState() {
@@ -39,6 +40,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Detect language from input
     _controller.addListener(_detectLanguage);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Force rebuild language selector when returning from another page
+    // This ensures language changes are reflected
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _languageSelectorKey++;
+        });
+      }
+    });
   }
 
   void _detectLanguage() {
@@ -75,34 +90,44 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _navigateToQueryPage(String? query) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            QueryPage(initialQuery: query),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Fade and slide animation
-          const begin = Offset(0.0, 0.1);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
+    Navigator.of(context)
+        .push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                QueryPage(initialQuery: query),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  // Fade and slide animation
+                  const begin = Offset(0.0, 0.1);
+                  const end = Offset.zero;
+                  const curve = Curves.easeInOut;
 
-          var slideAnimation = Tween(
-            begin: begin,
-            end: end,
-          ).chain(CurveTween(curve: curve)).animate(animation);
+                  var slideAnimation = Tween(
+                    begin: begin,
+                    end: end,
+                  ).chain(CurveTween(curve: curve)).animate(animation);
 
-          var fadeAnimation = Tween(
-            begin: 0.0,
-            end: 1.0,
-          ).chain(CurveTween(curve: curve)).animate(animation);
+                  var fadeAnimation = Tween(
+                    begin: 0.0,
+                    end: 1.0,
+                  ).chain(CurveTween(curve: curve)).animate(animation);
 
-          return SlideTransition(
-            position: slideAnimation,
-            child: FadeTransition(opacity: fadeAnimation, child: child),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    );
+                  return SlideTransition(
+                    position: slideAnimation,
+                    child: FadeTransition(opacity: fadeAnimation, child: child),
+                  );
+                },
+            transitionDuration: const Duration(milliseconds: 300),
+          ),
+        )
+        .then((_) {
+          // When returning from query page, force language selector to reload
+          if (mounted) {
+            setState(() {
+              _languageSelectorKey++;
+            });
+          }
+        });
   }
 
   @override
@@ -136,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               const SizedBox(height: 16.0),
-              const LanguageSelectorWidget(),
+              LanguageSelectorWidget(key: ValueKey(_languageSelectorKey)),
             ],
           ),
         ),

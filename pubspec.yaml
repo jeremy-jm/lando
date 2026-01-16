@@ -46,6 +46,9 @@ dependencies:
   # Audio player for pronunciation
   audioplayers: ^6.0.0
 
+  # Crypto for generating signatures
+  crypto: ^3.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

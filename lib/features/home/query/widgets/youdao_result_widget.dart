@@ -12,12 +12,14 @@ class YoudaoResultWidget extends StatelessWidget {
     required this.query,
     required this.onUsPronunciationTap,
     required this.onUkPronunciationTap,
+    this.onGeneralPronunciationTap,
   });
 
   final YoudaoResponse response;
   final String query;
   final VoidCallback? onUsPronunciationTap;
   final VoidCallback? onUkPronunciationTap;
+  final VoidCallback? onGeneralPronunciationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +27,90 @@ class YoudaoResultWidget extends StatelessWidget {
     final ec = response.ec;
     final ecWord = ec?.word;
     final phrs = response.phrs;
+    final webTrans = response.webTrans;
+    final ee = response.ee;
 
-    if (ecWord == null) {
-      return const SizedBox.shrink();
+    // Try to get translations from different sources
+    final translationsByPos = <String, List<String>>{};
+    String? mainTranslation;
+    List<String>? examTypes;
+
+    // Priority 1: EC (basic dictionary) - for English words
+    if (ecWord != null) {
+      examTypes = ec?.examType;
+      for (final tr in ecWord.trs ?? []) {
+        if (tr.tran != null && tr.tran!.isNotEmpty) {
+          final pos = tr.pos ?? '其他';
+          translationsByPos.putIfAbsent(pos, () => []);
+          translationsByPos[pos]!.add(tr.tran!);
+        }
+      }
+      if (ecWord.trs?.isNotEmpty == true) {
+        mainTranslation = ecWord.trs!.first.tran;
+      }
     }
 
-    // Group translations by part of speech
-    final translationsByPos = <String, List<String>>{};
-    for (final tr in ecWord.trs ?? []) {
-      if (tr.tran != null && tr.tran!.isNotEmpty) {
-        final pos = tr.pos ?? '其他';
-        translationsByPos.putIfAbsent(pos, () => []);
-        translationsByPos[pos]!.add(tr.tran!);
+    // Priority 2: Web Translation - for Chinese and other languages
+    if (translationsByPos.isEmpty && webTrans?.webTranslation != null) {
+      for (final webItem in webTrans!.webTranslation!) {
+        if (webItem.trans != null) {
+          for (final transItem in webItem.trans!) {
+            if (transItem.value != null && transItem.value!.isNotEmpty) {
+              translationsByPos.putIfAbsent('翻译', () => []);
+              translationsByPos['翻译']!.add(transItem.value!);
+            }
+          }
+        }
+        if (mainTranslation == null && webItem.trans?.isNotEmpty == true) {
+          mainTranslation = webItem.trans!.first.value;
+        }
       }
+    }
+
+    // Priority 3: EE (extended dictionary)
+    if (translationsByPos.isEmpty && ee?.word != null) {
+      final eeWord = ee!.word!;
+      for (final tr in eeWord.trs ?? []) {
+        if (tr.tr != null) {
+          for (final trItem in tr.tr!) {
+            if (trItem.tran != null && trItem.tran!.isNotEmpty) {
+              final pos = tr.pos ?? '翻译';
+              translationsByPos.putIfAbsent(pos, () => []);
+              translationsByPos[pos]!.add(trItem.tran!);
+            }
+          }
+        }
+      }
+      if (mainTranslation == null && eeWord.trs?.isNotEmpty == true) {
+        final firstTr = eeWord.trs!.first;
+        if (firstTr.tr?.isNotEmpty == true) {
+          mainTranslation = firstTr.tr!.first.tran;
+        }
+      }
+    }
+
+    // If still no translations, show empty state
+    if (translationsByPos.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.translate,
+              size: 64,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+            ),
+            const SizedBox(height: 16.0),
+            Text(
+              '未找到翻译结果',
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return SingleChildScrollView(
@@ -45,26 +118,39 @@ class YoudaoResultWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Word header
-          _buildWordHeader(context, theme, ecWord, ec?.examType),
+          _buildWordHeader(
+            context,
+            theme,
+            query,
+            mainTranslation,
+            examTypes,
+            ecWord,
+          ),
           const SizedBox(height: 24.0),
 
-          // Pronunciation section
-          if (ecWord.usphone != null || ecWord.ukphone != null)
+          // Pronunciation section (only for EC words)
+          if (ecWord != null &&
+              (ecWord.usphone != null ||
+                  ecWord.ukphone != null ||
+                  onGeneralPronunciationTap != null))
             _buildPronunciationSection(
               context,
               theme,
               ecWord,
               onUsPronunciationTap,
               onUkPronunciationTap,
+              onGeneralPronunciationTap,
             ),
 
           // Translations by part of speech
           if (translationsByPos.isNotEmpty) ...[
             const SizedBox(height: 24.0),
-            ...translationsByPos.entries.map((entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: _buildPosSection(context, theme, entry.key, entry.value),
-                )),
+            ...translationsByPos.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: _buildPosSection(context, theme, entry.key, entry.value),
+              ),
+            ),
           ],
 
           // Related phrases
@@ -80,13 +166,11 @@ class YoudaoResultWidget extends StatelessWidget {
   Widget _buildWordHeader(
     BuildContext context,
     ThemeData theme,
-    YoudaoEcWord word,
+    String word,
+    String? mainTranslation,
     List<String>? examTypes,
+    YoudaoEcWord? ecWord,
   ) {
-    final mainTranslation = word.trs?.isNotEmpty == true
-        ? word.trs!.first.tran
-        : query;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -96,7 +180,7 @@ class YoudaoResultWidget extends StatelessWidget {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              query,
+              word,
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurface,
@@ -131,19 +215,16 @@ class YoudaoResultWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4.0),
         border: Border.all(
-          color: theme.colorScheme.primary.withOpacity(0.3),
+          color: theme.colorScheme.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 12,
-          color: theme.colorScheme.primary,
-        ),
+        style: TextStyle(fontSize: 12, color: theme.colorScheme.primary),
       ),
     );
   }
@@ -154,7 +235,14 @@ class YoudaoResultWidget extends StatelessWidget {
     YoudaoEcWord word,
     VoidCallback? onUsTap,
     VoidCallback? onUkTap,
+    VoidCallback? onGeneralTap,
   ) {
+    // Check if we have English pronunciations (US/UK) or general pronunciation
+    final hasEnglishPronunciations =
+        (word.usphone != null && onUsTap != null) ||
+        (word.ukphone != null && onUkTap != null);
+    final hasGeneralPronunciation = onGeneralTap != null;
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -163,7 +251,7 @@ class YoudaoResultWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // US pronunciation
+          // US pronunciation (for English)
           if (word.usphone != null && onUsTap != null)
             Expanded(
               child: _buildPronunciationItem(
@@ -174,9 +262,9 @@ class YoudaoResultWidget extends StatelessWidget {
                 onUsTap,
               ),
             ),
-          if (word.usphone != null && word.ukphone != null)
+          if (word.usphone != null && word.ukphone != null && onUsTap != null)
             const SizedBox(width: 16.0),
-          // UK pronunciation
+          // UK pronunciation (for English)
           if (word.ukphone != null && onUkTap != null)
             Expanded(
               child: _buildPronunciationItem(
@@ -185,6 +273,17 @@ class YoudaoResultWidget extends StatelessWidget {
                 '/${word.ukphone}/',
                 Icons.volume_down,
                 onUkTap,
+              ),
+            ),
+          // General pronunciation (for non-English languages)
+          if (hasGeneralPronunciation && !hasEnglishPronunciations)
+            Expanded(
+              child: _buildPronunciationItem(
+                theme,
+                '发音',
+                '',
+                Icons.volume_up,
+                onGeneralTap,
               ),
             ),
         ],
@@ -216,7 +315,7 @@ class YoudaoResultWidget extends StatelessWidget {
                     label,
                     style: TextStyle(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   Text(
@@ -249,10 +348,12 @@ class YoudaoResultWidget extends StatelessWidget {
         Row(
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.1),
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4.0),
               ),
               child: Text(
@@ -282,7 +383,9 @@ class YoudaoResultWidget extends StatelessWidget {
               final index = entry.key;
               final translation = entry.value;
               return Padding(
-                padding: EdgeInsets.only(bottom: index < translations.length - 1 ? 8.0 : 0),
+                padding: EdgeInsets.only(
+                  bottom: index < translations.length - 1 ? 8.0 : 0,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -290,7 +393,9 @@ class YoudaoResultWidget extends StatelessWidget {
                       '${index + 1}.',
                       style: TextStyle(
                         fontSize: 14,
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8.0),
@@ -344,7 +449,7 @@ class YoudaoResultWidget extends StatelessWidget {
               final phrase = entry.value;
               final headword = phrase.headword;
               final translation = phrase.translation;
-              
+
               if (headword == null || translation == null) {
                 return const SizedBox.shrink();
               }
@@ -373,7 +478,9 @@ class YoudaoResultWidget extends StatelessWidget {
                             translation,
                             style: TextStyle(
                               fontSize: 13,
-                              color: theme.colorScheme.onSurface.withOpacity(0.8),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.8,
+                              ),
                             ),
                           ),
                         ],

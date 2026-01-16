@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:lando/network/api_client.dart';
 import 'package:lando/services/translation/translation_service.dart';
+import 'package:lando/services/translation/youdao/models/youdao_query_model.dart';
 import 'package:lando/services/translation/youdao/models/youdao_response.dart';
+import 'package:lando/storage/preferences_storage.dart';
 
 /// Youdao translation service implementation.
 class YoudaoTranslationService implements TranslationService {
@@ -17,24 +21,12 @@ class YoudaoTranslationService implements TranslationService {
       return '';
     }
 
-    const endpoint =
-        'https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4';
+    // Get target language from preferences, default to 'auto' if not set
+    final toLanguage = PreferencesStorage.getTranslationToLanguage() ?? 'auto';
+    final le = _mapLanguageCodeToYoudao(toLanguage);
 
-    // These fields are based on the provided curl example.
-    final body = <String, String>{
-      'client': 'web',
-      'keyfrom': 'webdict',
-      'le': 'en',
-      'q': query,
-      // In the example, sign and t are provided. In a real application
-      // you might need to compute sign. Here we send minimal parameters
-      // to get a reasonable response.
-    };
-
-    final json = await _apiClient.postForm(endpoint, body: body);
-
-    // Parse JSON into YoudaoResponse model
-    final response = YoudaoResponse.fromJson(json);
+    final queryModel = _buildQueryModel(query: query, le: le);
+    final response = await translateFullWithModel(queryModel);
 
     // Extract translation from EC (basic dictionary) - most common case
     final ecWord = response.ec?.word;
@@ -92,29 +84,98 @@ class YoudaoTranslationService implements TranslationService {
       throw ArgumentError('Query cannot be empty');
     }
 
+    // Get target language from preferences, default to 'auto' if not set
+    final toLanguage = PreferencesStorage.getTranslationToLanguage() ?? 'auto';
+    final le = _mapLanguageCodeToYoudao(toLanguage);
+
+    final queryModel = _buildQueryModel(query: query, le: le);
+    return await translateFullWithModel(queryModel);
+  }
+
+  /// Get the full YoudaoResponse object using YoudaoQueryModel.
+  Future<YoudaoResponse> translateFullWithModel(
+    YoudaoQueryModel queryModel,
+  ) async {
     const endpoint =
         'https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4';
 
-    final body = <String, String>{
-      'client': 'web',
-      'keyfrom': 'webdict',
-      'le': 'en',
-      'q': query,
-    };
-
+    final body = queryModel.toMap();
     final json = await _apiClient.postForm(endpoint, body: body);
     return YoudaoResponse.fromJson(json);
+  }
+
+  /// Builds a YoudaoQueryModel with optional sign and timestamp.
+  ///
+  /// [le] is the target language code selected by the user (e.g., 'ja', 'zh', 'en').
+  /// The language code comes from PreferencesStorage.getTranslationToLanguage().
+  /// All values will be URL-encoded by ApiClient.postForm() when sending the request.
+  YoudaoQueryModel _buildQueryModel({
+    required String query,
+    required String le,
+    String? sign,
+    String? t,
+  }) {
+    // Generate timestamp if not provided
+    final timestamp = t ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Generate sign if not provided
+    // Note: The actual sign algorithm may vary. This is a placeholder.
+    // You may need to implement the actual sign generation based on Youdao's requirements.
+    final generatedSign = sign ?? _generateSign(query, le, timestamp);
+
+    return YoudaoQueryModel(
+      q: query, // Query text
+      le: le, // Target language code (e.g., 'ja' for Japanese, 'zh' for Chinese)
+      t: timestamp,
+      client: 'web',
+      sign: generatedSign,
+      keyfrom: 'webdict',
+    );
+  }
+
+  /// Generates a sign for the request.
+  /// Note: This is a placeholder implementation. You may need to adjust
+  /// based on Youdao's actual sign generation algorithm.
+  String _generateSign(String query, String le, String t) {
+    // Simple MD5 hash as placeholder
+    // In production, you should use the actual sign algorithm provided by Youdao
+    final content = '$query$le$t';
+    final bytes = utf8.encode(content);
+    final digest = md5.convert(bytes);
+    return digest.toString();
+  }
+
+  /// Maps language code to Youdao's language code format.
+  /// le parameter should be the language code directly (e.g., 'ja', 'zh', 'en')
+  String _mapLanguageCodeToYoudao(String? languageCode) {
+    if (languageCode == null || languageCode == 'auto') {
+      return 'auto'; // Auto-detect
+    }
+
+    // Use language code directly as le parameter
+    // Youdao API accepts standard language codes like 'ja', 'zh', 'en', etc.
+    return languageCode.toLowerCase();
   }
 
   /// Builds pronunciation URL from speech parameter.
   ///
   /// [speechParam] format: "word&type=1" (for UK) or "word&type=2" (for US)
+  /// [languageCode] is the target language code (e.g., 'ja', 'zh', 'en')
   /// Returns the full URL for pronunciation audio.
-  String? buildPronunciationUrl(String? speechParam, {String? word}) {
+  String? buildPronunciationUrl(
+    String? speechParam, {
+    String? word,
+    String? languageCode,
+  }) {
+    // Get language code from preferences if not provided
+    final le =
+        languageCode ??
+        _mapLanguageCodeToYoudao(PreferencesStorage.getTranslationToLanguage());
+
     if (speechParam == null || speechParam.isEmpty) {
       // Fallback: build URL from word if speechParam is not available
       if (word != null && word.isNotEmpty) {
-        return 'https://dict.youdao.com/dictvoice?audio=${Uri.encodeComponent(word)}&le=eng';
+        return 'https://dict.youdao.com/dictvoice?audio=${Uri.encodeComponent(word)}&le=$le';
       }
       return null;
     }
@@ -137,54 +198,196 @@ class YoudaoTranslationService implements TranslationService {
     }
 
     if (type != null) {
-      return 'https://dict.youdao.com/dictvoice?audio=${Uri.encodeComponent(audioWord)}&le=eng&type=$type';
+      return 'https://dict.youdao.com/dictvoice?audio=${Uri.encodeComponent(audioWord)}&le=$le&type=$type';
     } else {
-      return 'https://dict.youdao.com/dictvoice?audio=${Uri.encodeComponent(audioWord)}&le=eng';
+      return 'https://dict.youdao.com/dictvoice?audio=${Uri.encodeComponent(audioWord)}&le=$le';
     }
   }
 
   /// Gets pronunciation URLs from YoudaoResponse.
   ///
-  /// Returns a map with 'us' and 'uk' keys containing pronunciation URLs.
+  /// Returns a map with 'us', 'uk', and 'general' keys containing pronunciation URLs.
+  /// 'general' is for non-English languages or when US/UK are not available.
   Map<String, String?> getPronunciationUrls(
     YoudaoResponse response,
     String query,
   ) {
     String? usUrl;
     String? ukUrl;
+    String? generalUrl;
+
+    // Get target language code
+    final languageCode = _mapLanguageCodeToYoudao(
+      PreferencesStorage.getTranslationToLanguage(),
+    );
 
     // Try to get from EC (basic dictionary)
     final ecWord = response.ec?.word;
     if (ecWord != null) {
       if (ecWord.usspeech != null) {
-        usUrl = buildPronunciationUrl(ecWord.usspeech, word: query);
+        usUrl = buildPronunciationUrl(
+          ecWord.usspeech,
+          word: query,
+          languageCode: languageCode,
+        );
       }
       if (ecWord.ukspeech != null) {
-        ukUrl = buildPronunciationUrl(ecWord.ukspeech, word: query);
+        ukUrl = buildPronunciationUrl(
+          ecWord.ukspeech,
+          word: query,
+          languageCode: languageCode,
+        );
       }
     }
 
     // Fallback: try Simple
-    if ((usUrl == null || ukUrl == null) && response.simple != null) {
+    if (response.simple != null) {
       final simpleWord = response.simple!.word?.firstOrNull;
       if (simpleWord != null) {
         if (usUrl == null && simpleWord.usspeech != null) {
-          usUrl = buildPronunciationUrl(simpleWord.usspeech, word: query);
+          usUrl = buildPronunciationUrl(
+            simpleWord.usspeech,
+            word: query,
+            languageCode: languageCode,
+          );
         }
         if (ukUrl == null && simpleWord.ukspeech != null) {
-          ukUrl = buildPronunciationUrl(simpleWord.ukspeech, word: query);
+          ukUrl = buildPronunciationUrl(
+            simpleWord.ukspeech,
+            word: query,
+            languageCode: languageCode,
+          );
         }
       }
     }
 
-    // Last fallback: build URLs from query word
-    if (usUrl == null) {
-      usUrl = buildPronunciationUrl(null, word: query);
-    }
-    if (ukUrl == null) {
-      ukUrl = buildPronunciationUrl(null, word: query);
+    // Try EE (extended dictionary) for other languages
+    final eeWord = response.ee?.word;
+    if (eeWord?.speech != null && eeWord!.speech!.isNotEmpty) {
+      generalUrl = buildPronunciationUrl(
+        eeWord.speech,
+        word: query,
+        languageCode: languageCode,
+      );
     }
 
-    return {'us': usUrl, 'uk': ukUrl};
+    // Try Web Translation for other languages
+    final webTrans = response.webTrans;
+    if (webTrans?.webTranslation != null) {
+      for (final webItem in webTrans!.webTranslation!) {
+        if (webItem.keySpeech != null && webItem.keySpeech!.isNotEmpty) {
+          if (generalUrl == null) {
+            generalUrl = buildPronunciationUrl(
+              webItem.keySpeech,
+              word: query,
+              languageCode: languageCode,
+            );
+          }
+          break;
+        }
+      }
+    }
+
+    // Last fallback: build URL from query word with appropriate language code
+    if (generalUrl == null && (usUrl == null || ukUrl == null)) {
+      generalUrl = buildPronunciationUrl(
+        null,
+        word: query,
+        languageCode: languageCode,
+      );
+    }
+
+    // For non-English languages, prefer general URL
+    if (languageCode != 'eng' && languageCode != 'auto') {
+      if (generalUrl == null) {
+        generalUrl = buildPronunciationUrl(
+          null,
+          word: query,
+          languageCode: languageCode,
+        );
+      }
+    }
+
+    return {'us': usUrl, 'uk': ukUrl, 'general': generalUrl};
+  }
+
+  /// Gets pronunciation URL for the input query text.
+  ///
+  /// This method tries to extract pronunciation from various sources in the response.
+  /// Returns the URL for playing the pronunciation of the input text.
+  /// Supports both English (US/UK) and other languages.
+  String? getInputPronunciationUrl(YoudaoResponse response, String query) {
+    // Get target language code from preferences
+    final languageCode = _mapLanguageCodeToYoudao(
+      PreferencesStorage.getTranslationToLanguage(),
+    );
+
+    // Try to get from EC (basic dictionary)
+    final ecWord = response.ec?.word;
+    if (ecWord != null) {
+      // For English, prefer US pronunciation, fallback to UK
+      if (ecWord.usspeech != null) {
+        return buildPronunciationUrl(
+          ecWord.usspeech,
+          word: query,
+          languageCode: languageCode,
+        );
+      }
+      if (ecWord.ukspeech != null) {
+        return buildPronunciationUrl(
+          ecWord.ukspeech,
+          word: query,
+          languageCode: languageCode,
+        );
+      }
+    }
+
+    // Try Simple
+    if (response.simple != null) {
+      final simpleWord = response.simple!.word?.firstOrNull;
+      if (simpleWord != null) {
+        if (simpleWord.usspeech != null) {
+          return buildPronunciationUrl(
+            simpleWord.usspeech,
+            word: query,
+            languageCode: languageCode,
+          );
+        }
+        if (simpleWord.ukspeech != null) {
+          return buildPronunciationUrl(
+            simpleWord.ukspeech,
+            word: query,
+            languageCode: languageCode,
+          );
+        }
+      }
+    }
+
+    // Try EE (extended dictionary) - often used for non-English languages
+    final eeWord = response.ee?.word;
+    if (eeWord?.speech != null && eeWord!.speech!.isNotEmpty) {
+      return buildPronunciationUrl(
+        eeWord.speech,
+        word: query,
+        languageCode: languageCode,
+      );
+    }
+
+    // Try Web Translation - often used for non-English languages
+    final webTrans = response.webTrans;
+    if (webTrans?.webTranslation != null) {
+      for (final webItem in webTrans!.webTranslation!) {
+        if (webItem.keySpeech != null && webItem.keySpeech!.isNotEmpty) {
+          return buildPronunciationUrl(
+            webItem.keySpeech,
+            word: query,
+            languageCode: languageCode,
+          );
+        }
+      }
+    }
+
+    // Last fallback: build URL directly from query with target language code
+    return buildPronunciationUrl(null, word: query, languageCode: languageCode);
   }
 }

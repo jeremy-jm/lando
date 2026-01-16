@@ -12,6 +12,8 @@ class TranslationInputWidget extends StatefulWidget {
     this.onTap,
     this.detectedLanguage,
     this.readOnly = false,
+    this.pronunciationUrl,
+    this.onPronunciationTap,
   });
 
   final TextEditingController controller;
@@ -21,10 +23,11 @@ class TranslationInputWidget extends StatefulWidget {
   final VoidCallback? onTap;
   final String? detectedLanguage;
   final bool readOnly;
+  final String? pronunciationUrl;
+  final VoidCallback? onPronunciationTap;
 
   @override
-  State<TranslationInputWidget> createState() =>
-      _TranslationInputWidgetState();
+  State<TranslationInputWidget> createState() => _TranslationInputWidgetState();
 }
 
 class _TranslationInputWidgetState extends State<TranslationInputWidget> {
@@ -73,7 +76,10 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
             hasText) ...[
           const SizedBox(height: 8.0),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 8.0,
+            ),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8.0),
@@ -83,9 +89,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                 // Audio and copy icons
                 IconButton(
                   icon: const Icon(Icons.volume_up, size: 20),
-                  onPressed: () {
-                    // Audio playback can be implemented here
-                  },
+                  onPressed: widget.onPronunciationTap,
                   tooltip: 'Play audio',
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -122,8 +126,9 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                       vertical: 4.0,
                     ),
                     decoration: BoxDecoration(
-                      color:
-                          theme.colorScheme.primaryContainer.withOpacity(0.3),
+                      color: theme.colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
                       borderRadius: BorderRadius.circular(16.0),
                     ),
                     child: Row(
@@ -133,8 +138,9 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                           '识别为 ',
                           style: TextStyle(
                             fontSize: 12,
-                            color:
-                                theme.colorScheme.onSurface.withOpacity(0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                         Text(
