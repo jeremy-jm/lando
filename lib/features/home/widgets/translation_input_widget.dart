@@ -36,130 +36,132 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     final theme = Theme.of(context);
     final hasText = widget.controller.text.isNotEmpty;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Input field
-        TextField(
-          controller: widget.controller,
-          focusNode: widget.focusNode,
-          readOnly: widget.readOnly,
-          decoration: InputDecoration(
-            hintText: widget.hintText ?? 'Enter text to translate',
-            prefixIcon: const Icon(Icons.search),
-            suffixIcon: hasText
-                ? IconButton(
-                    icon: const Icon(Icons.clear),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Input field
+          TextField(
+            controller: widget.controller,
+            focusNode: widget.focusNode,
+            readOnly: widget.readOnly,
+            decoration: InputDecoration(
+              hintText: widget.hintText ?? 'Enter text to translate',
+              suffixIcon: hasText
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, size: 12),
+                      onPressed: () {
+                        widget.controller.clear();
+                        if (widget.focusNode.canRequestFocus) {
+                          widget.focusNode.requestFocus();
+                        }
+                      },
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+            ),
+            textInputAction: TextInputAction.search,
+            onTap: widget.onTap,
+            onSubmitted: widget.onSubmitted,
+            onChanged: (_) => setState(() {}),
+            maxLines: 2,
+          ),
+
+          // Language detection bar
+          if (widget.detectedLanguage != null &&
+              widget.detectedLanguage!.isNotEmpty &&
+              hasText) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 8.0,
+              ),
+              height: 32,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onError,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Row(
+                children: [
+                  // Audio and copy icons
+                  IconButton(
+                    icon: const Icon(Icons.volume_up, size: 16),
+                    onPressed: widget.onPronunciationTap,
+                    tooltip: 'Play audio',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  const SizedBox(width: 8.0),
+                  IconButton(
+                    icon: const Icon(Icons.content_copy, size: 16),
                     onPressed: () {
-                      widget.controller.clear();
-                      if (widget.focusNode.canRequestFocus) {
-                        widget.focusNode.requestFocus();
+                      if (widget.controller.text.isNotEmpty) {
+                        Clipboard.setData(
+                          ClipboardData(text: widget.controller.text),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Copied to clipboard'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
                       }
                     },
-                  )
-                : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            filled: true,
-            fillColor: theme.colorScheme.surface,
-          ),
-          textInputAction: TextInputAction.search,
-          onTap: widget.onTap,
-          onSubmitted: widget.onSubmitted,
-          onChanged: (_) => setState(() {}),
-        ),
-
-        // Language detection bar
-        if (widget.detectedLanguage != null &&
-            widget.detectedLanguage!.isNotEmpty &&
-            hasText) ...[
-          const SizedBox(height: 8.0),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 8.0,
-            ),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Row(
-              children: [
-                // Audio and copy icons
-                IconButton(
-                  icon: const Icon(Icons.volume_up, size: 20),
-                  onPressed: widget.onPronunciationTap,
-                  tooltip: 'Play audio',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-                const SizedBox(width: 8.0),
-                IconButton(
-                  icon: const Icon(Icons.content_copy, size: 20),
-                  onPressed: () {
-                    if (widget.controller.text.isNotEmpty) {
-                      Clipboard.setData(
-                        ClipboardData(text: widget.controller.text),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied to clipboard'),
-                          duration: Duration(seconds: 1),
+                    tooltip: 'Copy',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  const Spacer(),
+                  // Language detection label
+                  GestureDetector(
+                    onTap: () {
+                      // Language selection can be triggered here
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withValues(
+                          alpha: 0.3,
                         ),
-                      );
-                    }
-                  },
-                  tooltip: 'Copy',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-                const Spacer(),
-                // Language detection label
-                GestureDetector(
-                  onTap: () {
-                    // Language selection can be triggered here
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 4.0,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer.withValues(
-                        alpha: 0.3,
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '识别为 ',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.7,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '识别为 ',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          widget.detectedLanguage!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.primary,
+                          Text(
+                            widget.detectedLanguage!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
