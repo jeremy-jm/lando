@@ -1,17 +1,16 @@
 /// Youdao Simple model (phonetic and basic info).
 class YoudaoSimple {
-  YoudaoSimple({
-    this.query,
-    this.word,
-  });
+  YoudaoSimple({this.query, this.word});
 
   factory YoudaoSimple.fromJson(Map<String, dynamic> json) {
     return YoudaoSimple(
       query: json['query'] as String?,
       word: json['word'] != null
           ? (json['word'] as List)
-              .map((e) => YoudaoSimpleWord.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map(
+                  (e) => YoudaoSimpleWord.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
           : null,
     );
   }
@@ -29,6 +28,7 @@ class YoudaoSimpleWord {
     this.returnPhrase,
     this.usspeech,
     this.collegeExamVoice,
+    this.speech,
   });
 
   factory YoudaoSimpleWord.fromJson(Map<String, dynamic> json) {
@@ -40,8 +40,10 @@ class YoudaoSimpleWord {
       usspeech: json['usspeech'] as String?,
       collegeExamVoice: json['collegeExamVoice'] != null
           ? YoudaoCollegeExamVoice.fromJson(
-              json['collegeExamVoice'] as Map<String, dynamic>)
+              json['collegeExamVoice'] as Map<String, dynamic>,
+            )
           : null,
+      speech: json['speech'] as String?,
     );
   }
 
@@ -51,18 +53,15 @@ class YoudaoSimpleWord {
   final String? returnPhrase;
   final String? usspeech;
   final YoudaoCollegeExamVoice? collegeExamVoice;
+  final String? speech;
 }
 
 /// College Exam Voice model.
 class YoudaoCollegeExamVoice {
-  YoudaoCollegeExamVoice({
-    this.speechWord,
-  });
+  YoudaoCollegeExamVoice({this.speechWord});
 
   factory YoudaoCollegeExamVoice.fromJson(Map<String, dynamic> json) {
-    return YoudaoCollegeExamVoice(
-      speechWord: json['speechWord'] as String?,
-    );
+    return YoudaoCollegeExamVoice(speechWord: json['speechWord'] as String?);
   }
 
   final String? speechWord;

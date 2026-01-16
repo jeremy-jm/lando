@@ -87,6 +87,7 @@ class YoudaoEcWord {
     this.usspeech,
     this.prototype,
     this.wfs,
+    this.speech,
   });
 
   factory YoudaoEcWord.fromJson(Map<String, dynamic> json) {
@@ -107,6 +108,7 @@ class YoudaoEcWord {
                 .map((e) => YoudaoWf.fromJson(e['wf'] as Map<String, dynamic>))
                 .toList()
           : null,
+      speech: json['speech'] as String?,
     );
   }
 
@@ -117,21 +119,51 @@ class YoudaoEcWord {
   final String? returnPhrase;
   final String? usspeech;
   final String? prototype;
-
   final List<YoudaoWf>? wfs;
+  final String? speech;
 }
 
 /// EC Word Translation model.
 class YoudaoEcWordTr {
-  YoudaoEcWordTr({this.pos, this.tran});
+  YoudaoEcWordTr({this.pos, this.tran, this.sentence});
 
   factory YoudaoEcWordTr.fromJson(Map<String, dynamic> json) {
     return YoudaoEcWordTr(
       pos: json['pos'] as String?,
       tran: json['tran'] as String?,
+      sentence: json['sentence'] != null
+          ? (json['sentence'] as List)
+                .map((e) => YoudaoEcSentence.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : null,
     );
   }
 
   final String? pos;
   final String? tran;
+  final List<YoudaoEcSentence>? sentence;
+}
+
+/// EC Sentence model (example sentence in translation).
+class YoudaoEcSentence {
+  YoudaoEcSentence({
+    this.enShow,
+    this.en,
+    this.type,
+    this.zh,
+  });
+
+  factory YoudaoEcSentence.fromJson(Map<String, dynamic> json) {
+    return YoudaoEcSentence(
+      enShow: json['enShow'] as String?,
+      en: json['en'] as String?,
+      type: json['type'] as String?,
+      zh: json['zh'] as String?,
+    );
+  }
+
+  final String? enShow;
+  final String? en;
+  final String? type;
+  final String? zh;
 }
