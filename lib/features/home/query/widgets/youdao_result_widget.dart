@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lando/features/widgets/dict_widget.dart';
+import 'package:lando/models/result_model.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ce.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ec.dart';
 import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
@@ -57,14 +59,8 @@ class YoudaoResultWidget extends StatelessWidget {
     // 3. If both EC and CE are empty: prioritize Simple, then Fanyi
 
     // Priority 1: CE (Chinese-English) - for Chinese input
+    // Note: CE translations are displayed separately, not merged into translationsByPos
     if (isChineseInput && ceWord != null) {
-      for (final tr in ceWord.trs ?? []) {
-        if (tr.text != null && tr.text!.isNotEmpty) {
-          final pos = '翻译';
-          translationsByPos.putIfAbsent(pos, () => []);
-          translationsByPos[pos]!.add(tr.text!);
-        }
-      }
       if (ceWord.trs?.isNotEmpty == true && ceWord.trs!.first.text != null) {
         mainTranslation = ceWord.trs!.first.text;
       }
@@ -207,12 +203,29 @@ class YoudaoResultWidget extends StatelessWidget {
                 onGeneralPronunciationTap,
               ),
 
-            // Translations by part of speech
-            if (translationsByPos.isNotEmpty) ...[
+            // CE Translations section - display each translation separately
+            if (isChineseInput &&
+                ceWord != null &&
+                ceWord.trs != null &&
+                ceWord.trs!.isNotEmpty) ...[
               if (ecWord != null &&
                   (ecWord.usphone != null ||
                       ecWord.ukphone != null ||
                       onGeneralPronunciationTap != null))
+                const SizedBox(height: 24.0),
+              _buildCeTranslationsSection(context, theme, ceWord.trs!),
+            ],
+
+            // Translations by part of speech (for EC and other sources)
+            if (translationsByPos.isNotEmpty) ...[
+              if ((isChineseInput &&
+                      ceWord != null &&
+                      ceWord.trs != null &&
+                      ceWord.trs!.isNotEmpty) ||
+                  (ecWord != null &&
+                      (ecWord.usphone != null ||
+                          ecWord.ukphone != null ||
+                          onGeneralPronunciationTap != null)))
                 const SizedBox(height: 24.0),
               ...translationsByPos.entries.map(
                 (entry) => Padding(
@@ -494,6 +507,55 @@ class YoudaoResultWidget extends StatelessWidget {
     );
   }
 
+  Widget _buildCeTranslationsSection(
+    BuildContext context,
+    ThemeData theme,
+    List<YoudaoCeWordTr> translations,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '翻译',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12.0),
+        ...translations.asMap().entries.map((entry) {
+          final index = entry.key;
+          final tr = entry.value;
+
+          if (tr.text == null || tr.text!.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: index < translations.length - 1 ? 12.0 : 0,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: Text(
+                    tr.text!,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    softWrap: true,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
   Widget _buildPhrasesSection(
     BuildContext context,
     ThemeData theme,
@@ -736,12 +798,12 @@ class YoudaoResultWidget extends StatelessWidget {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
