@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:lando/models/result_model.dart';
 import 'package:lando/network/api_client.dart';
 import 'package:lando/services/translation/translation_service.dart';
 import 'package:lando/services/translation/youdao/models/youdao_query_model.dart';
@@ -347,5 +348,129 @@ class YoudaoTranslationService implements TranslationService {
 
     // For other languages, build URL without type parameter
     return 'https://dict.youdao.com/dictvoice?audio=$encodedText&le=$languageCode';
+  }
+
+  @override
+  Future<ResultModel?> getDetailedResult(String query) async {
+    if (query.trim().isEmpty) {
+      return null;
+    }
+
+    try {
+      final response = await translateFull(query);
+      return _convertToResultModel(response, query);
+    } catch (e) {
+      // Return null on error, let the widget handle error display
+      return null;
+    }
+  }
+
+  /// Converts YoudaoResponse to ResultModel.
+  ResultModel _convertToResultModel(YoudaoResponse response, String query) {
+    // Determine input language
+    final guessLanguage = response.meta?.guessLanguage;
+    final lang = response.meta?.lang;
+    final isChineseInput =
+        guessLanguage == 'zh' || lang == 'zh' || lang == 'zh-CHS';
+    final isEnglishInput =
+        guessLanguage == 'eng' || lang == 'eng' || lang == 'en';
+
+    final ecWord = response.ec?.word;
+    final ceWord = response.ce?.word;
+    final phrs = response.phrs;
+    final webTrans = response.webTrans;
+    final wordForms =
+        response.ec?.word?.wfs ?? response.individual?.anagram?.wfs;
+
+    // Get simple explanation (main translation)
+    String? simpleExplanation;
+    if (isChineseInput && ceWord != null && ceWord.trs?.isNotEmpty == true) {
+      simpleExplanation = ceWord.trs!.first.text;
+    } else if (isEnglishInput &&
+        ecWord != null &&
+        ecWord.trs?.isNotEmpty == true) {
+      simpleExplanation = ecWord.trs!.first.tran;
+    } else if (response.fanyi?.tran != null &&
+        response.fanyi!.tran!.isNotEmpty) {
+      simpleExplanation = response.fanyi!.tran;
+    }
+
+    // Get pronunciation URLs and phonetics
+    String? usPronunciationUrl;
+    String? ukPronunciationUrl;
+    String? usPhonetic;
+    String? ukPhonetic;
+    if (ecWord != null) {
+      if (ecWord.usspeech != null) {
+        usPronunciationUrl = buildPronunciationUrl(
+          ecWord.usspeech,
+          word: query,
+        );
+      }
+      if (ecWord.ukspeech != null) {
+        ukPronunciationUrl = buildPronunciationUrl(
+          ecWord.ukspeech,
+          word: query,
+        );
+      }
+      // Get phonetics
+      usPhonetic = ecWord.usphone;
+      ukPhonetic = ecWord.ukphone;
+    }
+
+    // Get exam types
+    List<String>? examTypes = response.ec?.examType;
+
+    // Get word forms
+    List<Map<String, String>>? wordFormList;
+    if (wordForms != null && wordForms.isNotEmpty) {
+      wordFormList = wordForms
+          .where((wf) => wf.name != null && wf.value != null)
+          .map((wf) => {'name': wf.name!, 'value': wf.value!})
+          .toList();
+    }
+
+    // Get phrases
+    List<Map<String, String>>? phrasesList;
+    if (phrs?.phrs != null && phrs!.phrs!.isNotEmpty) {
+      phrasesList = phrs.phrs!
+          .where((p) => p.headword != null && p.translation != null)
+          .map((p) => {'name': p.headword!, 'value': p.translation!})
+          .toList();
+    }
+
+    // Get web translations
+    List<Map<String, String>>? webTranslationsList;
+    if (webTrans?.webTranslation != null &&
+        webTrans!.webTranslation!.isNotEmpty) {
+      webTranslationsList = <Map<String, String>>[];
+      for (final webItem in webTrans.webTranslation!) {
+        if (webItem.key != null &&
+            webItem.trans != null &&
+            webItem.trans!.isNotEmpty) {
+          for (final transItem in webItem.trans!) {
+            if (transItem.value != null && transItem.value!.isNotEmpty) {
+              webTranslationsList.add({
+                'name': webItem.key!,
+                'value': transItem.value!,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return ResultModel(
+      query: query,
+      simpleExplanation: simpleExplanation,
+      usPronunciationUrl: usPronunciationUrl,
+      ukPronunciationUrl: ukPronunciationUrl,
+      usPhonetic: usPhonetic,
+      ukPhonetic: ukPhonetic,
+      examTypes: examTypes,
+      wordForm: wordFormList,
+      phrases: phrasesList,
+      webTranslations: webTranslationsList,
+    );
   }
 }

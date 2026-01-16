@@ -51,28 +51,23 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
             readOnly: widget.readOnly,
             decoration: InputDecoration(
               hintText: widget.hintText ?? 'Enter text to translate',
-              suffixIcon: hasText
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, size: 12),
-                      onPressed: () {
-                        widget.controller.clear();
-                        if (widget.focusNode.canRequestFocus) {
-                          widget.focusNode.requestFocus();
-                        }
-                      },
-                    )
-                  : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: BorderSide.none,
               ),
               filled: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10.0,
+                vertical: 7.0,
+              ),
             ),
+            cursorHeight: 16,
             textInputAction: TextInputAction.search,
             onTap: widget.onTap,
             onSubmitted: widget.onSubmitted,
             onChanged: (_) => setState(() {}),
-            maxLines: 2,
+            minLines: 2,
+            maxLines: 6,
           ),
 
           // Language detection bar
@@ -80,13 +75,10 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
               widget.detectedLanguage!.isNotEmpty &&
               hasText) ...[
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 8.0,
-              ),
-              height: 32,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              height: 40,
               decoration: BoxDecoration(
-                color: theme.colorScheme.onError,
+                // color: theme.colorScheme.error,
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Row(
@@ -99,7 +91,6 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
-                  const SizedBox(width: 8.0),
                   IconButton(
                     icon: const Icon(Icons.content_copy, size: 16),
                     onPressed: () {
@@ -155,6 +146,16 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                         ],
                       ),
                     ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () {
+                      widget.controller.clear();
+                      if (widget.focusNode.canRequestFocus) {
+                        widget.focusNode.requestFocus();
+                      }
+                    },
                   ),
                 ],
               ),

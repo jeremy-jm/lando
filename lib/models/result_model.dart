@@ -11,6 +11,8 @@ class ResultModel {
 
   final String? usPronunciationUrl;
   final String? ukPronunciationUrl;
+  final String? usPhonetic;
+  final String? ukPhonetic;
 
   final List<String>? examTypes;
 
@@ -25,6 +27,8 @@ class ResultModel {
     this.simpleExplanation,
     this.usPronunciationUrl,
     this.ukPronunciationUrl,
+    this.usPhonetic,
+    this.ukPhonetic,
     this.examTypes,
     this.wordForm,
     this.phrases,

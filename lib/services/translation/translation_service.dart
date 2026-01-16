@@ -1,3 +1,5 @@
+import 'package:lando/models/result_model.dart';
+
 /// Abstract interface for translation services.
 ///
 /// All translation service implementations (Youdao, Google, Bing, etc.)
@@ -12,4 +14,12 @@ abstract class TranslationService {
   /// Returns a formatted string containing the translation result.
   /// Throws an exception if the translation fails.
   Future<String> translate(String query);
+
+  /// Gets detailed translation result including pronunciation, word forms, phrases, etc.
+  ///
+  /// [query] is the text to be translated.
+  /// Returns a [ResultModel] containing detailed translation information.
+  /// Returns null if the service doesn't support detailed results or if translation fails.
+  /// All fields except [query] can be null.
+  Future<ResultModel?> getDetailedResult(String query);
 }

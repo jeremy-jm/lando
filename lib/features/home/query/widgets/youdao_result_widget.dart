@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lando/features/widgets/dict_widget.dart';
 import 'package:lando/models/result_model.dart';
+import 'package:lando/services/translation/translation_service_type.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ce.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ec.dart';
 import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
@@ -30,6 +31,14 @@ class YoudaoResultWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return DictWidget(
+      query: query,
+      platforms: [
+        TranslationServiceType.youdao,
+        // TranslationServiceType.google,
+        // TranslationServiceType.bing,
+      ],
+    );
     final theme = Theme.of(context);
     final ec = response.ec;
     final ecWord = ec?.word;
@@ -551,7 +560,7 @@ class YoudaoResultWidget extends StatelessWidget {
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

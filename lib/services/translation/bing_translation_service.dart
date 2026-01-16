@@ -1,3 +1,4 @@
+import 'package:lando/models/result_model.dart';
 import 'package:lando/network/api_client.dart';
 import 'package:lando/services/translation/translation_service.dart';
 
@@ -34,5 +35,25 @@ class BingTranslationService implements TranslationService {
       'Bing Translation Service is not yet implemented. '
       'Please configure Azure Cognitive Services credentials and implement the API call.',
     );
+  }
+
+  @override
+  Future<ResultModel?> getDetailedResult(String query) async {
+    if (query.trim().isEmpty) {
+      return null;
+    }
+
+    try {
+      // TODO: Implement Bing Translator API integration for detailed results
+      // For now, return a simple result with just the translation text
+      final translation = await translate(query);
+      return ResultModel(
+        query: query,
+        simpleExplanation: translation,
+      );
+    } catch (e) {
+      // Return null on error
+      return null;
+    }
   }
 }
