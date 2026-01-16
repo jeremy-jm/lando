@@ -1409,3 +1409,121 @@ class YoudaoSpecialTrItem {
   final String? engSent;
   final String? url;
 }
+
+/// Fanyi (Translation) model.
+class YoudaoFanyi {
+  YoudaoFanyi({
+    this.voice,
+    this.input,
+    this.type,
+    this.tran,
+  });
+
+  factory YoudaoFanyi.fromJson(Map<String, dynamic> json) {
+    return YoudaoFanyi(
+      voice: json['voice'] as String?,
+      input: json['input'] as String?,
+      type: json['type'] as String?,
+      tran: json['tran'] as String?,
+    );
+  }
+
+  final String? voice;
+  final String? input;
+  final String? type;
+  final String? tran;
+}
+
+/// Word Elaboration model (encrypted data).
+class YoudaoWordElaboration {
+  YoudaoWordElaboration({required this.encryptedData});
+
+  factory YoudaoWordElaboration.fromJson(Map<String, dynamic> json) {
+    return YoudaoWordElaboration(
+      encryptedData: json['encryptedData'] as String,
+    );
+  }
+
+  final String encryptedData;
+}
+
+/// Related Word model.
+class YoudaoRelWord {
+  YoudaoRelWord({
+    this.word,
+    this.stem,
+    this.rels,
+  });
+
+  factory YoudaoRelWord.fromJson(Map<String, dynamic> json) {
+    return YoudaoRelWord(
+      word: json['word'] as String?,
+      stem: json['stem'] as String?,
+      rels: json['rels'] != null
+          ? (json['rels'] as List)
+              .map((e) => YoudaoRelWordRel.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
+    );
+  }
+
+  final String? word;
+  final String? stem;
+  final List<YoudaoRelWordRel>? rels;
+}
+
+/// Related Word Relation model.
+class YoudaoRelWordRel {
+  YoudaoRelWordRel({this.rel});
+
+  factory YoudaoRelWordRel.fromJson(Map<String, dynamic> json) {
+    return YoudaoRelWordRel(
+      rel: json['rel'] != null
+          ? YoudaoRelWordRelItem.fromJson(json['rel'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  final YoudaoRelWordRelItem? rel;
+}
+
+/// Related Word Relation Item model.
+class YoudaoRelWordRelItem {
+  YoudaoRelWordRelItem({
+    this.pos,
+    this.words,
+  });
+
+  factory YoudaoRelWordRelItem.fromJson(Map<String, dynamic> json) {
+    return YoudaoRelWordRelItem(
+      pos: json['pos'] as String?,
+      words: json['words'] != null
+          ? (json['words'] as List)
+              .map((e) =>
+                  YoudaoRelWordWord.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
+    );
+  }
+
+  final String? pos;
+  final List<YoudaoRelWordWord>? words;
+}
+
+/// Related Word Word model.
+class YoudaoRelWordWord {
+  YoudaoRelWordWord({
+    this.word,
+    this.tran,
+  });
+
+  factory YoudaoRelWordWord.fromJson(Map<String, dynamic> json) {
+    return YoudaoRelWordWord(
+      word: json['word'] as String?,
+      tran: json['tran'] as String?,
+    );
+  }
+
+  final String? word;
+  final String? tran;
+}

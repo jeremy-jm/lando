@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lando/services/translation/youdao/models/youdao_ec.dart';
+import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
 import 'package:lando/services/translation/youdao/models/youdao_phrs.dart';
 import 'package:lando/services/translation/youdao/models/youdao_response.dart';
 
@@ -13,6 +14,7 @@ class YoudaoResultWidget extends StatelessWidget {
     required this.onUsPronunciationTap,
     required this.onUkPronunciationTap,
     this.onGeneralPronunciationTap,
+    this.onFanyiPronunciationTap,
   });
 
   final YoudaoResponse response;
@@ -20,6 +22,7 @@ class YoudaoResultWidget extends StatelessWidget {
   final VoidCallback? onUsPronunciationTap;
   final VoidCallback? onUkPronunciationTap;
   final VoidCallback? onGeneralPronunciationTap;
+  final VoidCallback? onFanyiPronunciationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +36,20 @@ class YoudaoResultWidget extends StatelessWidget {
     // Try to get translations from different sources
     final translationsByPos = <String, List<String>>{};
     String? mainTranslation;
-    List<String>? examTypes;
+    // List<String>? examTypes;
+
+    // Priority 0: Fanyi (translation) - highest priority
+    if (response.fanyi != null &&
+        response.fanyi!.tran != null &&
+        response.fanyi!.tran!.isNotEmpty) {
+      mainTranslation = response.fanyi!.tran;
+      translationsByPos.putIfAbsent('翻译', () => []);
+      translationsByPos['翻译']!.add(response.fanyi!.tran!);
+    }
 
     // Priority 1: EC (basic dictionary) - for English words
-    if (ecWord != null) {
-      examTypes = ec?.examType;
+    if (ecWord != null && mainTranslation == null) {
+      // examTypes = ec?.examType;
       for (final tr in ecWord.trs ?? []) {
         if (tr.tran != null && tr.tran!.isNotEmpty) {
           final pos = tr.pos ?? '其他';
@@ -51,7 +63,9 @@ class YoudaoResultWidget extends StatelessWidget {
     }
 
     // Priority 2: Web Translation - for Chinese and other languages
-    if (translationsByPos.isEmpty && webTrans?.webTranslation != null) {
+    if (translationsByPos.isEmpty &&
+        mainTranslation == null &&
+        webTrans?.webTranslation != null) {
       for (final webItem in webTrans!.webTranslation!) {
         if (webItem.trans != null) {
           for (final transItem in webItem.trans!) {
@@ -68,7 +82,9 @@ class YoudaoResultWidget extends StatelessWidget {
     }
 
     // Priority 3: EE (extended dictionary)
-    if (translationsByPos.isEmpty && ee?.word != null) {
+    if (translationsByPos.isEmpty &&
+        mainTranslation == null &&
+        ee?.word != null) {
       final eeWord = ee!.word!;
       for (final tr in eeWord.trs ?? []) {
         if (tr.tr != null) {
@@ -123,8 +139,10 @@ class YoudaoResultWidget extends StatelessWidget {
             theme,
             query,
             mainTranslation,
-            examTypes,
+            // examTypes,
             ecWord,
+            response.fanyi,
+            onFanyiPronunciationTap,
           ),
           const SizedBox(height: 24.0),
 
@@ -148,7 +166,14 @@ class YoudaoResultWidget extends StatelessWidget {
             ...translationsByPos.entries.map(
               (entry) => Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
-                child: _buildPosSection(context, theme, entry.key, entry.value),
+                child: _buildPosSection(
+                  context,
+                  theme,
+                  entry.key,
+                  entry.value,
+                  response.fanyi,
+                  onFanyiPronunciationTap,
+                ),
               ),
             ),
           ],
@@ -168,16 +193,26 @@ class YoudaoResultWidget extends StatelessWidget {
     ThemeData theme,
     String word,
     String? mainTranslation,
-    List<String>? examTypes,
+    // List<String>? examTypes,
     YoudaoEcWord? ecWord,
+    YoudaoFanyi? fanyi,
+    VoidCallback? onFanyiPronunciationTap,
   ) {
+    // Check if mainTranslation is from fanyi and has voice
+    final isFanyiTranslation =
+        fanyi != null &&
+        fanyi.tran != null &&
+        fanyi.tran == mainTranslation &&
+        fanyi.voice != null &&
+        fanyi.voice!.isNotEmpty &&
+        onFanyiPronunciationTap != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Word and main translation
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               word,
@@ -187,47 +222,72 @@ class YoudaoResultWidget extends StatelessWidget {
               ),
             ),
             if (mainTranslation != null) ...[
-              const SizedBox(width: 12.0),
-              Text(
-                mainTranslation,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
+              const SizedBox(height: 8.0),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isFanyiTranslation) ...[
+                    IconButton(
+                      icon: Icon(
+                        Icons.volume_up,
+                        size: 20,
+                        color: theme.colorScheme.primary,
+                      ),
+                      onPressed: onFanyiPronunciationTap,
+                      tooltip: '播放语音',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                    ),
+                    const SizedBox(width: 4.0),
+                  ],
+                  Expanded(
+                    child: Text(
+                      mainTranslation,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: theme.colorScheme.primary,
+                      ),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
               ),
             ],
           ],
         ),
 
-        // Exam type tags
-        if (examTypes != null && examTypes.isNotEmpty) ...[
-          const SizedBox(height: 12.0),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: examTypes.map((tag) => _buildTag(theme, tag)).toList(),
-          ),
-        ],
+        // // Exam type tags
+        // if (examTypes != null && examTypes.isNotEmpty) ...[
+        //   const SizedBox(height: 12.0),
+        //   Wrap(
+        //     spacing: 8.0,
+        //     runSpacing: 8.0,
+        //     children: examTypes.map((tag) => _buildTag(theme, tag)).toList(),
+        //   ),
+        // ],
       ],
     );
   }
 
-  Widget _buildTag(ThemeData theme, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(4.0),
-        border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 12, color: theme.colorScheme.primary),
-      ),
-    );
-  }
+  // Widget _buildTag(ThemeData theme, String text) {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+  //     decoration: BoxDecoration(
+  //       color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+  //       borderRadius: BorderRadius.circular(4.0),
+  //       border: Border.all(
+  //         color: theme.colorScheme.primary.withValues(alpha: 0.3),
+  //         width: 1,
+  //       ),
+  //     ),
+  //     child: Text(
+  //       text,
+  //       style: TextStyle(fontSize: 12, color: theme.colorScheme.primary),
+  //     ),
+  //   );
+  // }
 
   Widget _buildPronunciationSection(
     BuildContext context,
@@ -249,42 +309,36 @@ class YoudaoResultWidget extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12.0),
       ),
-      child: Row(
+      child: Column(
         children: [
           // US pronunciation (for English)
           if (word.usphone != null && onUsTap != null)
-            Expanded(
-              child: _buildPronunciationItem(
-                theme,
-                'US',
-                '/${word.usphone}/',
-                Icons.volume_up,
-                onUsTap,
-              ),
+            _buildPronunciationItem(
+              theme,
+              'US',
+              '/${word.usphone}/',
+              Icons.volume_up,
+              onUsTap,
             ),
           if (word.usphone != null && word.ukphone != null && onUsTap != null)
             const SizedBox(width: 16.0),
           // UK pronunciation (for English)
           if (word.ukphone != null && onUkTap != null)
-            Expanded(
-              child: _buildPronunciationItem(
-                theme,
-                'UK',
-                '/${word.ukphone}/',
-                Icons.volume_down,
-                onUkTap,
-              ),
+            _buildPronunciationItem(
+              theme,
+              'UK',
+              '/${word.ukphone}/',
+              Icons.volume_up,
+              onUkTap,
             ),
           // General pronunciation (for non-English languages)
           if (hasGeneralPronunciation && !hasEnglishPronunciations)
-            Expanded(
-              child: _buildPronunciationItem(
-                theme,
-                '发音',
-                '',
-                Icons.volume_up,
-                onGeneralTap,
-              ),
+            _buildPronunciationItem(
+              theme,
+              '发音',
+              '',
+              Icons.volume_up,
+              onGeneralTap,
             ),
         ],
       ),
@@ -308,16 +362,16 @@ class YoudaoResultWidget extends StatelessWidget {
             Icon(icon, size: 20, color: theme.colorScheme.primary),
             const SizedBox(width: 8.0),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
                   Text(
                     label,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
+                  const SizedBox(width: 8.0),
                   Text(
                     phonetic,
                     style: TextStyle(
@@ -340,7 +394,19 @@ class YoudaoResultWidget extends StatelessWidget {
     ThemeData theme,
     String pos,
     List<String> translations,
+    YoudaoFanyi? fanyi,
+    VoidCallback? onFanyiPronunciationTap,
   ) {
+    // Check if this is the fanyi translation section
+    final isFanyiSection =
+        pos == '翻译' &&
+        fanyi != null &&
+        fanyi.tran != null &&
+        translations.isNotEmpty &&
+        translations.first == fanyi.tran &&
+        fanyi.voice != null &&
+        fanyi.voice!.isNotEmpty &&
+        onFanyiPronunciationTap != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -382,6 +448,7 @@ class YoudaoResultWidget extends StatelessWidget {
             children: translations.asMap().entries.map((entry) {
               final index = entry.key;
               final translation = entry.value;
+              final isFanyiItem = isFanyiSection && index == 0;
               return Padding(
                 padding: EdgeInsets.only(
                   bottom: index < translations.length - 1 ? 8.0 : 0,
@@ -399,6 +466,23 @@ class YoudaoResultWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8.0),
+                    if (isFanyiItem) ...[
+                      IconButton(
+                        icon: Icon(
+                          Icons.volume_up,
+                          size: 18,
+                          color: theme.colorScheme.primary,
+                        ),
+                        onPressed: onFanyiPronunciationTap,
+                        tooltip: '播放语音',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 4.0),
+                    ],
                     Expanded(
                       child: Text(
                         translation,

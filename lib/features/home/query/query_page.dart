@@ -205,6 +205,13 @@ class _QueryPageState extends State<QueryPage> {
 
                     // Show detailed Youdao result if available (check this first)
                     if (state.youdaoResponse != null) {
+                      // Build fanyi pronunciation URL if available
+                      final fanyi = state.youdaoResponse!.fanyi;
+                      final fanyiPronunciationUrl =
+                          fanyi?.voice != null && fanyi!.voice!.isNotEmpty
+                          ? 'https://dict.youdao.com/dictvoice?audio=${fanyi.voice}'
+                          : null;
+
                       return YoudaoResultWidget(
                         response: state.youdaoResponse!,
                         query: state.query,
@@ -219,6 +226,9 @@ class _QueryPageState extends State<QueryPage> {
                             ? () => _playPronunciation(
                                 state.generalPronunciationUrl,
                               )
+                            : null,
+                        onFanyiPronunciationTap: fanyiPronunciationUrl != null
+                            ? () => _playPronunciation(fanyiPronunciationUrl)
                             : null,
                       );
                     }

@@ -37,6 +37,9 @@ class YoudaoResponse {
     this.meta,
     this.le,
     this.oxfordAdvance,
+    this.fanyi,
+    this.wordElaboration,
+    this.relWord,
   });
 
   factory YoudaoResponse.fromJson(Map<String, dynamic> json) {
@@ -141,6 +144,17 @@ class YoudaoResponse {
               json['oxfordAdvance'] as Map<String, dynamic>,
             )
           : null,
+      fanyi: json['fanyi'] != null
+          ? YoudaoFanyi.fromJson(json['fanyi'] as Map<String, dynamic>)
+          : null,
+      wordElaboration: json['wordElaboration'] != null
+          ? YoudaoWordElaboration.fromJson(
+              json['wordElaboration'] as Map<String, dynamic>,
+            )
+          : null,
+      relWord: json['rel_word'] != null
+          ? YoudaoRelWord.fromJson(json['rel_word'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -172,6 +186,9 @@ class YoudaoResponse {
   final YoudaoMeta? meta;
   final String? le;
   final YoudaoEncryptedData? oxfordAdvance;
+  final YoudaoFanyi? fanyi;
+  final YoudaoWordElaboration? wordElaboration;
+  final YoudaoRelWord? relWord;
 }
 
 /// Encrypted data model (used for various encrypted fields).

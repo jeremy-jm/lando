@@ -24,8 +24,15 @@ class YoudaoEc {
       source: json['source'] != null
           ? YoudaoSource.fromJson(json['source'] as Map<String, dynamic>)
           : null,
+      // json['word'] maybe it's a List<dynamic> or Map<String, dynamic>, we need to handle both cases
       word: json['word'] != null
-          ? YoudaoEcWord.fromJson(json['word'] as Map<String, dynamic>)
+          ? (json['word'] is List
+                ? (json['word'] as List).isNotEmpty
+                      ? YoudaoEcWord.fromJson(
+                          (json['word'] as List).first as Map<String, dynamic>,
+                        )
+                      : null
+                : YoudaoEcWord.fromJson(json['word'] as Map<String, dynamic>))
           : null,
     );
   }
@@ -76,6 +83,7 @@ class YoudaoEcWord {
     this.trs,
     this.returnPhrase,
     this.usspeech,
+    this.prototype,
   });
 
   factory YoudaoEcWord.fromJson(Map<String, dynamic> json) {
@@ -90,6 +98,7 @@ class YoudaoEcWord {
           : null,
       returnPhrase: json['return-phrase'] as String?,
       usspeech: json['usspeech'] as String?,
+      prototype: json['prototype'] as String?,
     );
   }
 
@@ -99,6 +108,7 @@ class YoudaoEcWord {
   final List<YoudaoEcWordTr>? trs;
   final String? returnPhrase;
   final String? usspeech;
+  final String? prototype;
 }
 
 /// EC Word Translation model.

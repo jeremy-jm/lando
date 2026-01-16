@@ -28,6 +28,13 @@ class YoudaoTranslationService implements TranslationService {
     final queryModel = _buildQueryModel(query: query, le: le);
     final response = await translateFullWithModel(queryModel);
 
+    // Priority 0: Extract translation from Fanyi - highest priority
+    if (response.fanyi != null &&
+        response.fanyi!.tran != null &&
+        response.fanyi!.tran!.isNotEmpty) {
+      return response.fanyi!.tran!;
+    }
+
     // Extract translation from EC (basic dictionary) - most common case
     final ecWord = response.ec?.word;
     if (ecWord != null) {
@@ -104,45 +111,48 @@ class YoudaoTranslationService implements TranslationService {
     return YoudaoResponse.fromJson(json);
   }
 
-  /// Builds a YoudaoQueryModel with optional sign and timestamp.
+  /// Builds a YoudaoQueryModel with sign and timestamp.
   ///
   /// [le] is the target language code selected by the user (e.g., 'ja', 'zh', 'en').
   /// The language code comes from PreferencesStorage.getTranslationToLanguage().
   /// All values will be URL-encoded by ApiClient.postForm() when sending the request.
+  ///
+  /// Sign algorithm:
+  /// 1. ww = text + "webdict"
+  /// 2. time = ww.length % 10
+  /// 3. salt = md5(ww)
+  /// 4. key = "Mk6hqtUp33DGGtoS63tTJbMUYjRrG1Lu"
+  /// 5. sign = md5("web" + text + time + key + salt)
   YoudaoQueryModel _buildQueryModel({
     required String query,
     required String le,
-    String? sign,
-    String? t,
   }) {
-    // Generate timestamp if not provided
-    final timestamp = t ?? DateTime.now().millisecondsSinceEpoch.toString();
+    // Step 1: ww = text + "webdict"
+    final ww = '${query}webdict';
 
-    // Generate sign if not provided
-    // Note: The actual sign algorithm may vary. This is a placeholder.
-    // You may need to implement the actual sign generation based on Youdao's requirements.
-    final generatedSign = sign ?? _generateSign(query, le, timestamp);
+    // Step 2: time = ww.length % 10
+    final time = (ww.length % 10).toString();
+
+    // Step 3: salt = md5(ww)
+    final wwBytes = utf8.encode(ww);
+    final salt = md5.convert(wwBytes).toString();
+
+    // Step 4: key = "Mk6hqtUp33DGGtoS63tTJbMUYjRrG1Lu"
+    const key = 'Mk6hqtUp33DGGtoS63tTJbMUYjRrG1Lu';
+
+    // Step 5: sign = md5("web" + text + time + key + salt)
+    final signContent = 'web$query$time$key$salt';
+    final signBytes = utf8.encode(signContent);
+    final sign = md5.convert(signBytes).toString();
 
     return YoudaoQueryModel(
       q: query, // Query text
       le: le, // Target language code (e.g., 'ja' for Japanese, 'zh' for Chinese)
-      t: timestamp,
+      t: time,
       client: 'web',
-      sign: generatedSign,
+      sign: sign,
       keyfrom: 'webdict',
     );
-  }
-
-  /// Generates a sign for the request.
-  /// Note: This is a placeholder implementation. You may need to adjust
-  /// based on Youdao's actual sign generation algorithm.
-  String _generateSign(String query, String le, String t) {
-    // Simple MD5 hash as placeholder
-    // In production, you should use the actual sign algorithm provided by Youdao
-    final content = '$query$le$t';
-    final bytes = utf8.encode(content);
-    final digest = md5.convert(bytes);
-    return digest.toString();
   }
 
   /// Maps language code to Youdao's language code format.

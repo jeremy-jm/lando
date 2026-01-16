@@ -65,7 +65,7 @@ class YoudaoEeWordTr {
 
 /// EE Word Translation Item model.
 class YoudaoEeWordTrItem {
-  YoudaoEeWordTrItem({this.tran, this.similarWords});
+  YoudaoEeWordTrItem({this.tran, this.similarWords, this.examples});
 
   factory YoudaoEeWordTrItem.fromJson(Map<String, dynamic> json) {
     return YoudaoEeWordTrItem(
@@ -73,9 +73,13 @@ class YoudaoEeWordTrItem {
       similarWords: json['similar-words'] != null
           ? (json['similar-words'] as List).map((e) => e.toString()).toList()
           : null,
+      examples: json['examples'] != null
+          ? (json['examples'] as List).map((e) => e.toString()).toList()
+          : null,
     );
   }
 
   final String? tran;
   final List<String>? similarWords;
+  final List<String>? examples;
 }
