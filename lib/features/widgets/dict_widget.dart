@@ -6,9 +6,10 @@ import 'package:lando/services/translation/translation_service_type.dart';
 
 /// A generic dictionary widget that can display results from multiple translation platforms.
 ///
-/// This widget automatically fetches translation results from the specified platforms
-/// and displays them in a unified format.
-class DictWidget extends StatefulWidget {
+/// This widget displays results from the specified platforms, with each platform
+/// independently fetching and managing its own data. If one platform fails,
+/// it doesn't affect other platforms.
+class DictWidget extends StatelessWidget {
   const DictWidget({
     super.key,
     required this.query,
@@ -26,28 +27,68 @@ class DictWidget extends StatefulWidget {
   final TranslationServiceFactory? translationServiceFactory;
 
   @override
-  State<DictWidget> createState() => _DictWidgetState();
+  Widget build(BuildContext context) {
+    if (query.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: platforms.map((platform) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24.0),
+            child: PlatformDictWidget(
+              key: ValueKey('$platform-$query'),
+              query: query,
+              platform: platform,
+              translationServiceFactory: translationServiceFactory,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
 }
 
-class _DictWidgetState extends State<DictWidget> {
-  final Map<TranslationServiceType, ResultModel?> _results = {};
-  final Map<TranslationServiceType, String?> _errors = {};
-  final Map<TranslationServiceType, bool> _loading = {};
-  bool _initialized = false;
+/// Individual platform dictionary widget that independently fetches and displays data.
+///
+/// Each platform widget manages its own state (loading, error, result),
+/// so failures in one platform don't affect others.
+class PlatformDictWidget extends StatefulWidget {
+  const PlatformDictWidget({
+    super.key,
+    required this.query,
+    required this.platform,
+    this.translationServiceFactory,
+  });
+
+  final String query;
+  final TranslationServiceType platform;
+  final TranslationServiceFactory? translationServiceFactory;
+
+  @override
+  State<PlatformDictWidget> createState() => _PlatformDictWidgetState();
+}
+
+class _PlatformDictWidgetState extends State<PlatformDictWidget> {
+  ResultModel? _result;
+  String? _error;
+  bool _loading = false;
   final PronunciationService _pronunciationService = PronunciationService();
 
   @override
   void initState() {
     super.initState();
-    _fetchResults();
+    _fetchResult();
   }
 
   @override
-  void didUpdateWidget(DictWidget oldWidget) {
+  void didUpdateWidget(PlatformDictWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.query != widget.query ||
-        oldWidget.platforms != widget.platforms) {
-      _fetchResults();
+        oldWidget.platform != widget.platform) {
+      _fetchResult();
     }
   }
 
@@ -57,106 +98,45 @@ class _DictWidgetState extends State<DictWidget> {
     super.dispose();
   }
 
-  Future<void> _fetchResults() async {
+  Future<void> _fetchResult() async {
     if (widget.query.trim().isEmpty) {
       return;
     }
 
     setState(() {
-      _initialized = false;
-      _results.clear();
-      _errors.clear();
-      for (final platform in widget.platforms) {
-        _loading[platform] = true;
-      }
+      _loading = true;
+      _error = null;
+      _result = null;
     });
 
-    final factory =
-        widget.translationServiceFactory ?? TranslationServiceFactory();
+    try {
+      final factory =
+          widget.translationServiceFactory ?? TranslationServiceFactory();
+      final service = factory.create(widget.platform);
+      final result = await service.getDetailedResult(widget.query);
 
-    // Fetch results from all platforms in parallel
-    final futures = widget.platforms.map((platform) async {
-      try {
-        final service = factory.create(platform);
-        final result = await service.getDetailedResult(widget.query);
-        if (mounted) {
-          setState(() {
-            _results[platform] = result;
-            _loading[platform] = false;
-            _errors[platform] = null;
-          });
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _errors[platform] = e.toString();
-            _loading[platform] = false;
-            _results[platform] = null;
-          });
-        }
+      if (mounted) {
+        setState(() {
+          _result = result;
+          _loading = false;
+          _error = null;
+        });
       }
-    });
-
-    await Future.wait(futures);
-
-    if (mounted) {
-      setState(() {
-        _initialized = true;
-      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+          _result = null;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.query.trim().isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     final theme = Theme.of(context);
 
-    // Check if any platform is still loading
-    final isLoading = _loading.values.any((loading) => loading == true);
-
-    // If not initialized and not loading, show nothing
-    if (!_initialized && !isLoading) {
-      return const SizedBox.shrink();
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Display results for each platform
-          ...widget.platforms.map((platform) {
-            final result = _results[platform];
-            final error = _errors[platform];
-            final loading = _loading[platform] ?? false;
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: _buildPlatformSection(
-                context,
-                theme,
-                platform,
-                result,
-                error,
-                loading,
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPlatformSection(
-    BuildContext context,
-    ThemeData theme,
-    TranslationServiceType platform,
-    ResultModel? result,
-    String? error,
-    bool loading,
-  ) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -170,13 +150,13 @@ class _DictWidgetState extends State<DictWidget> {
           Row(
             children: [
               Text(
-                platform.displayName,
+                widget.platform.displayName,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.primary,
                 ),
               ),
-              if (loading) ...[
+              if (_loading) ...[
                 const SizedBox(width: 12.0),
                 const SizedBox(
                   width: 16,
@@ -189,7 +169,7 @@ class _DictWidgetState extends State<DictWidget> {
           const SizedBox(height: 16.0),
 
           // Loading state
-          if (loading)
+          if (_loading)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -200,7 +180,7 @@ class _DictWidgetState extends State<DictWidget> {
             ),
 
           // Error state
-          if (error != null && !loading)
+          if (_error != null && !_loading)
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
@@ -217,7 +197,7 @@ class _DictWidgetState extends State<DictWidget> {
                   const SizedBox(width: 8.0),
                   Expanded(
                     child: Text(
-                      error,
+                      _error!,
                       style: TextStyle(
                         color: theme.colorScheme.onErrorContainer,
                         fontSize: 14,
@@ -229,8 +209,8 @@ class _DictWidgetState extends State<DictWidget> {
             ),
 
           // Result content
-          if (result != null && !loading)
-            _buildResultContent(context, theme, result),
+          if (_result != null && !_loading)
+            _buildResultContent(context, theme, _result!),
         ],
       ),
     );
@@ -283,13 +263,67 @@ class _DictWidgetState extends State<DictWidget> {
         ],
 
         // Simple explanation
-        if (result.simpleExplanation != null) ...[
+        if (result.simpleExplanation != null &&
+            result.translationsByPos == null) ...[
           const SizedBox(height: 12.0),
           Text(
             result.simpleExplanation!,
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.primary,
             ),
+          ),
+        ],
+
+        // Translations by part of speech
+        if (result.translationsByPos != null &&
+            result.translationsByPos!.isNotEmpty) ...[
+          const SizedBox(height: 16.0),
+          Divider(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+            height: 0.5,
+          ),
+          const SizedBox(height: 16.0),
+          Text(
+            '词性',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: result.translationsByPos!.expand((translation) {
+              return [
+                SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      child: Text(
+                        translation['name'] ?? '',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: Text(
+                        translation['value'] ?? '',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ];
+            }).toList(),
           ),
         ],
 
@@ -330,21 +364,21 @@ class _DictWidgetState extends State<DictWidget> {
         // Word forms
         if (result.wordForm != null && result.wordForm!.isNotEmpty) ...[
           const SizedBox(height: 16.0),
+          Divider(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+            height: 0.5,
+          ),
+          const SizedBox(height: 16.0),
           Text(
-            '单词时态',
+            '时态',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 8.0),
-          Container(
+          const SizedBox(height: 12.0),
+          SizedBox(
             width: double.infinity,
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: result.wordForm!.map((wf) {
@@ -354,7 +388,7 @@ class _DictWidgetState extends State<DictWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: 80,
+                        width: 100,
                         child: Text(
                           wf['name'] ?? '',
                           style: TextStyle(
@@ -385,21 +419,21 @@ class _DictWidgetState extends State<DictWidget> {
         // Phrases
         if (result.phrases != null && result.phrases!.isNotEmpty) ...[
           const SizedBox(height: 16.0),
+          Divider(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+            height: 0.5,
+          ),
+          const SizedBox(height: 16.0),
           Text(
-            '相关短语',
+            '短语',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 8.0),
-          Container(
+          const SizedBox(height: 12.0),
+          SizedBox(
             width: double.infinity,
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: result.phrases!.map((phrase) {
@@ -440,7 +474,7 @@ class _DictWidgetState extends State<DictWidget> {
           const SizedBox(height: 16.0),
           Divider(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            height: 1,
+            height: 0.5,
           ),
           const SizedBox(height: 16.0),
           Text(
@@ -450,7 +484,7 @@ class _DictWidgetState extends State<DictWidget> {
               color: theme.colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 8.0),
+          const SizedBox(height: 12.0),
           SizedBox(
             width: double.infinity,
             child: Column(
@@ -527,7 +561,6 @@ class _DictWidgetState extends State<DictWidget> {
             ),
             const SizedBox(width: 8.0),
             if (phonetic != null && phonetic.isNotEmpty) ...[
-              const SizedBox(height: 2.0),
               Text(
                 '/$phonetic/',
                 style: TextStyle(
@@ -536,8 +569,8 @@ class _DictWidgetState extends State<DictWidget> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              const SizedBox(width: 8.0),
             ],
-            const SizedBox(width: 8.0),
             Icon(Icons.volume_up, size: 20, color: theme.colorScheme.primary),
           ],
         ),

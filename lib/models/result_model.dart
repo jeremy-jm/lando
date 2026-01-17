@@ -9,6 +9,8 @@ class ResultModel {
   final String query;
   final String? simpleExplanation;
 
+  final List<Map<String, String>>? translationsByPos;
+
   final String? usPronunciationUrl;
   final String? ukPronunciationUrl;
   final String? usPhonetic;
@@ -25,6 +27,7 @@ class ResultModel {
   ResultModel({
     required this.query,
     this.simpleExplanation,
+    this.translationsByPos,
     this.usPronunciationUrl,
     this.ukPronunciationUrl,
     this.usPhonetic,

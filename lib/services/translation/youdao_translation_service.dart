@@ -395,6 +395,15 @@ class YoudaoTranslationService implements TranslationService {
       simpleExplanation = response.fanyi!.tran;
     }
 
+    // Get translations by part of speech
+    List<Map<String, String>>? translationsByPosList;
+    if (ecWord != null && ecWord.trs != null && ecWord.trs!.isNotEmpty) {
+      translationsByPosList = ecWord.trs!
+          .where((tr) => tr.tran != null && tr.tran!.isNotEmpty)
+          .map((tr) => {'name': tr.pos ?? '', 'value': tr.tran!})
+          .toList();
+    }
+
     // Get pronunciation URLs and phonetics
     String? usPronunciationUrl;
     String? ukPronunciationUrl;
@@ -463,6 +472,7 @@ class YoudaoTranslationService implements TranslationService {
     return ResultModel(
       query: query,
       simpleExplanation: simpleExplanation,
+      translationsByPos: translationsByPosList,
       usPronunciationUrl: usPronunciationUrl,
       ukPronunciationUrl: ukPronunciationUrl,
       usPhonetic: usPhonetic,

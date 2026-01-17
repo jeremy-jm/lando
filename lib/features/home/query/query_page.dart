@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_repository.dart';
 import 'package:lando/features/home/query/query_bloc.dart';
-import 'package:lando/features/home/query/widgets/youdao_result_widget.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
 import 'package:lando/features/home/widgets/translation_input_widget.dart';
+import 'package:lando/features/me/settings_page.dart';
+import 'package:lando/features/widgets/dict_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/audio/pronunciation_service.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
@@ -115,11 +116,23 @@ class _QueryPageState extends State<QueryPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.inversePrimary,
-        title: Text(l10n.translation),
+        title: LanguageSelectorWidget(
+          onLanguageChanged: (pair) {
+            // Language pair changed, could trigger re-translation if needed
+          },
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 16),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, size: 18),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         bottom: false,
@@ -149,13 +162,6 @@ class _QueryPageState extends State<QueryPage> {
                       }
                     },
                   );
-                },
-              ),
-              const SizedBox(height: 16.0),
-              // Language selector
-              LanguageSelectorWidget(
-                onLanguageChanged: (pair) {
-                  // Language pair changed, could trigger re-translation if needed
                 },
               ),
               const SizedBox(height: 24.0),
@@ -206,31 +212,20 @@ class _QueryPageState extends State<QueryPage> {
 
                     // Show detailed Youdao result if available (check this first)
                     if (state.youdaoResponse != null) {
-                      // Build fanyi pronunciation URL if available
-                      final fanyi = state.youdaoResponse!.fanyi;
-                      final fanyiPronunciationUrl =
-                          fanyi?.voice != null && fanyi!.voice!.isNotEmpty
-                          ? 'https://dict.youdao.com/dictvoice?audio=${fanyi.voice}'
-                          : null;
+                      // // Build fanyi pronunciation URL if available
+                      // final fanyi = state.youdaoResponse!.fanyi;
+                      // final fanyiPronunciationUrl =
+                      //     fanyi?.voice != null && fanyi!.voice!.isNotEmpty
+                      //     ? 'https://dict.youdao.com/dictvoice?audio=${fanyi.voice}'
+                      //     : null;
 
-                      return YoudaoResultWidget(
-                        response: state.youdaoResponse!,
+                      return DictWidget(
                         query: state.query,
-                        onUsPronunciationTap: state.usPronunciationUrl != null
-                            ? () => _playPronunciation(state.usPronunciationUrl)
-                            : null,
-                        onUkPronunciationTap: state.ukPronunciationUrl != null
-                            ? () => _playPronunciation(state.ukPronunciationUrl)
-                            : null,
-                        onGeneralPronunciationTap:
-                            state.generalPronunciationUrl != null
-                            ? () => _playPronunciation(
-                                state.generalPronunciationUrl,
-                              )
-                            : null,
-                        onFanyiPronunciationTap: fanyiPronunciationUrl != null
-                            ? () => _playPronunciation(fanyiPronunciationUrl)
-                            : null,
+                        platforms: [
+                          TranslationServiceType.youdao,
+                          // TranslationServiceType.google,
+                          // TranslationServiceType.bing,
+                        ],
                       );
                     }
 

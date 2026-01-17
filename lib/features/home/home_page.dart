@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_page.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
@@ -137,13 +139,19 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Center(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 40.0),
+              //Lando logo
+              Image.asset('assets/images/logo.png', width: 100, height: 100),
+
+              const SizedBox(height: 40.0),
+
               Builder(
                 builder: (context) {
                   final l10n = AppLocalizations.of(context)!;
@@ -161,55 +169,77 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               const SizedBox(height: 16.0),
-              LanguageSelectorWidget(key: ValueKey(_languageSelectorKey)),
+              LanguageSelectorWidget(
+                key: ValueKey(_languageSelectorKey),
+                showBackground: true,
+              ),
             ],
           ),
         ),
       ),
-      // Bottom navigation bar example
+
+      // Bottom navigation bar with iOS liquid glass effect
       bottomNavigationBar: Builder(
         builder: (context) {
           final l10n = AppLocalizations.of(context)!;
-          return BottomNavigationBar(
-            backgroundColor: Theme.of(
-              context,
-            ).bottomNavigationBarTheme.backgroundColor,
-            selectedItemColor: Theme.of(
-              context,
-            ).bottomNavigationBarTheme.selectedItemColor,
-            unselectedItemColor: Theme.of(
-              context,
-            ).bottomNavigationBarTheme.unselectedItemColor,
-            selectedLabelStyle: Theme.of(
-              context,
-            ).bottomNavigationBarTheme.selectedLabelStyle,
-            type: BottomNavigationBarType.fixed,
-            items: [
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.home),
-                label: l10n.translation,
+          final theme = Theme.of(context);
+          return ClipRRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface.withValues(alpha: 0.7),
+                  border: Border(
+                    top: BorderSide(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: BottomNavigationBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    selectedItemColor: theme.colorScheme.primary,
+                    unselectedItemColor: theme.colorScheme.onSurface.withValues(
+                      alpha: 0.6,
+                    ),
+                    selectedLabelStyle:
+                        theme.bottomNavigationBarTheme.selectedLabelStyle,
+                    unselectedLabelStyle:
+                        theme.bottomNavigationBarTheme.unselectedLabelStyle,
+                    type: BottomNavigationBarType.fixed,
+                    items: [
+                      BottomNavigationBarItem(
+                        icon: const Icon(Icons.home),
+                        label: l10n.translation,
+                      ),
+                      BottomNavigationBarItem(
+                        icon: const Icon(Icons.settings),
+                        label: l10n.settings,
+                      ),
+                    ],
+                    onTap: (index) {
+                      switch (index) {
+                        case 0:
+                          AppNavigator.pushNamed(context, AppRoutes.home);
+                          break;
+                        case 1:
+                          AppNavigator.pushNamed(context, AppRoutes.settings);
+                          break;
+                        case 2:
+                          AppNavigator.pushNamed(context, AppRoutes.profile);
+                          break;
+                        case 3:
+                          AppNavigator.pushNamed(context, AppRoutes.about);
+                          break;
+                      }
+                    },
+                  ),
+                ),
               ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.settings),
-                label: l10n.settings,
-              ),
-            ],
-            onTap: (index) {
-              switch (index) {
-                case 0:
-                  AppNavigator.pushNamed(context, AppRoutes.home);
-                  break;
-                case 1:
-                  AppNavigator.pushNamed(context, AppRoutes.settings);
-                  break;
-                case 2:
-                  AppNavigator.pushNamed(context, AppRoutes.profile);
-                  break;
-                case 3:
-                  AppNavigator.pushNamed(context, AppRoutes.about);
-                  break;
-              }
-            },
+            ),
           );
         },
       ),

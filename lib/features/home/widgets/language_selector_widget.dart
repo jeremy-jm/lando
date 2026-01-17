@@ -4,17 +4,23 @@ import 'package:lando/storage/preferences_storage.dart';
 
 /// Language selector widget for translation from/to language selection.
 class LanguageSelectorWidget extends StatefulWidget {
-  const LanguageSelectorWidget({super.key, this.onLanguageChanged});
+  const LanguageSelectorWidget({
+    super.key,
+    this.onLanguageChanged,
+    this.showBackground = false,
+  });
 
   final ValueChanged<LanguagePair>? onLanguageChanged;
-
+  final bool showBackground;
   @override
   State<LanguageSelectorWidget> createState() => _LanguageSelectorWidgetState();
 }
 
-class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget> {
+class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
+    with SingleTickerProviderStateMixin {
   String? _fromLanguage;
   String? _toLanguage;
+  bool _isSwapping = false;
 
   @override
   void initState() {
@@ -50,6 +56,48 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget> {
       'ru': '俄语',
     };
     return names[languageCode] ?? languageCode.toUpperCase();
+  }
+
+  Widget _buildLanguageSelector(
+    ThemeData theme,
+    String languageName,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+        decoration: BoxDecoration(
+          color: widget.showBackground
+              ? theme.colorScheme.surface
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(6.0),
+          border: widget.showBackground
+              ? Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                )
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              languageName,
+              style: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(width: 4.0),
+            Icon(
+              Icons.arrow_drop_down,
+              size: 18,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _showFromLanguageDialog() async {
@@ -96,6 +144,30 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget> {
     }
   }
 
+  Future<void> _swapLanguages() async {
+    if (_isSwapping) return;
+
+    // Swap values immediately
+    final temp = _fromLanguage;
+    setState(() {
+      _isSwapping = true;
+      _fromLanguage = _toLanguage;
+      _toLanguage = temp;
+    });
+
+    setState(() {
+      _isSwapping = false;
+    });
+
+    await PreferencesStorage.saveTranslationLanguages(
+      fromLanguage: _fromLanguage,
+      toLanguage: _toLanguage,
+    );
+    widget.onLanguageChanged?.call(
+      LanguagePair(from: _fromLanguage, to: _toLanguage),
+    );
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -123,94 +195,59 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget> {
       }
     });
 
+    // Build language selector widgets
+    final fromLanguageWidget = _buildLanguageSelector(
+      theme,
+      _fromLanguage == null ? '自动' : _getLanguageName(_fromLanguage!),
+      _showFromLanguageDialog,
+    );
+
+    final toLanguageWidget = _buildLanguageSelector(
+      theme,
+      _toLanguage == null ? '自动' : _getLanguageName(_toLanguage!),
+      _showToLanguageDialog,
+    );
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
+        color: widget.showBackground
+            ? theme.colorScheme.surfaceContainerHighest
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // From language selector
+          // From language selector with animation
+          fromLanguageWidget,
+          const SizedBox(width: 12.0),
+          // Swap languages button
           GestureDetector(
-            onTap: _showFromLanguageDialog,
+            onTap: _swapLanguages,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 6.0,
-              ),
+              padding: const EdgeInsets.all(6.0),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
+                color: widget.showBackground
+                    ? theme.colorScheme.surface
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(6.0),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                ),
+                border: widget.showBackground
+                    ? Border.all(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                      )
+                    : null,
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _fromLanguage == null
-                        ? '自动'
-                        : _getLanguageName(_fromLanguage!),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(width: 4.0),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    size: 16,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ],
+              child: Icon(
+                Icons.swap_horiz,
+                size: 18,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ),
           const SizedBox(width: 12.0),
-          // Arrow icon
-          Icon(
-            Icons.arrow_forward,
-            size: 18,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-          const SizedBox(width: 12.0),
-          // To language selector
-          GestureDetector(
-            onTap: _showToLanguageDialog,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 6.0,
-              ),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(6.0),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _toLanguage == null ? '自动' : _getLanguageName(_toLanguage!),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(width: 4.0),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    size: 16,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // To language selector with animation
+          toLanguageWidget,
         ],
       ),
     );
