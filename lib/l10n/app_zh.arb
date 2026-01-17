@@ -20,5 +20,13 @@
   "hindi": "印地语",
   "indonesian": "印尼语",
   "portuguese": "葡萄牙语",
-  "russian": "俄语"
+  "russian": "俄语",
+  "pronunciationSource": "发音来源",
+  "pronunciationSourceDescription": "选择要使用的发音服务",
+  "pronunciationSystem": "系统",
+  "pronunciationYoudao": "有道",
+  "pronunciationBaidu": "百度",
+  "pronunciationBing": "必应",
+  "pronunciationGoogle": "谷歌",
+  "pronunciationApple": "苹果"
 }

@@ -599,9 +599,13 @@ class YoudaoAnagram {
   factory YoudaoAnagram.fromJson(Map<String, dynamic> json) {
     return YoudaoAnagram(
       wfs: json['wfs'] != null
-          ? (json['wfs'] as List<dynamic>)
-                .map((e) => YoudaoWf.fromJson(e['wf'] as Map<String, dynamic>))
-                .toList()
+          ? (json['wfs'] as List<dynamic>).map((e) {
+              if (e is Map<String, dynamic>) {
+                return YoudaoWf.fromJson(e);
+              } else {
+                return YoudaoWf.fromJson(e['wf'] as Map<String, dynamic>);
+              }
+            }).toList()
           : null,
       word: json['word'] as String?,
     );
@@ -1428,4 +1432,342 @@ class YoudaoRelWordWord {
 
   final String? word;
   final String? tran;
+}
+
+/// Discriminate model (word discrimination).
+class YoudaoDiscriminate {
+  YoudaoDiscriminate({this.data});
+
+  factory YoudaoDiscriminate.fromJson(Map<String, dynamic> json) {
+    return YoudaoDiscriminate(
+      data: json['data'] != null
+          ? (json['data'] as List)
+                .map(
+                  (e) => YoudaoDiscriminateData.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+          : null,
+    );
+  }
+
+  final List<YoudaoDiscriminateData>? data;
+}
+
+/// Discriminate Data model.
+class YoudaoDiscriminateData {
+  YoudaoDiscriminateData({this.source, this.usages, this.headwords, this.tran});
+
+  factory YoudaoDiscriminateData.fromJson(Map<String, dynamic> json) {
+    return YoudaoDiscriminateData(
+      source: json['source'] as String?,
+      usages: json['usages'] != null
+          ? (json['usages'] as List)
+                .map(
+                  (e) => YoudaoDiscriminateUsage.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+          : null,
+      headwords: json['headwords'] != null
+          ? (json['headwords'] as List).map((e) => e.toString()).toList()
+          : null,
+      tran: json['tran'] as String?,
+    );
+  }
+
+  final String? source;
+  final List<YoudaoDiscriminateUsage>? usages;
+  final List<String>? headwords;
+  final String? tran;
+}
+
+/// Discriminate Usage model.
+class YoudaoDiscriminateUsage {
+  YoudaoDiscriminateUsage({this.headword, this.usage, this.examSents});
+
+  factory YoudaoDiscriminateUsage.fromJson(Map<String, dynamic> json) {
+    return YoudaoDiscriminateUsage(
+      headword: json['headword'] as String?,
+      usage: json['usage'] as String?,
+      examSents: json['exam_sents'] != null
+          ? (json['exam_sents'] as List)
+                .map(
+                  (e) => YoudaoDiscriminateExamSent.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+          : null,
+    );
+  }
+
+  final String? headword;
+  final String? usage;
+  final List<YoudaoDiscriminateExamSent>? examSents;
+}
+
+/// Discriminate Exam Sentence model.
+class YoudaoDiscriminateExamSent {
+  YoudaoDiscriminateExamSent({this.chnSent, this.engSent});
+
+  factory YoudaoDiscriminateExamSent.fromJson(Map<String, dynamic> json) {
+    return YoudaoDiscriminateExamSent(
+      chnSent: json['chn_sent'] as String?,
+      engSent: json['eng_sent'] as String?,
+    );
+  }
+
+  final String? chnSent;
+  final String? engSent;
+}
+
+/// Expand EC model (expanded EC dictionary).
+class YoudaoExpandEc {
+  YoudaoExpandEc({this.returnPhrase, this.source, this.word});
+
+  factory YoudaoExpandEc.fromJson(Map<String, dynamic> json) {
+    return YoudaoExpandEc(
+      returnPhrase: json['return-phrase'] as String?,
+      source: json['source'] != null
+          ? YoudaoSource.fromJson(json['source'] as Map<String, dynamic>)
+          : null,
+      word: json['word'] != null
+          ? (json['word'] as List)
+                .map(
+                  (e) => YoudaoExpandEcWord.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
+          : null,
+    );
+  }
+
+  final String? returnPhrase;
+  final YoudaoSource? source;
+  final List<YoudaoExpandEcWord>? word;
+}
+
+/// Expand EC Word model.
+class YoudaoExpandEcWord {
+  YoudaoExpandEcWord({this.transList, this.pos, this.wfs});
+
+  factory YoudaoExpandEcWord.fromJson(Map<String, dynamic> json) {
+    return YoudaoExpandEcWord(
+      transList: json['transList'] != null
+          ? (json['transList'] as List)
+                .map(
+                  (e) => YoudaoExpandEcTransList.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+          : null,
+      pos: json['pos'] as String?,
+      wfs: json['wfs'] != null
+          ? (json['wfs'] as List)
+                .map((e) => YoudaoWf.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : null,
+    );
+  }
+
+  final List<YoudaoExpandEcTransList>? transList;
+  final String? pos;
+  final List<YoudaoWf>? wfs;
+}
+
+/// Expand EC Trans List model.
+class YoudaoExpandEcTransList {
+  YoudaoExpandEcTransList({this.content, this.trans});
+
+  factory YoudaoExpandEcTransList.fromJson(Map<String, dynamic> json) {
+    return YoudaoExpandEcTransList(
+      content: json['content'] != null
+          ? YoudaoExpandEcContent.fromJson(
+              json['content'] as Map<String, dynamic>,
+            )
+          : null,
+      trans: json['trans'] as String?,
+    );
+  }
+
+  final YoudaoExpandEcContent? content;
+  final String? trans;
+}
+
+/// Expand EC Content model.
+class YoudaoExpandEcContent {
+  YoudaoExpandEcContent({this.detailPos, this.examType, this.sents});
+
+  factory YoudaoExpandEcContent.fromJson(Map<String, dynamic> json) {
+    return YoudaoExpandEcContent(
+      detailPos: json['detailPos'] as String?,
+      examType: json['examType'] != null
+          ? (json['examType'] as List)
+                .map(
+                  (e) => YoudaoExpandEcExamType.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+          : null,
+      sents: json['sents'] != null
+          ? (json['sents'] as List)
+                .map(
+                  (e) => YoudaoExpandEcSent.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
+          : null,
+    );
+  }
+
+  final String? detailPos;
+  final List<YoudaoExpandEcExamType>? examType;
+  final List<YoudaoExpandEcSent>? sents;
+}
+
+/// Expand EC Exam Type model.
+class YoudaoExpandEcExamType {
+  YoudaoExpandEcExamType({this.en, this.zh});
+
+  factory YoudaoExpandEcExamType.fromJson(Map<String, dynamic> json) {
+    return YoudaoExpandEcExamType(
+      en: json['en'] as String?,
+      zh: json['zh'] as String?,
+    );
+  }
+
+  final String? en;
+  final String? zh;
+}
+
+/// Expand EC Sentence model.
+class YoudaoExpandEcSent {
+  YoudaoExpandEcSent({
+    this.sentOrig,
+    this.sourceType,
+    this.sentSpeech,
+    this.sentTrans,
+    this.source,
+    this.type,
+  });
+
+  factory YoudaoExpandEcSent.fromJson(Map<String, dynamic> json) {
+    return YoudaoExpandEcSent(
+      sentOrig: json['sentOrig'] as String?,
+      sourceType: json['sourceType'] as String?,
+      sentSpeech: json['sentSpeech'] as String?,
+      sentTrans: json['sentTrans'] as String?,
+      source: json['source'] as String?,
+      type: json['type'] as String?,
+    );
+  }
+
+  final String? sentOrig;
+  final String? sourceType;
+  final String? sentSpeech;
+  final String? sentTrans;
+  final String? source;
+  final String? type;
+}
+
+/// Music Sentences model.
+class YoudaoMusicSents {
+  YoudaoMusicSents({this.sentsData, this.more, this.word});
+
+  factory YoudaoMusicSents.fromJson(Map<String, dynamic> json) {
+    return YoudaoMusicSents(
+      sentsData: json['sents_data'] != null
+          ? (json['sents_data'] as List)
+                .map((e) => YoudaoMusicSent.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : null,
+      more: json['more'] as bool?,
+      word: json['word'] as String?,
+    );
+  }
+
+  final List<YoudaoMusicSent>? sentsData;
+  final bool? more;
+  final String? word;
+}
+
+/// Music Sentence model.
+class YoudaoMusicSent {
+  YoudaoMusicSent({
+    this.songName,
+    this.lyricTranslation,
+    this.singer,
+    this.coverImg,
+    this.supportCount,
+    this.lyric,
+    this.link,
+    this.lyricList,
+    this.id,
+    this.songId,
+    this.decryptedSongId,
+    this.playUrl,
+  });
+
+  factory YoudaoMusicSent.fromJson(Map<String, dynamic> json) {
+    return YoudaoMusicSent(
+      songName: json['songName'] as String?,
+      lyricTranslation: json['lyricTranslation'] as String?,
+      singer: json['singer'] as String?,
+      coverImg: json['coverImg'] as String?,
+      supportCount: json['supportCount'] as int?,
+      lyric: json['lyric'] as String?,
+      link: json['link'] as String?,
+      lyricList: json['lyricList'] != null
+          ? (json['lyricList'] as List)
+                .map(
+                  (e) => YoudaoMusicLyric.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
+          : null,
+      id: json['id'] as String?,
+      songId: json['songId'] as String?,
+      decryptedSongId: json['decryptedSongId'] as String?,
+      playUrl: json['playUrl'] as String?,
+    );
+  }
+
+  final String? songName;
+  final String? lyricTranslation;
+  final String? singer;
+  final String? coverImg;
+  final int? supportCount;
+  final String? lyric;
+  final String? link;
+  final List<YoudaoMusicLyric>? lyricList;
+  final String? id;
+  final String? songId;
+  final String? decryptedSongId;
+  final String? playUrl;
+}
+
+/// Music Lyric model.
+class YoudaoMusicLyric {
+  YoudaoMusicLyric({
+    this.duration,
+    this.lyricTranslation,
+    this.lyric,
+    this.start,
+  });
+
+  factory YoudaoMusicLyric.fromJson(Map<String, dynamic> json) {
+    return YoudaoMusicLyric(
+      duration: json['duration'] as int?,
+      lyricTranslation: json['lyricTranslation'] as String?,
+      lyric: json['lyric'] as String?,
+      start: json['start'] as int?,
+    );
+  }
+
+  final int? duration;
+  final String? lyricTranslation;
+  final String? lyric;
+  final int? start;
 }

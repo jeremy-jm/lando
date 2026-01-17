@@ -1,3 +1,5 @@
+import 'package:lando/services/translation/youdao/models/youdao_simple_phonetic.dart';
+
 /// Youdao Simple model (phonetic and basic info).
 class YoudaoSimple {
   YoudaoSimple({this.query, this.word});
@@ -29,6 +31,7 @@ class YoudaoSimpleWord {
     this.usspeech,
     this.collegeExamVoice,
     this.speech,
+    this.multiPhone,
   });
 
   factory YoudaoSimpleWord.fromJson(Map<String, dynamic> json) {
@@ -44,6 +47,11 @@ class YoudaoSimpleWord {
             )
           : null,
       speech: json['speech'] as String?,
+      multiPhone: json['multiPhone'] != null
+          ? YoudaoMultiPhone.fromJson(
+              json['multiPhone'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 
@@ -54,6 +62,7 @@ class YoudaoSimpleWord {
   final String? usspeech;
   final YoudaoCollegeExamVoice? collegeExamVoice;
   final String? speech;
+  final YoudaoMultiPhone? multiPhone;
 }
 
 /// College Exam Voice model.

@@ -83,5 +83,37 @@
   "russian": "Russian",
   "@russian": {
     "description": "Russian language option"
+  },
+  "pronunciationSource": "Pronunciation Source",
+  "@pronunciationSource": {
+    "description": "Pronunciation source setting title"
+  },
+  "pronunciationSourceDescription": "Select the pronunciation service to use",
+  "@pronunciationSourceDescription": {
+    "description": "Pronunciation source setting description"
+  },
+  "pronunciationSystem": "System",
+  "@pronunciationSystem": {
+    "description": "System TTS pronunciation option"
+  },
+  "pronunciationYoudao": "Youdao",
+  "@pronunciationYoudao": {
+    "description": "Youdao pronunciation option"
+  },
+  "pronunciationBaidu": "Baidu",
+  "@pronunciationBaidu": {
+    "description": "Baidu pronunciation option"
+  },
+  "pronunciationBing": "Bing",
+  "@pronunciationBing": {
+    "description": "Bing pronunciation option"
+  },
+  "pronunciationGoogle": "Google",
+  "@pronunciationGoogle": {
+    "description": "Google pronunciation option"
+  },
+  "pronunciationApple": "Apple",
+  "@pronunciationApple": {
+    "description": "Apple pronunciation option"
   }
 }

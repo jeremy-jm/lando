@@ -6,6 +6,7 @@ class StorageKeys {
   static const String localeLanguageCode = 'locale_language_code';
   static const String translationFromLanguage = 'translation_from_language';
   static const String translationToLanguage = 'translation_to_language';
+  static const String pronunciationServiceType = 'pronunciation_service_type';
 }
 
 /// Storage service for managing user preferences
@@ -86,6 +87,18 @@ class PreferencesStorage {
   /// Get translation to language
   static String? getTranslationToLanguage() {
     return prefs.getString(StorageKeys.translationToLanguage);
+  }
+
+  // ==================== Pronunciation Service Type ====================
+
+  /// Save pronunciation service type
+  static Future<bool> savePronunciationServiceType(String serviceType) async {
+    return await prefs.setString(StorageKeys.pronunciationServiceType, serviceType);
+  }
+
+  /// Get pronunciation service type
+  static String? getPronunciationServiceType() {
+    return prefs.getString(StorageKeys.pronunciationServiceType);
   }
 
   // ==================== Clear ====================

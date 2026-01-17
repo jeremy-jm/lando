@@ -70,4 +70,29 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get russian => 'ロシア語';
+
+  @override
+  String get pronunciationSource => 'Pronunciation Source';
+
+  @override
+  String get pronunciationSourceDescription =>
+      'Select the pronunciation service to use';
+
+  @override
+  String get pronunciationSystem => 'System';
+
+  @override
+  String get pronunciationYoudao => 'Youdao';
+
+  @override
+  String get pronunciationBaidu => 'Baidu';
+
+  @override
+  String get pronunciationBing => 'Bing';
+
+  @override
+  String get pronunciationGoogle => 'Google';
+
+  @override
+  String get pronunciationApple => 'Apple';
 }

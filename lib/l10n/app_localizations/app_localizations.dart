@@ -233,6 +233,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Russian'**
   String get russian;
+
+  /// Pronunciation source setting title
+  ///
+  /// In en, this message translates to:
+  /// **'Pronunciation Source'**
+  String get pronunciationSource;
+
+  /// Pronunciation source setting description
+  ///
+  /// In en, this message translates to:
+  /// **'Select the pronunciation service to use'**
+  String get pronunciationSourceDescription;
+
+  /// System TTS pronunciation option
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get pronunciationSystem;
+
+  /// Youdao pronunciation option
+  ///
+  /// In en, this message translates to:
+  /// **'Youdao'**
+  String get pronunciationYoudao;
+
+  /// Baidu pronunciation option
+  ///
+  /// In en, this message translates to:
+  /// **'Baidu'**
+  String get pronunciationBaidu;
+
+  /// Bing pronunciation option
+  ///
+  /// In en, this message translates to:
+  /// **'Bing'**
+  String get pronunciationBing;
+
+  /// Google pronunciation option
+  ///
+  /// In en, this message translates to:
+  /// **'Google'**
+  String get pronunciationGoogle;
+
+  /// Apple pronunciation option
+  ///
+  /// In en, this message translates to:
+  /// **'Apple'**
+  String get pronunciationApple;
 }
 
 class _AppLocalizationsDelegate

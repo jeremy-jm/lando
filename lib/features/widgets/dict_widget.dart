@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lando/models/result_model.dart';
-import 'package:lando/services/audio/pronunciation_service.dart';
+import 'package:lando/services/audio/pronunciation_service_manager.dart';
+import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/services/translation/translation_service_factory.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
 
@@ -75,7 +76,8 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
   ResultModel? _result;
   String? _error;
   bool _loading = false;
-  final PronunciationService _pronunciationService = PronunciationService();
+  final PronunciationServiceManager _pronunciationManager =
+      PronunciationServiceManager();
 
   @override
   void initState() {
@@ -94,7 +96,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
 
   @override
   void dispose() {
-    _pronunciationService.dispose();
+    _pronunciationManager.dispose();
     super.dispose();
   }
 
@@ -532,18 +534,41 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
   ) {
     return InkWell(
       onTap: () async {
+        if (!mounted) return;
+
         try {
-          await _pronunciationService.stop();
-          await _pronunciationService.play(url);
-        } catch (e) {
-          if (mounted) {
+          await _pronunciationManager.stop();
+
+          // Get current service type to determine if we should use URL or text
+          final serviceType = PreferencesStorage.getPronunciationServiceType();
+          final isSystemTts = serviceType == null || serviceType == 'system';
+
+          // For system TTS, use text directly. For others, use URL.
+          final success = await _pronunciationManager.speak(
+            text: widget.query,
+            languageCode: null, // Could be extracted from result if needed
+            url: isSystemTts ? null : url,
+          );
+
+          if (!mounted) return;
+
+          if (!success) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error playing pronunciation: $e'),
-                duration: const Duration(seconds: 2),
+              const SnackBar(
+                content: Text('Error playing pronunciation'),
+                duration: Duration(seconds: 2),
               ),
             );
           }
+        } catch (e) {
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error playing pronunciation: $e'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
         }
       },
       borderRadius: BorderRadius.circular(8.0),

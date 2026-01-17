@@ -46,6 +46,9 @@ dependencies:
   # Audio player for pronunciation
   audioplayers: ^6.0.0
 
+  # Text-to-speech for system pronunciation
+  flutter_tts: ^4.0.2
+
   # Crypto for generating signatures
   crypto: ^3.0.3
 

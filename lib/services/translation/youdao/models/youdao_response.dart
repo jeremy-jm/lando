@@ -21,6 +21,7 @@ class YoudaoResponse {
     this.collins,
     this.wordVideo,
     this.webster,
+    this.discriminate,
     this.wikipediaDigest,
     this.lang,
     this.ec,
@@ -31,6 +32,7 @@ class YoudaoResponse {
     this.authSentsPart,
     this.magicWords,
     this.mediaSentsPart,
+    this.expandEc,
     this.etym,
     this.special,
     this.senior,
@@ -42,6 +44,7 @@ class YoudaoResponse {
     this.wordElaboration,
     this.relWord,
     this.ce,
+    this.musicSents,
   });
 
   factory YoudaoResponse.fromJson(Map<String, dynamic> json) {
@@ -83,6 +86,11 @@ class YoudaoResponse {
       webster: json['webster'] != null
           ? YoudaoEncryptedData.fromJson(
               json['webster'] as Map<String, dynamic>,
+            )
+          : null,
+      discriminate: json['discriminate'] != null
+          ? YoudaoDiscriminate.fromJson(
+              json['discriminate'] as Map<String, dynamic>,
             )
           : null,
       wikipediaDigest: json['wikipedia_digest'] != null
@@ -127,6 +135,9 @@ class YoudaoResponse {
               json['media_sents_part'] as Map<String, dynamic>,
             )
           : null,
+      expandEc: json['expand_ec'] != null
+          ? YoudaoExpandEc.fromJson(json['expand_ec'] as Map<String, dynamic>)
+          : null,
       etym: json['etym'] != null
           ? YoudaoEtym.fromJson(json['etym'] as Map<String, dynamic>)
           : null,
@@ -160,6 +171,11 @@ class YoudaoResponse {
       ce: json['ce'] != null
           ? YoudaoCe.fromJson(json['ce'] as Map<String, dynamic>)
           : null,
+      musicSents: json['music_sents'] != null
+          ? YoudaoMusicSents.fromJson(
+              json['music_sents'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 
@@ -174,6 +190,7 @@ class YoudaoResponse {
   final YoudaoCollins? collins;
   final YoudaoWordVideo? wordVideo;
   final YoudaoEncryptedData? webster;
+  final YoudaoDiscriminate? discriminate;
   final YoudaoWikipediaDigest? wikipediaDigest;
   final String? lang;
   final YoudaoEc? ec;
@@ -184,6 +201,7 @@ class YoudaoResponse {
   final YoudaoAuthSentsPart? authSentsPart;
   final YoudaoMagicWords? magicWords;
   final YoudaoMediaSentsPart? mediaSentsPart;
+  final YoudaoExpandEc? expandEc;
   final YoudaoEtym? etym;
   final YoudaoSpecial? special;
   final YoudaoEncryptedData? senior;
@@ -195,6 +213,7 @@ class YoudaoResponse {
   final YoudaoWordElaboration? wordElaboration;
   final YoudaoRelWord? relWord;
   final YoudaoCe? ce;
+  final YoudaoMusicSents? musicSents;
 }
 
 /// Encrypted data model (used for various encrypted fields).

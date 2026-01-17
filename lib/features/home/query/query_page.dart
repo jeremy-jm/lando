@@ -6,8 +6,9 @@ import 'package:lando/features/home/widgets/translation_input_widget.dart';
 import 'package:lando/features/me/settings_page.dart';
 import 'package:lando/features/widgets/dict_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
-import 'package:lando/services/audio/pronunciation_service.dart';
+import 'package:lando/services/audio/pronunciation_service_manager.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
+import 'package:lando/storage/preferences_storage.dart';
 
 class QueryPage extends StatefulWidget {
   const QueryPage({super.key, this.initialQuery});
@@ -22,7 +23,8 @@ class _QueryPageState extends State<QueryPage> {
   late final QueryBloc _bloc;
   late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
-  final PronunciationService _pronunciationService = PronunciationService();
+  final PronunciationServiceManager _pronunciationManager =
+      PronunciationServiceManager();
   String? _detectedLanguage;
 
   @override
@@ -63,12 +65,30 @@ class _QueryPageState extends State<QueryPage> {
 
   String? _simpleLanguageDetection(String text) {
     // Simple heuristic: check for Chinese, Japanese, etc.
-    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return '中文';
-    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return '日语';
-    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return '印地语';
+    // Returns language code (e.g., 'zh', 'ja', 'hi', 'en') for TTS compatibility
+    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return 'zh';
+    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return 'ja';
+    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return 'hi';
     // Default to English for Latin scripts
-    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return '英语';
-    return '英语'; // Default fallback
+    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return 'en';
+    return 'en'; // Default fallback
+  }
+
+  /// Converts language code to display name for UI
+  String? _getLanguageDisplayName(String? languageCode) {
+    if (languageCode == null) return null;
+    switch (languageCode) {
+      case 'zh':
+        return '中文';
+      case 'ja':
+        return '日语';
+      case 'hi':
+        return '印地语';
+      case 'en':
+        return '英语';
+      default:
+        return languageCode.toUpperCase();
+    }
   }
 
   @override
@@ -76,12 +96,20 @@ class _QueryPageState extends State<QueryPage> {
     _bloc.dispose();
     _controller.dispose();
     _focusNode.dispose();
-    _pronunciationService.dispose();
+    _pronunciationManager.dispose();
     super.dispose();
   }
 
-  Future<void> _playPronunciation(String? url) async {
-    if (url == null || url.isEmpty) {
+  /// Plays pronunciation for the given text or URL.
+  ///
+  /// If [url] is provided and the current service is not system TTS,
+  /// it will use the URL. Otherwise, it will use system TTS with the [text].
+  Future<void> _playPronunciation({
+    required String text,
+    String? url,
+    String? languageCode,
+  }) async {
+    if (text.trim().isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -94,8 +122,27 @@ class _QueryPageState extends State<QueryPage> {
     }
 
     try {
-      await _pronunciationService.stop();
-      await _pronunciationService.play(url);
+      await _pronunciationManager.stop();
+
+      // Get current service type to determine if we should use URL or text
+      final serviceType = PreferencesStorage.getPronunciationServiceType();
+      final isSystemTts = serviceType == null || serviceType == 'system';
+
+      // For system TTS, use text directly. For others, use URL if available.
+      final success = await _pronunciationManager.speak(
+        text: text,
+        languageCode: languageCode,
+        url: isSystemTts ? null : url,
+      );
+
+      if (!success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error playing pronunciation'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -151,11 +198,18 @@ class _QueryPageState extends State<QueryPage> {
                     controller: _controller,
                     focusNode: _focusNode,
                     hintText: l10n.translation,
-                    detectedLanguage: _detectedLanguage,
+                    detectedLanguage: _getLanguageDisplayName(
+                      _detectedLanguage,
+                    ),
                     pronunciationUrl: state.inputPronunciationUrl,
-                    onPronunciationTap: state.inputPronunciationUrl != null
-                        ? () => _playPronunciation(state.inputPronunciationUrl)
-                        : null,
+                    onPronunciationTap: () => _playPronunciation(
+                      text: state.query.isNotEmpty
+                          ? state.query
+                          : _controller.text,
+                      url: state.inputPronunciationUrl,
+                      languageCode:
+                          _detectedLanguage, // Pass language code (e.g., 'zh', 'en')
+                    ),
                     onSubmitted: (value) {
                       if (value.trim().isNotEmpty) {
                         _bloc.add(QuerySearchSubmitted(value.trim()));
