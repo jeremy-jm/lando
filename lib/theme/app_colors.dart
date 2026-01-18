@@ -7,8 +7,8 @@ class AppColors {
   AppColors._();
 
   // ==================== Theme Colors ====================
-  /// Primary seed color
-  static const Color primarySeedColor = Colors.deepPurple;
+  /// Primary seed color - light blue
+  static const Color primarySeedColor = Colors.lightBlue;
 
   // ==================== Light Mode Colors ====================
   /// Light mode - background color
@@ -18,7 +18,7 @@ class AppColors {
   static const Color lightBottomNavBackground = Colors.white;
 
   /// Light mode - bottom navigation bar selected item color
-  static const Color lightBottomNavSelected = Colors.deepPurple;
+  static const Color lightBottomNavSelected = Colors.lightBlue;
 
   /// Light mode - bottom navigation bar unselected item color
   static const Color lightBottomNavUnselected = Colors.grey;
@@ -34,7 +34,7 @@ class AppColors {
   static const Color darkBottomNavBackground = Color(0xFF1E1E1E);
 
   /// Dark mode - bottom navigation bar selected item color
-  static Color get darkBottomNavSelected => Colors.deepPurple.shade300;
+  static Color get darkBottomNavSelected => Colors.lightBlue.shade300;
 
   /// Dark mode - bottom navigation bar unselected item color
   static Color get darkBottomNavUnselected => Colors.grey.shade600;

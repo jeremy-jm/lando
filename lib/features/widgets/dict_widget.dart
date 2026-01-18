@@ -301,11 +301,11 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: 20,
+                      width: 34,
                       child: Text(
                         translation['name'] ?? '',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: theme.colorScheme.primary,
                         ),

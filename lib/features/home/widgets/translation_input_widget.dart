@@ -83,6 +83,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
               ),
               child: Row(
                 children: [
+                  const SizedBox(width: 12),
                   // Audio and copy icons
                   IconButton(
                     icon: const Icon(Icons.volume_up, size: 16),
@@ -91,6 +92,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
+                  const SizedBox(width: 12),
                   IconButton(
                     icon: const Icon(Icons.content_copy, size: 16),
                     onPressed: () {
