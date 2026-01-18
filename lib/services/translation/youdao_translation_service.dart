@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/network/api_client.dart';
@@ -22,68 +23,82 @@ class YoudaoTranslationService implements TranslationService {
       return '';
     }
 
-    // Get target language from preferences, default to 'auto' if not set
-    final toLanguage = PreferencesStorage.getTranslationToLanguage() ?? 'auto';
-    final le = _mapLanguageCodeToYoudao(toLanguage);
+    try {
+      // Get target language from preferences, default to 'auto' if not set
+      final toLanguage =
+          PreferencesStorage.getTranslationToLanguage() ?? 'auto';
+      final le = _mapLanguageCodeToYoudao(toLanguage);
 
-    final queryModel = _buildQueryModel(query: query, le: le);
-    final response = await translateFullWithModel(queryModel);
+      final queryModel = _buildQueryModel(query: query, le: le);
+      final response = await translateFullWithModel(queryModel);
 
-    // Priority 0: Extract translation from Fanyi - highest priority
-    if (response.fanyi != null &&
-        response.fanyi!.tran != null &&
-        response.fanyi!.tran!.isNotEmpty) {
-      return response.fanyi!.tran!;
-    }
+      // Priority 0: Extract translation from Fanyi - highest priority
+      if (response.fanyi != null &&
+          response.fanyi!.tran != null &&
+          response.fanyi!.tran!.isNotEmpty) {
+        return response.fanyi!.tran!;
+      }
 
-    // Extract translation from EC (basic dictionary) - most common case
-    final ecWord = response.ec?.word;
-    if (ecWord != null) {
-      final translations = <String>[];
+      // Extract translation from EC (basic dictionary) - most common case
+      final ecWord = response.ec?.word;
+      if (ecWord != null) {
+        final translations = <String>[];
 
-      // Get translations from trs
-      for (final tr in ecWord.trs ?? []) {
-        if (tr.tran != null && tr.tran!.isNotEmpty) {
-          final pos = tr.pos != null ? '${tr.pos} ' : '';
-          translations.add('$pos${tr.tran}');
+        // Get translations from trs
+        for (final tr in ecWord.trs ?? []) {
+          if (tr.tran != null && tr.tran!.isNotEmpty) {
+            final pos = tr.pos != null ? '${tr.pos} ' : '';
+            translations.add('$pos${tr.tran}');
+          }
+        }
+
+        if (translations.isNotEmpty) {
+          return translations.join('; ');
         }
       }
 
-      if (translations.isNotEmpty) {
-        return translations.join('; ');
+      // Fallback: try web_trans
+      final webTrans = response.webTrans?.webTranslation;
+      if (webTrans != null && webTrans.isNotEmpty) {
+        final firstTrans = webTrans.first;
+        if (firstTrans.trans != null && firstTrans.trans!.isNotEmpty) {
+          return firstTrans.trans!.map((t) => t.value ?? '').join('; ');
+        }
       }
-    }
 
-    // Fallback: try web_trans
-    final webTrans = response.webTrans?.webTranslation;
-    if (webTrans != null && webTrans.isNotEmpty) {
-      final firstTrans = webTrans.first;
-      if (firstTrans.trans != null && firstTrans.trans!.isNotEmpty) {
-        return firstTrans.trans!.map((t) => t.value ?? '').join('; ');
-      }
-    }
-
-    // Fallback: try EE (extended dictionary)
-    final eeWord = response.ee?.word;
-    if (eeWord != null && eeWord.trs != null && eeWord.trs!.isNotEmpty) {
-      final translations = <String>[];
-      for (final tr in eeWord.trs!) {
-        if (tr.tr != null) {
-          for (final trItem in tr.tr!) {
-            if (trItem.tran != null && trItem.tran!.isNotEmpty) {
-              final pos = tr.pos != null ? '${tr.pos} ' : '';
-              translations.add('$pos${trItem.tran}');
+      // Fallback: try EE (extended dictionary)
+      final eeWord = response.ee?.word;
+      if (eeWord != null && eeWord.trs != null && eeWord.trs!.isNotEmpty) {
+        final translations = <String>[];
+        for (final tr in eeWord.trs!) {
+          if (tr.tr != null) {
+            for (final trItem in tr.tr!) {
+              if (trItem.tran != null && trItem.tran!.isNotEmpty) {
+                final pos = tr.pos != null ? '${tr.pos} ' : '';
+                translations.add('$pos${trItem.tran}');
+              }
             }
           }
         }
+        if (translations.isNotEmpty) {
+          return translations.join('; ');
+        }
       }
-      if (translations.isNotEmpty) {
-        return translations.join('; ');
-      }
-    }
 
-    // Last fallback: return query word if no translation found
-    return query;
+      // Last fallback: return query word if no translation found
+      return query;
+    } on SocketException catch (e) {
+      // Handle network connection errors
+      throw Exception(
+        'Network connection failed. Please check your internet connection and try again. Error: ${e.message}',
+      );
+    } on HttpException catch (e) {
+      // Handle HTTP errors
+      throw Exception('Translation request failed: ${e.message}');
+    } catch (e) {
+      // Handle any other errors
+      throw Exception('Translation failed: $e');
+    }
   }
 
   /// Get the full YoudaoResponse object for advanced usage.
@@ -92,12 +107,30 @@ class YoudaoTranslationService implements TranslationService {
       throw ArgumentError('Query cannot be empty');
     }
 
-    // Get target language from preferences, default to 'auto' if not set
-    final toLanguage = PreferencesStorage.getTranslationToLanguage() ?? 'auto';
-    final le = _mapLanguageCodeToYoudao(toLanguage);
+    try {
+      // Get target language from preferences, default to 'auto' if not set
+      final toLanguage =
+          PreferencesStorage.getTranslationToLanguage() ?? 'auto';
+      final le = _mapLanguageCodeToYoudao(toLanguage);
 
-    final queryModel = _buildQueryModel(query: query, le: le);
-    return await translateFullWithModel(queryModel);
+      final queryModel = _buildQueryModel(query: query, le: le);
+      return await translateFullWithModel(queryModel);
+    } on SocketException catch (e) {
+      // Handle network connection errors
+      throw Exception(
+        'Network connection failed. Please check your internet connection and try again. Error: ${e.message}',
+      );
+    } on HttpException catch (e) {
+      // Handle HTTP errors
+      throw Exception('Translation request failed: ${e.message}');
+    } catch (e) {
+      // Re-throw if it's already an ArgumentError
+      if (e is ArgumentError) {
+        rethrow;
+      }
+      // Handle any other errors
+      throw Exception('Translation failed: $e');
+    }
   }
 
   /// Get the full YoudaoResponse object using YoudaoQueryModel.
