@@ -209,4 +209,44 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get noSuggestionsFound =>
       'Nenhuma sugestão encontrada para sua consulta';
+
+  @override
+  String get enterTextToTranslate => 'Digite o texto para traduzir';
+
+  @override
+  String get playAudio => 'Reproduzir áudio';
+
+  @override
+  String get copiedToClipboard => 'Copiado para a área de transferência';
+
+  @override
+  String get detectedAs => 'Detectado como';
+
+  @override
+  String get pronunciationNotAvailable => 'Pronúncia não disponível';
+
+  @override
+  String get errorPlayingPronunciation => 'Erro ao reproduzir pronúncia';
+
+  @override
+  String errorPlayingPronunciationWithDetails(String error) {
+    return 'Erro ao reproduzir pronúncia: $error';
+  }
+
+  @override
+  String errorWithDetails(String error) {
+    return 'Erro: $error';
+  }
+
+  @override
+  String get partOfSpeech => 'Classe Gramatical';
+
+  @override
+  String get tense => 'Tempo';
+
+  @override
+  String get phrases => 'Frases';
+
+  @override
+  String get webTranslations => 'Traduções da Web';
 }

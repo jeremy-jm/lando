@@ -198,4 +198,44 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noSuggestionsFound => '没有你要查询的内容';
+
+  @override
+  String get enterTextToTranslate => '输入要翻译的文本';
+
+  @override
+  String get playAudio => '播放音频';
+
+  @override
+  String get copiedToClipboard => '已复制到剪贴板';
+
+  @override
+  String get detectedAs => '识别为';
+
+  @override
+  String get pronunciationNotAvailable => '发音不可用';
+
+  @override
+  String get errorPlayingPronunciation => '播放发音时出错';
+
+  @override
+  String errorPlayingPronunciationWithDetails(String error) {
+    return '播放发音时出错：$error';
+  }
+
+  @override
+  String errorWithDetails(String error) {
+    return '错误：$error';
+  }
+
+  @override
+  String get partOfSpeech => '词性';
+
+  @override
+  String get tense => '时态';
+
+  @override
+  String get phrases => '短语';
+
+  @override
+  String get webTranslations => '网络翻译';
 }

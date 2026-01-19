@@ -251,5 +251,63 @@
   "noSuggestionsFound": "No suggestions found for your query",
   "@noSuggestionsFound": {
     "description": "Message shown when no suggestions are found for the query"
+  },
+  "enterTextToTranslate": "Enter text to translate",
+  "@enterTextToTranslate": {
+    "description": "Placeholder text for translation input field"
+  },
+  "playAudio": "Play audio",
+  "@playAudio": {
+    "description": "Tooltip for play audio button"
+  },
+  "copiedToClipboard": "Copied to clipboard",
+  "@copiedToClipboard": {
+    "description": "Message shown when text is copied to clipboard"
+  },
+  "detectedAs": "Detected as",
+  "@detectedAs": {
+    "description": "Label shown before detected language name"
+  },
+  "pronunciationNotAvailable": "Pronunciation not available",
+  "@pronunciationNotAvailable": {
+    "description": "Message shown when pronunciation is not available"
+  },
+  "errorPlayingPronunciation": "Error playing pronunciation",
+  "@errorPlayingPronunciation": {
+    "description": "Error message shown when pronunciation fails"
+  },
+  "errorPlayingPronunciationWithDetails": "Error playing pronunciation: {error}",
+  "@errorPlayingPronunciationWithDetails": {
+    "description": "Error message shown when pronunciation fails with error details",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorWithDetails": "Error: {error}",
+  "@errorWithDetails": {
+    "description": "Generic error message with details",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "partOfSpeech": "Part of Speech",
+  "@partOfSpeech": {
+    "description": "Label for part of speech section"
+  },
+  "tense": "Tense",
+  "@tense": {
+    "description": "Label for tense/word form section"
+  },
+  "phrases": "Phrases",
+  "@phrases": {
+    "description": "Label for phrases section"
+  },
+  "webTranslations": "Web Translations",
+  "@webTranslations": {
+    "description": "Label for web translations section"
   }
 }

@@ -208,7 +208,9 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
             focusNode: widget.focusNode,
             readOnly: widget.readOnly,
             decoration: InputDecoration(
-              hintText: widget.hintText ?? 'Enter text to translate',
+              hintText:
+                  widget.hintText ??
+                  (l10n?.enterTextToTranslate ?? 'Enter text to translate'),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: BorderSide.none,
@@ -246,7 +248,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                   IconButton(
                     icon: const Icon(Icons.volume_up, size: 16),
                     onPressed: widget.onPronunciationTap,
-                    tooltip: 'Play audio',
+                    tooltip: l10n?.playAudio ?? 'Play audio',
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -259,14 +261,16 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                           ClipboardData(text: widget.controller.text),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Copied to clipboard'),
-                            duration: Duration(seconds: 1),
+                          SnackBar(
+                            content: Text(
+                              l10n?.copiedToClipboard ?? 'Copied to clipboard',
+                            ),
+                            duration: const Duration(seconds: 1),
                           ),
                         );
                       }
                     },
-                    tooltip: 'Copy',
+                    tooltip: l10n?.copy ?? 'Copy',
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -287,7 +291,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '识别为: ',
+                            '${l10n?.detectedAs ?? 'Detected as'}: ',
                             style: TextStyle(
                               fontSize: 12,
                               color: theme.colorScheme.onSurface.withValues(

@@ -213,9 +213,10 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(l10n?.errorWithDetails(e.toString()) ?? 'Error: $e'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -433,7 +434,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           ),
           const SizedBox(height: 16.0),
           Text(
-            '词性',
+            l10n?.partOfSpeech ?? 'Part of Speech',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -519,7 +520,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           ),
           const SizedBox(height: 16.0),
           Text(
-            '时态',
+            l10n?.tense ?? 'Tense',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -574,7 +575,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           ),
           const SizedBox(height: 16.0),
           Text(
-            '短语',
+            l10n?.phrases ?? 'Phrases',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -638,7 +639,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           ),
           const SizedBox(height: 16.0),
           Text(
-            '网络翻译',
+            l10n?.webTranslations ?? 'Web Translations',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -711,19 +712,27 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           if (!mounted) return;
 
           if (!success) {
+            final l10n = AppLocalizations.of(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Error playing pronunciation'),
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: Text(
+                  l10n?.errorPlayingPronunciation ??
+                      'Error playing pronunciation',
+                ),
+                duration: const Duration(seconds: 2),
               ),
             );
           }
         } catch (e) {
           if (!mounted) return;
 
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error playing pronunciation: $e'),
+              content: Text(
+                l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??
+                    'Error playing pronunciation: $e',
+              ),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -840,18 +849,25 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
 
           if (!success) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Error playing pronunciation'),
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(context)?.errorPlayingPronunciation ??
+                      'Error playing pronunciation',
+                ),
+                duration: const Duration(seconds: 2),
               ),
             );
           }
         } catch (e) {
           if (!mounted) return;
 
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error playing pronunciation: $e'),
+              content: Text(
+                l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??
+                    'Error playing pronunciation: $e',
+              ),
               duration: const Duration(seconds: 2),
             ),
           );

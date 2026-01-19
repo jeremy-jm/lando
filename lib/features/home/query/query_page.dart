@@ -111,10 +111,13 @@ class _QueryPageState extends State<QueryPage> {
   }) async {
     if (text.trim().isEmpty) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pronunciation not available'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(
+              l10n?.pronunciationNotAvailable ?? 'Pronunciation not available',
+            ),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -136,18 +139,25 @@ class _QueryPageState extends State<QueryPage> {
       );
 
       if (!success && mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error playing pronunciation'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(
+              l10n?.errorPlayingPronunciation ?? 'Error playing pronunciation',
+            ),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error playing pronunciation: $e'),
+            content: Text(
+              l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??
+                  'Error playing pronunciation: $e',
+            ),
             duration: const Duration(seconds: 2),
           ),
         );

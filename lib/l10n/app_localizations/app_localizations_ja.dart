@@ -198,4 +198,44 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get noSuggestionsFound => '検索結果が見つかりませんでした';
+
+  @override
+  String get enterTextToTranslate => '翻訳するテキストを入力';
+
+  @override
+  String get playAudio => '音声を再生';
+
+  @override
+  String get copiedToClipboard => 'クリップボードにコピーしました';
+
+  @override
+  String get detectedAs => '検出:';
+
+  @override
+  String get pronunciationNotAvailable => '発音が利用できません';
+
+  @override
+  String get errorPlayingPronunciation => '発音の再生中にエラーが発生しました';
+
+  @override
+  String errorPlayingPronunciationWithDetails(String error) {
+    return '発音の再生中にエラーが発生しました：$error';
+  }
+
+  @override
+  String errorWithDetails(String error) {
+    return 'エラー：$error';
+  }
+
+  @override
+  String get partOfSpeech => '品詞';
+
+  @override
+  String get tense => '時制';
+
+  @override
+  String get phrases => 'フレーズ';
+
+  @override
+  String get webTranslations => 'ウェブ翻訳';
 }

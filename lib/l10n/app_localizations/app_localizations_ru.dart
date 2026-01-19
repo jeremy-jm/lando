@@ -208,4 +208,44 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noSuggestionsFound => 'Не найдено предложений для вашего запроса';
+
+  @override
+  String get enterTextToTranslate => 'Введите текст для перевода';
+
+  @override
+  String get playAudio => 'Воспроизвести аудио';
+
+  @override
+  String get copiedToClipboard => 'Скопировано в буфер обмена';
+
+  @override
+  String get detectedAs => 'Определено как';
+
+  @override
+  String get pronunciationNotAvailable => 'Произношение недоступно';
+
+  @override
+  String get errorPlayingPronunciation => 'Ошибка воспроизведения произношения';
+
+  @override
+  String errorPlayingPronunciationWithDetails(String error) {
+    return 'Ошибка воспроизведения произношения: $error';
+  }
+
+  @override
+  String errorWithDetails(String error) {
+    return 'Ошибка: $error';
+  }
+
+  @override
+  String get partOfSpeech => 'Часть речи';
+
+  @override
+  String get tense => 'Время';
+
+  @override
+  String get phrases => 'Фразы';
+
+  @override
+  String get webTranslations => 'Веб-переводы';
 }

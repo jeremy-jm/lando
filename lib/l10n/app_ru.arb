@@ -62,5 +62,17 @@
   "copyright": "Авторские права © 2024 Lando Словарь. Все права защищены.",
   "close": "Закрыть",
   "aboutDescription": "Об этом приложении, информации о версии и юридических документах",
-  "noSuggestionsFound": "Не найдено предложений для вашего запроса"
+  "noSuggestionsFound": "Не найдено предложений для вашего запроса",
+  "enterTextToTranslate": "Введите текст для перевода",
+  "playAudio": "Воспроизвести аудио",
+  "copiedToClipboard": "Скопировано в буфер обмена",
+  "detectedAs": "Определено как",
+  "pronunciationNotAvailable": "Произношение недоступно",
+  "errorPlayingPronunciation": "Ошибка воспроизведения произношения",
+  "errorPlayingPronunciationWithDetails": "Ошибка воспроизведения произношения: {error}",
+  "errorWithDetails": "Ошибка: {error}",
+  "partOfSpeech": "Часть речи",
+  "tense": "Время",
+  "phrases": "Фразы",
+  "webTranslations": "Веб-переводы"
 }

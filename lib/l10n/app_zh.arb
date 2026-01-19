@@ -62,5 +62,17 @@
   "copyright": "版权所有 © 2024 兰多·词典。保留所有权利。",
   "close": "关闭",
   "aboutDescription": "关于本应用、版本信息和法律文档",
-  "noSuggestionsFound": "没有你要查询的内容"
+  "noSuggestionsFound": "没有你要查询的内容",
+  "enterTextToTranslate": "输入要翻译的文本",
+  "playAudio": "播放音频",
+  "copiedToClipboard": "已复制到剪贴板",
+  "detectedAs": "识别为",
+  "pronunciationNotAvailable": "发音不可用",
+  "errorPlayingPronunciation": "播放发音时出错",
+  "errorPlayingPronunciationWithDetails": "播放发音时出错：{error}",
+  "errorWithDetails": "错误：{error}",
+  "partOfSpeech": "词性",
+  "tense": "时态",
+  "phrases": "短语",
+  "webTranslations": "网络翻译"
 }

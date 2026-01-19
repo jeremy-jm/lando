@@ -206,4 +206,44 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get noSuggestionsFound => 'Tidak ada saran ditemukan untuk kueri Anda';
+
+  @override
+  String get enterTextToTranslate => 'Masukkan teks untuk diterjemahkan';
+
+  @override
+  String get playAudio => 'Putar audio';
+
+  @override
+  String get copiedToClipboard => 'Disalin ke clipboard';
+
+  @override
+  String get detectedAs => 'Terdeteksi sebagai';
+
+  @override
+  String get pronunciationNotAvailable => 'Pengucapan tidak tersedia';
+
+  @override
+  String get errorPlayingPronunciation => 'Kesalahan saat memutar pengucapan';
+
+  @override
+  String errorPlayingPronunciationWithDetails(String error) {
+    return 'Kesalahan saat memutar pengucapan: $error';
+  }
+
+  @override
+  String errorWithDetails(String error) {
+    return 'Kesalahan: $error';
+  }
+
+  @override
+  String get partOfSpeech => 'Jenis Kata';
+
+  @override
+  String get tense => 'Kala';
+
+  @override
+  String get phrases => 'Frasa';
+
+  @override
+  String get webTranslations => 'Terjemahan Web';
 }

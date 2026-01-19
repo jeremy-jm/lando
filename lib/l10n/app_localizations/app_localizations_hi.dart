@@ -206,4 +206,44 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get noSuggestionsFound => 'आपकी क्वेरी के लिए कोई सुझाव नहीं मिला';
+
+  @override
+  String get enterTextToTranslate => 'अनुवाद करने के लिए पाठ दर्ज करें';
+
+  @override
+  String get playAudio => 'ऑडियो चलाएं';
+
+  @override
+  String get copiedToClipboard => 'क्लिपबोर्ड पर कॉपी किया गया';
+
+  @override
+  String get detectedAs => 'पहचाना गया';
+
+  @override
+  String get pronunciationNotAvailable => 'उच्चारण उपलब्ध नहीं है';
+
+  @override
+  String get errorPlayingPronunciation => 'उच्चारण चलाने में त्रुटि';
+
+  @override
+  String errorPlayingPronunciationWithDetails(String error) {
+    return 'उच्चारण चलाने में त्रुटि: $error';
+  }
+
+  @override
+  String errorWithDetails(String error) {
+    return 'त्रुटि: $error';
+  }
+
+  @override
+  String get partOfSpeech => 'शब्द-भेद';
+
+  @override
+  String get tense => 'काल';
+
+  @override
+  String get phrases => 'वाक्यांश';
+
+  @override
+  String get webTranslations => 'वेब अनुवाद';
 }

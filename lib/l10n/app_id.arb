@@ -62,5 +62,17 @@
   "copyright": "Hak Cipta © 2024 Lando Kamus. Hak cipta dilindungi.",
   "close": "Tutup",
   "aboutDescription": "Tentang aplikasi ini, informasi versi, dan dokumen hukum",
-  "noSuggestionsFound": "Tidak ada saran ditemukan untuk kueri Anda"
+  "noSuggestionsFound": "Tidak ada saran ditemukan untuk kueri Anda",
+  "enterTextToTranslate": "Masukkan teks untuk diterjemahkan",
+  "playAudio": "Putar audio",
+  "copiedToClipboard": "Disalin ke clipboard",
+  "detectedAs": "Terdeteksi sebagai",
+  "pronunciationNotAvailable": "Pengucapan tidak tersedia",
+  "errorPlayingPronunciation": "Kesalahan saat memutar pengucapan",
+  "errorPlayingPronunciationWithDetails": "Kesalahan saat memutar pengucapan: {error}",
+  "errorWithDetails": "Kesalahan: {error}",
+  "partOfSpeech": "Jenis Kata",
+  "tense": "Kala",
+  "phrases": "Frasa",
+  "webTranslations": "Terjemahan Web"
 }

@@ -206,4 +206,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noSuggestionsFound => 'No suggestions found for your query';
+
+  @override
+  String get enterTextToTranslate => 'Enter text to translate';
+
+  @override
+  String get playAudio => 'Play audio';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
+  String get detectedAs => 'Detected as';
+
+  @override
+  String get pronunciationNotAvailable => 'Pronunciation not available';
+
+  @override
+  String get errorPlayingPronunciation => 'Error playing pronunciation';
+
+  @override
+  String errorPlayingPronunciationWithDetails(String error) {
+    return 'Error playing pronunciation: $error';
+  }
+
+  @override
+  String errorWithDetails(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get partOfSpeech => 'Part of Speech';
+
+  @override
+  String get tense => 'Tense';
+
+  @override
+  String get phrases => 'Phrases';
+
+  @override
+  String get webTranslations => 'Web Translations';
 }

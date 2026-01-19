@@ -62,5 +62,17 @@
   "copyright": "कॉपीराइट © 2024 Lando शब्दकोश। सभी अधिकार सुरक्षित।",
   "close": "बंद करें",
   "aboutDescription": "इस ऐप, संस्करण जानकारी और कानूनी दस्तावेजों के बारे में",
-  "noSuggestionsFound": "आपकी क्वेरी के लिए कोई सुझाव नहीं मिला"
+  "noSuggestionsFound": "आपकी क्वेरी के लिए कोई सुझाव नहीं मिला",
+  "enterTextToTranslate": "अनुवाद करने के लिए पाठ दर्ज करें",
+  "playAudio": "ऑडियो चलाएं",
+  "copiedToClipboard": "क्लिपबोर्ड पर कॉपी किया गया",
+  "detectedAs": "पहचाना गया",
+  "pronunciationNotAvailable": "उच्चारण उपलब्ध नहीं है",
+  "errorPlayingPronunciation": "उच्चारण चलाने में त्रुटि",
+  "errorPlayingPronunciationWithDetails": "उच्चारण चलाने में त्रुटि: {error}",
+  "errorWithDetails": "त्रुटि: {error}",
+  "partOfSpeech": "शब्द-भेद",
+  "tense": "काल",
+  "phrases": "वाक्यांश",
+  "webTranslations": "वेब अनुवाद"
 }

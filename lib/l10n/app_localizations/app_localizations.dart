@@ -485,6 +485,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No suggestions found for your query'**
   String get noSuggestionsFound;
+
+  /// Placeholder text for translation input field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter text to translate'**
+  String get enterTextToTranslate;
+
+  /// Tooltip for play audio button
+  ///
+  /// In en, this message translates to:
+  /// **'Play audio'**
+  String get playAudio;
+
+  /// Message shown when text is copied to clipboard
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copiedToClipboard;
+
+  /// Label shown before detected language name
+  ///
+  /// In en, this message translates to:
+  /// **'Detected as'**
+  String get detectedAs;
+
+  /// Message shown when pronunciation is not available
+  ///
+  /// In en, this message translates to:
+  /// **'Pronunciation not available'**
+  String get pronunciationNotAvailable;
+
+  /// Error message shown when pronunciation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error playing pronunciation'**
+  String get errorPlayingPronunciation;
+
+  /// Error message shown when pronunciation fails with error details
+  ///
+  /// In en, this message translates to:
+  /// **'Error playing pronunciation: {error}'**
+  String errorPlayingPronunciationWithDetails(String error);
+
+  /// Generic error message with details
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorWithDetails(String error);
+
+  /// Label for part of speech section
+  ///
+  /// In en, this message translates to:
+  /// **'Part of Speech'**
+  String get partOfSpeech;
+
+  /// Label for tense/word form section
+  ///
+  /// In en, this message translates to:
+  /// **'Tense'**
+  String get tense;
+
+  /// Label for phrases section
+  ///
+  /// In en, this message translates to:
+  /// **'Phrases'**
+  String get phrases;
+
+  /// Label for web translations section
+  ///
+  /// In en, this message translates to:
+  /// **'Web Translations'**
+  String get webTranslations;
 }
 
 class _AppLocalizationsDelegate
