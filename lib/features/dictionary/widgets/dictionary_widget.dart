@@ -85,7 +85,8 @@ class PlatformDictionaryWidget extends StatefulWidget {
   final ValueChanged<String>? onQueryTap;
 
   @override
-  State<PlatformDictionaryWidget> createState() => _PlatformDictionaryWidgetState();
+  State<PlatformDictionaryWidget> createState() =>
+      _PlatformDictionaryWidgetState();
 }
 
 class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
@@ -791,7 +792,7 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(4.0),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2.0),
         child: Text(
           text,
           style: TextStyle(
