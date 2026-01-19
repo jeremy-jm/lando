@@ -4,7 +4,7 @@ import 'package:lando/features/home/query/query_bloc.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
 import 'package:lando/features/home/widgets/translation_input_widget.dart';
 import 'package:lando/features/me/settings_page.dart';
-import 'package:lando/features/widgets/dict_widget.dart';
+import 'package:lando/features/dictionary/widgets/dictionary_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/audio/pronunciation_service_manager.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
@@ -295,7 +295,7 @@ class _QueryPageState extends State<QueryPage> {
                       //     ? 'https://dict.youdao.com/dictvoice?audio=${fanyi.voice}'
                       //     : null;
 
-                      return DictWidget(
+                      return DictionaryWidget(
                         query: state.query,
                         platforms: [
                           TranslationServiceType.youdao,

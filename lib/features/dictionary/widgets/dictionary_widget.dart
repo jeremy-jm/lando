@@ -13,8 +13,11 @@ import 'package:lando/services/translation/translation_service_type.dart';
 /// This widget displays results from the specified platforms, with each platform
 /// independently fetching and managing its own data. If one platform fails,
 /// it doesn't affect other platforms.
-class DictWidget extends StatelessWidget {
-  const DictWidget({
+///
+/// Note: This widget still contains data fetching logic. For better separation,
+/// consider using [DictionaryDataProvider] with presentation widgets.
+class DictionaryWidget extends StatelessWidget {
+  const DictionaryWidget({
     super.key,
     required this.query,
     required this.platforms,
@@ -46,7 +49,7 @@ class DictWidget extends StatelessWidget {
         children: platforms.map((platform) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 24.0),
-            child: PlatformDictWidget(
+            child: PlatformDictionaryWidget(
               key: ValueKey('$platform-$query'),
               query: query,
               platform: platform,
@@ -64,8 +67,11 @@ class DictWidget extends StatelessWidget {
 ///
 /// Each platform widget manages its own state (loading, error, result),
 /// so failures in one platform don't affect others.
-class PlatformDictWidget extends StatefulWidget {
-  const PlatformDictWidget({
+///
+/// Note: This widget still contains data fetching logic. For better separation,
+/// consider refactoring to use [DictionaryDataProvider] with presentation widgets.
+class PlatformDictionaryWidget extends StatefulWidget {
+  const PlatformDictionaryWidget({
     super.key,
     required this.query,
     required this.platform,
@@ -79,10 +85,10 @@ class PlatformDictWidget extends StatefulWidget {
   final ValueChanged<String>? onQueryTap;
 
   @override
-  State<PlatformDictWidget> createState() => _PlatformDictWidgetState();
+  State<PlatformDictionaryWidget> createState() => _PlatformDictionaryWidgetState();
 }
 
-class _PlatformDictWidgetState extends State<PlatformDictWidget> {
+class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
   ResultModel? _result;
   String? _error;
   bool _loading = false;
@@ -97,7 +103,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
   }
 
   @override
-  void didUpdateWidget(PlatformDictWidget oldWidget) {
+  void didUpdateWidget(PlatformDictionaryWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.query != widget.query ||
         oldWidget.platform != widget.platform) {
@@ -866,6 +872,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           if (!mounted) return;
 
           final l10n = AppLocalizations.of(context);
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

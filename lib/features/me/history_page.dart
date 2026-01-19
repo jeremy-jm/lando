@@ -3,6 +3,9 @@ import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 import 'package:lando/routes/app_routes.dart';
 import 'package:lando/storage/query_history_storage.dart';
+import 'package:lando/features/shared/widgets/query_history_item_tile.dart';
+import 'package:lando/features/shared/widgets/empty_state_widget.dart';
+import 'package:lando/features/shared/widgets/confirm_dialog_widget.dart';
 import 'package:intl/intl.dart';
 
 /// Query history page that displays all previous word queries.
@@ -58,24 +61,14 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Future<void> _clearHistory() async {
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.clearHistory),
-        content: Text(l10n.confirmClearHistory),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: Text(l10n.confirm),
-          ),
-        ],
+    final confirmed = await ConfirmDialogWidget.show(
+      context,
+      title: l10n.clearHistory,
+      content: l10n.confirmClearHistory,
+      confirmText: l10n.confirm,
+      cancelText: l10n.cancel,
+      confirmButtonStyle: TextButton.styleFrom(
+        foregroundColor: Theme.of(context).colorScheme.error,
       ),
     );
 
@@ -146,26 +139,7 @@ class _HistoryPageState extends State<HistoryPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _history.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.history,
-                    size: 64,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.noHistory,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            )
+          ? EmptyStateWidget(icon: Icons.history, message: l10n.noHistory)
           : RefreshIndicator(
               onRefresh: _loadHistory,
               child: ListView.builder(
@@ -173,101 +147,24 @@ class _HistoryPageState extends State<HistoryPage> {
                 itemCount: _history.length,
                 itemBuilder: (context, index) {
                   final item = _history[index];
-                  return Dismissible(
-                    key: Key('${item.word}-${item.timestamp}'),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.error,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    onDismissed: (direction) {
-                      _deleteItem(item);
+                  return QueryHistoryItemTile(
+                    item: item,
+                    onTap: _navigateToQuery,
+                    onDelete: _deleteItem,
+                    confirmDismiss: (item) async {
+                      final confirmed = await ConfirmDialogWidget.show(
+                        context,
+                        title: l10n.delete,
+                        content: '${l10n.delete} "${item.word}"?',
+                        confirmText: l10n.confirm,
+                        cancelText: l10n.cancel,
+                        confirmButtonStyle: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                      );
+                      return confirmed ?? false;
                     },
-                    confirmDismiss: (direction) async {
-                      return await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text(l10n.delete),
-                              content: Text('${l10n.delete} "${item.word}"?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: Text(l10n.cancel),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: theme.colorScheme.error,
-                                  ),
-                                  child: Text(l10n.confirm),
-                                ),
-                              ],
-                            ),
-                          ) ??
-                          false;
-                    },
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        title: Text(
-                          item.word,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.meaning,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _formatTimestamp(item.timestamp),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () => _deleteItem(item),
-                          tooltip: l10n.delete,
-                        ),
-                        onTap: () => _navigateToQuery(item.word),
-                      ),
-                    ),
+                    formatTimestamp: _formatTimestamp,
                   );
                 },
               ),
