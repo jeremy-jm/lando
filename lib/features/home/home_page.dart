@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_page.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
-import 'package:lando/features/home/widgets/translation_input_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 
@@ -19,7 +18,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  String? _detectedLanguage;
   int _languageSelectorKey = 0;
 
   @override
@@ -61,17 +59,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void _detectLanguage() {
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      setState(() {
-        _detectedLanguage = null;
-      });
+      setState(() {});
       return;
     }
 
     // Simple language detection (can be improved with ML or API)
     final detected = _simpleLanguageDetection(text);
-    setState(() {
-      _detectedLanguage = detected;
-    });
+    setState(() {});
   }
 
   String? _simpleLanguageDetection(String text) {
@@ -165,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.surface.withValues(alpha: 0.1),
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(16.0),
                     border: Border.all(
                       color: Theme.of(
@@ -180,29 +174,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-
-              // Builder(
-              //   builder: (context) {
-              //     final l10n = AppLocalizations.of(context)!;
-              //     return TranslationInputWidget(
-              //       controller: _controller,
-              //       focusNode: _focusNode,
-              //       hintText: l10n.enterTextToTranslate,
-              //       detectedLanguage: _detectedLanguage,
-              //       onSubmitted: (value) {
-              //         _navigateToQueryPage(
-              //           value.trim().isEmpty ? null : value.trim(),
-              //         );
-              //       },
-              //       onSuggestionTap: (word) {
-              //         // Auto-navigate to query page when suggestion is tapped
-              //         _navigateToQueryPage(
-              //           word.trim().isEmpty ? null : word.trim(),
-              //         );
-              //       },
-              //     );
-              //   },
-              // ),
               const SizedBox(height: 16.0),
               LanguageSelectorWidget(
                 key: ValueKey(_languageSelectorKey),

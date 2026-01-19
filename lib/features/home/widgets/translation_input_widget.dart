@@ -266,7 +266,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
             onTap: widget.onTap,
             onSubmitted: widget.onSubmitted,
             onChanged: (_) => setState(() {}),
-            minLines: 2,
+            minLines: 1,
             maxLines: 6,
           ),
 
