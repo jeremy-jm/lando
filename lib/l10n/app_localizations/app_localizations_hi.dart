@@ -144,4 +144,63 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get addedToFavorites => 'पसंदीदा में जोड़ा गया';
+
+  @override
+  String get general => 'सामान्य';
+
+  @override
+  String get dictionary => 'शब्दकोश';
+
+  @override
+  String get dictionarySettings => 'शब्दकोश सेटिंग्स';
+
+  @override
+  String get dictionarySettingsDescription =>
+      'उच्चारण और अनुवाद सेटिंग्स कॉन्फ़िगर करें';
+
+  @override
+  String get appDescription =>
+      'एक अनुवाद सॉफ़्टवेयर जो शब्द खोज के लिए तृतीय-पक्ष सेवाओं का उपयोग करता है और इसमें कोई विज्ञापन नहीं है';
+
+  @override
+  String get version => 'संस्करण';
+
+  @override
+  String get buildNumber => 'बिल्ड नंबर';
+
+  @override
+  String get versionInfo => 'संस्करण जानकारी';
+
+  @override
+  String get versionInfoCopied => 'संस्करण जानकारी क्लिपबोर्ड पर कॉपी की गई';
+
+  @override
+  String get copy => 'कॉपी करें';
+
+  @override
+  String get privacyPolicy => 'गोपनीयता नीति';
+
+  @override
+  String get privacyPolicyContent =>
+      'यह ऐप आपकी गोपनीयता का सम्मान करता है। हम कोई व्यक्तिगत जानकारी एकत्र, संग्रहीत या साझा नहीं करते हैं। सभी अनुवाद क्वेरी तृतीय-पक्ष सेवाओं के माध्यम से संसाधित की जाती हैं।';
+
+  @override
+  String get termsOfService => 'सेवा की शर्तें';
+
+  @override
+  String get termsOfServiceContent =>
+      'इस ऐप का उपयोग करके, आप जिम्मेदारी से उपयोग करने के लिए सहमत हैं। यह ऐप तृतीय-पक्ष API के माध्यम से अनुवाद सेवाएं प्रदान करता है। हम अनुवादों की सटीकता के लिए जिम्मेदार नहीं हैं।';
+
+  @override
+  String get openSourceLicenses => 'ओपन सोर्स लाइसेंस';
+
+  @override
+  String get copyright => 'कॉपीराइट © 2024 Lando शब्दकोश। सभी अधिकार सुरक्षित।';
+
+  @override
+  String get close => 'बंद करें';
+
+  @override
+  String get aboutDescription =>
+      'इस ऐप, संस्करण जानकारी और कानूनी दस्तावेजों के बारे में';
 }

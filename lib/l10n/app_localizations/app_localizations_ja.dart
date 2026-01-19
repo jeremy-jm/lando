@@ -139,4 +139,60 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addedToFavorites => 'お気に入りに追加しました';
+
+  @override
+  String get general => '一般';
+
+  @override
+  String get dictionary => '辞書';
+
+  @override
+  String get dictionarySettings => '辞書設定';
+
+  @override
+  String get dictionarySettingsDescription => '発音と翻訳設定を構成';
+
+  @override
+  String get appDescription => 'サードパーティサービスを使用して単語検索を行い、広告のない翻訳ソフトウェア';
+
+  @override
+  String get version => 'バージョン';
+
+  @override
+  String get buildNumber => 'ビルド番号';
+
+  @override
+  String get versionInfo => 'バージョン情報';
+
+  @override
+  String get versionInfoCopied => 'バージョン情報がクリップボードにコピーされました';
+
+  @override
+  String get copy => 'コピー';
+
+  @override
+  String get privacyPolicy => 'プライバシーポリシー';
+
+  @override
+  String get privacyPolicyContent =>
+      'このアプリはあなたのプライバシーを尊重します。個人情報を収集、保存、共有することはありません。すべての翻訳クエリはサードパーティサービスを通じて処理されます。';
+
+  @override
+  String get termsOfService => '利用規約';
+
+  @override
+  String get termsOfServiceContent =>
+      'このアプリを使用することで、責任を持って使用することに同意したものとみなされます。このアプリはサードパーティAPIを通じて翻訳サービスを提供します。翻訳の正確性については責任を負いません。';
+
+  @override
+  String get openSourceLicenses => 'オープンソースライセンス';
+
+  @override
+  String get copyright => '著作権 © 2024 Lando 辞書。全著作権所有。';
+
+  @override
+  String get close => '閉じる';
+
+  @override
+  String get aboutDescription => 'このアプリ、バージョン情報、法的文書について';
 }

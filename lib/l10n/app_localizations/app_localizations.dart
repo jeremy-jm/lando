@@ -371,6 +371,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added to favorites'**
   String get addedToFavorites;
+
+  /// General settings section title
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get general;
+
+  /// Dictionary settings section title
+  ///
+  /// In en, this message translates to:
+  /// **'Dictionary'**
+  String get dictionary;
+
+  /// Dictionary settings page title
+  ///
+  /// In en, this message translates to:
+  /// **'Dictionary Settings'**
+  String get dictionarySettings;
+
+  /// Dictionary settings description
+  ///
+  /// In en, this message translates to:
+  /// **'Configure pronunciation and translation settings'**
+  String get dictionarySettingsDescription;
+
+  /// App description text
+  ///
+  /// In en, this message translates to:
+  /// **'A translation software that uses third-party services for word lookup and has no advertisements'**
+  String get appDescription;
+
+  /// Version label
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// Build number label
+  ///
+  /// In en, this message translates to:
+  /// **'Build Number'**
+  String get buildNumber;
+
+  /// Version information title
+  ///
+  /// In en, this message translates to:
+  /// **'Version Information'**
+  String get versionInfo;
+
+  /// Message shown when version info is copied
+  ///
+  /// In en, this message translates to:
+  /// **'Version information copied to clipboard'**
+  String get versionInfoCopied;
+
+  /// Copy button label
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// Privacy policy title
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// Privacy policy content
+  ///
+  /// In en, this message translates to:
+  /// **'This app respects your privacy. We do not collect, store, or share any personal information. All translation queries are processed through third-party services.'**
+  String get privacyPolicyContent;
+
+  /// Terms of service title
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfService;
+
+  /// Terms of service content
+  ///
+  /// In en, this message translates to:
+  /// **'By using this app, you agree to use it responsibly. This app provides translation services through third-party APIs. We are not responsible for the accuracy of translations.'**
+  String get termsOfServiceContent;
+
+  /// Open source licenses title
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source Licenses'**
+  String get openSourceLicenses;
+
+  /// Copyright text
+  ///
+  /// In en, this message translates to:
+  /// **'Copyright © 2024 Lando Dictionary. All rights reserved.'**
+  String get copyright;
+
+  /// Close button label
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// About page description
+  ///
+  /// In en, this message translates to:
+  /// **'About this app, version information, and legal documents'**
+  String get aboutDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -144,4 +144,65 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get addedToFavorites => 'Adicionado aos favoritos';
+
+  @override
+  String get general => 'Geral';
+
+  @override
+  String get dictionary => 'Dicionário';
+
+  @override
+  String get dictionarySettings => 'Configurações do Dicionário';
+
+  @override
+  String get dictionarySettingsDescription =>
+      'Configurar configurações de pronúncia e tradução';
+
+  @override
+  String get appDescription =>
+      'Um software de tradução que usa serviços de terceiros para pesquisa de palavras e não possui anúncios';
+
+  @override
+  String get version => 'Versão';
+
+  @override
+  String get buildNumber => 'Número da Build';
+
+  @override
+  String get versionInfo => 'Informações da Versão';
+
+  @override
+  String get versionInfoCopied =>
+      'Informações da versão copiadas para a área de transferência';
+
+  @override
+  String get copy => 'Copiar';
+
+  @override
+  String get privacyPolicy => 'Política de Privacidade';
+
+  @override
+  String get privacyPolicyContent =>
+      'Este aplicativo respeita sua privacidade. Não coletamos, armazenamos ou compartilhamos informações pessoais. Todas as consultas de tradução são processadas por meio de serviços de terceiros.';
+
+  @override
+  String get termsOfService => 'Termos de Serviço';
+
+  @override
+  String get termsOfServiceContent =>
+      'Ao usar este aplicativo, você concorda em usá-lo de forma responsável. Este aplicativo fornece serviços de tradução por meio de APIs de terceiros. Não somos responsáveis pela precisão das traduções.';
+
+  @override
+  String get openSourceLicenses => 'Licenças de Código Aberto';
+
+  @override
+  String get copyright =>
+      'Direitos autorais © 2024 Lando Dicionário. Todos os direitos reservados.';
+
+  @override
+  String get close => 'Fechar';
+
+  @override
+  String get aboutDescription =>
+      'Sobre este aplicativo, informações da versão e documentos legais';
 }

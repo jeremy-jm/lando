@@ -144,4 +144,63 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get addedToFavorites => 'Ditambahkan ke favorit';
+
+  @override
+  String get general => 'Umum';
+
+  @override
+  String get dictionary => 'Kamus';
+
+  @override
+  String get dictionarySettings => 'Pengaturan Kamus';
+
+  @override
+  String get dictionarySettingsDescription =>
+      'Konfigurasi pengaturan pengucapan dan terjemahan';
+
+  @override
+  String get appDescription =>
+      'Perangkat lunak terjemahan yang menggunakan layanan pihak ketiga untuk pencarian kata dan tidak memiliki iklan';
+
+  @override
+  String get version => 'Versi';
+
+  @override
+  String get buildNumber => 'Nomor Build';
+
+  @override
+  String get versionInfo => 'Informasi Versi';
+
+  @override
+  String get versionInfoCopied => 'Informasi versi disalin ke clipboard';
+
+  @override
+  String get copy => 'Salin';
+
+  @override
+  String get privacyPolicy => 'Kebijakan Privasi';
+
+  @override
+  String get privacyPolicyContent =>
+      'Aplikasi ini menghormati privasi Anda. Kami tidak mengumpulkan, menyimpan, atau membagikan informasi pribadi apa pun. Semua kueri terjemahan diproses melalui layanan pihak ketiga.';
+
+  @override
+  String get termsOfService => 'Ketentuan Layanan';
+
+  @override
+  String get termsOfServiceContent =>
+      'Dengan menggunakan aplikasi ini, Anda setuju untuk menggunakannya secara bertanggung jawab. Aplikasi ini menyediakan layanan terjemahan melalui API pihak ketiga. Kami tidak bertanggung jawab atas keakuratan terjemahan.';
+
+  @override
+  String get openSourceLicenses => 'Lisensi Sumber Terbuka';
+
+  @override
+  String get copyright => 'Hak Cipta © 2024 Lando Kamus. Hak cipta dilindungi.';
+
+  @override
+  String get close => 'Tutup';
+
+  @override
+  String get aboutDescription =>
+      'Tentang aplikasi ini, informasi versi, dan dokumen hukum';
 }

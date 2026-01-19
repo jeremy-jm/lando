@@ -143,4 +143,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addedToFavorites => 'Added to favorites';
+
+  @override
+  String get general => 'General';
+
+  @override
+  String get dictionary => 'Dictionary';
+
+  @override
+  String get dictionarySettings => 'Dictionary Settings';
+
+  @override
+  String get dictionarySettingsDescription =>
+      'Configure pronunciation and translation settings';
+
+  @override
+  String get appDescription =>
+      'A translation software that uses third-party services for word lookup and has no advertisements';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get buildNumber => 'Build Number';
+
+  @override
+  String get versionInfo => 'Version Information';
+
+  @override
+  String get versionInfoCopied => 'Version information copied to clipboard';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get privacyPolicyContent =>
+      'This app respects your privacy. We do not collect, store, or share any personal information. All translation queries are processed through third-party services.';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get termsOfServiceContent =>
+      'By using this app, you agree to use it responsibly. This app provides translation services through third-party APIs. We are not responsible for the accuracy of translations.';
+
+  @override
+  String get openSourceLicenses => 'Open Source Licenses';
+
+  @override
+  String get copyright =>
+      'Copyright © 2024 Lando Dictionary. All rights reserved.';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get aboutDescription =>
+      'About this app, version information, and legal documents';
 }

@@ -9,6 +9,7 @@ import 'package:lando/features/me/settings_page.dart';
 import 'package:lando/features/me/me_page.dart';
 import 'package:lando/features/me/favorites_page.dart';
 import 'package:lando/features/me/history_page.dart';
+import 'package:lando/features/me/dictionary_settings_page.dart';
 
 /// Route name constants class
 /// Centralized management of all route names to avoid hardcoded strings
@@ -25,6 +26,7 @@ class AppRoutes {
   static const String me = '/me';
   static const String favorites = '/favorites';
   static const String history = '/history';
+  static const String dictionarySettings = '/dictionary-settings';
 
   /// Route generator
   /// Returns the corresponding Widget based on route name
@@ -74,6 +76,11 @@ class AppRoutes {
       case history:
         return MaterialPageRoute(
           builder: (_) => const HistoryPage(),
+          settings: routeSettings,
+        );
+      case dictionarySettings:
+        return MaterialPageRoute(
+          builder: (_) => const DictionarySettingsPage(),
           settings: routeSettings,
         );
       default:

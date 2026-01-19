@@ -55,6 +55,9 @@ dependencies:
   # Internationalization and date formatting
   intl: ^0.20.2
 
+  # Package info for version information
+  package_info_plus: ^8.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

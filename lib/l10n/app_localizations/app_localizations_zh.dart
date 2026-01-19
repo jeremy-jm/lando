@@ -139,4 +139,60 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addedToFavorites => '已添加到收藏';
+
+  @override
+  String get general => '通用';
+
+  @override
+  String get dictionary => '词典';
+
+  @override
+  String get dictionarySettings => '词典设置';
+
+  @override
+  String get dictionarySettingsDescription => '配置发音和翻译设置';
+
+  @override
+  String get appDescription => '一款使用第三方服务进行查词且无广告的翻译软件';
+
+  @override
+  String get version => '版本';
+
+  @override
+  String get buildNumber => '构建号';
+
+  @override
+  String get versionInfo => '版本信息';
+
+  @override
+  String get versionInfoCopied => '版本信息已复制到剪贴板';
+
+  @override
+  String get copy => '复制';
+
+  @override
+  String get privacyPolicy => '隐私政策';
+
+  @override
+  String get privacyPolicyContent =>
+      '本应用尊重您的隐私。我们不收集、存储或分享任何个人信息。所有翻译查询均通过第三方服务处理。';
+
+  @override
+  String get termsOfService => '服务条款';
+
+  @override
+  String get termsOfServiceContent =>
+      '使用本应用即表示您同意负责任地使用。本应用通过第三方API提供翻译服务。我们对翻译的准确性不承担责任。';
+
+  @override
+  String get openSourceLicenses => '开源许可';
+
+  @override
+  String get copyright => '版权所有 © 2024 兰多·词典。保留所有权利。';
+
+  @override
+  String get close => '关闭';
+
+  @override
+  String get aboutDescription => '关于本应用、版本信息和法律文档';
 }

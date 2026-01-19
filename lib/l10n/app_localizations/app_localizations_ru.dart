@@ -144,4 +144,65 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get addedToFavorites => 'Добавлено в избранное';
+
+  @override
+  String get general => 'Общие';
+
+  @override
+  String get dictionary => 'Словарь';
+
+  @override
+  String get dictionarySettings => 'Настройки словаря';
+
+  @override
+  String get dictionarySettingsDescription =>
+      'Настройка параметров произношения и перевода';
+
+  @override
+  String get appDescription =>
+      'Программа перевода, использующая сторонние сервисы для поиска слов и не содержащая рекламы';
+
+  @override
+  String get version => 'Версия';
+
+  @override
+  String get buildNumber => 'Номер сборки';
+
+  @override
+  String get versionInfo => 'Информация о версии';
+
+  @override
+  String get versionInfoCopied =>
+      'Информация о версии скопирована в буфер обмена';
+
+  @override
+  String get copy => 'Копировать';
+
+  @override
+  String get privacyPolicy => 'Политика конфиденциальности';
+
+  @override
+  String get privacyPolicyContent =>
+      'Это приложение уважает вашу конфиденциальность. Мы не собираем, не храним и не передаем личную информацию. Все запросы на перевод обрабатываются через сторонние сервисы.';
+
+  @override
+  String get termsOfService => 'Условия использования';
+
+  @override
+  String get termsOfServiceContent =>
+      'Используя это приложение, вы соглашаетесь использовать его ответственно. Это приложение предоставляет услуги перевода через сторонние API. Мы не несем ответственности за точность переводов.';
+
+  @override
+  String get openSourceLicenses => 'Лицензии с открытым исходным кодом';
+
+  @override
+  String get copyright =>
+      'Авторские права © 2024 Lando Словарь. Все права защищены.';
+
+  @override
+  String get close => 'Закрыть';
+
+  @override
+  String get aboutDescription =>
+      'Об этом приложении, информации о версии и юридических документах';
 }
