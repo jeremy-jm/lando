@@ -205,4 +205,8 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get aboutDescription =>
       'Sobre este aplicativo, informações da versão e documentos legais';
+
+  @override
+  String get noSuggestionsFound =>
+      'Nenhuma sugestão encontrada para sua consulta';
 }

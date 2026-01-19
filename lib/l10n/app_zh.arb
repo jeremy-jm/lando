@@ -61,5 +61,6 @@
   "openSourceLicenses": "开源许可",
   "copyright": "版权所有 © 2024 兰多·词典。保留所有权利。",
   "close": "关闭",
-  "aboutDescription": "关于本应用、版本信息和法律文档"
+  "aboutDescription": "关于本应用、版本信息和法律文档",
+  "noSuggestionsFound": "没有你要查询的内容"
 }

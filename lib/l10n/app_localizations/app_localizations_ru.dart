@@ -205,4 +205,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get aboutDescription =>
       'Об этом приложении, информации о версии и юридических документах';
+
+  @override
+  String get noSuggestionsFound => 'Не найдено предложений для вашего запроса';
 }

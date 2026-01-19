@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/models/youdao_suggestion.dart';
+import 'package:lando/network/api_client.dart';
+import 'package:lando/services/suggestion/youdao_suggestion_service.dart';
 
-/// Unified translation input widget with language detection display.
+/// Unified translation input widget with language detection display and suggestions.
 class TranslationInputWidget extends StatefulWidget {
   const TranslationInputWidget({
     super.key,
@@ -14,6 +19,9 @@ class TranslationInputWidget extends StatefulWidget {
     this.readOnly = false,
     this.pronunciationUrl,
     this.onPronunciationTap,
+    this.suggestionService,
+    this.onSuggestionTap,
+    this.enableSuggestions = true,
   });
 
   final TextEditingController controller;
@@ -25,16 +33,138 @@ class TranslationInputWidget extends StatefulWidget {
   final bool readOnly;
   final String? pronunciationUrl;
   final VoidCallback? onPronunciationTap;
+  final YoudaoSuggestionService? suggestionService;
+  final ValueChanged<String>? onSuggestionTap;
+  final bool enableSuggestions;
 
   @override
   State<TranslationInputWidget> createState() => _TranslationInputWidgetState();
 }
 
 class _TranslationInputWidgetState extends State<TranslationInputWidget> {
+  YoudaoSuggestionService? _suggestionService;
+  List<YoudaoSuggestion> _suggestions = [];
+  bool _isLoadingSuggestions = false;
+  bool _isNotFound = false;
+  Timer? _debounceTimer;
+  String _lastQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.enableSuggestions) {
+      _suggestionService =
+          widget.suggestionService ?? YoudaoSuggestionService(ApiClient());
+    }
+    widget.controller.addListener(_onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    widget.controller.removeListener(_onTextChanged);
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    if (!widget.enableSuggestions || widget.readOnly) {
+      return;
+    }
+
+    final query = widget.controller.text.trim();
+
+    // Clear suggestions if query is empty
+    if (query.isEmpty) {
+      _debounceTimer?.cancel();
+      setState(() {
+        _suggestions = [];
+        _isLoadingSuggestions = false;
+        _isNotFound = false;
+      });
+      return;
+    }
+
+    // Skip if query hasn't changed
+    if (query == _lastQuery) {
+      return;
+    }
+
+    _lastQuery = query;
+
+    // Cancel previous timer
+    _debounceTimer?.cancel();
+
+    // Debounce: wait 300ms before fetching suggestions
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _fetchSuggestions(query);
+    });
+  }
+
+  Future<void> _fetchSuggestions(String query) async {
+    if (query.trim().isEmpty || _suggestionService == null) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingSuggestions = true;
+      _isNotFound = false;
+    });
+
+    try {
+      final response = await _suggestionService!.getSuggestions(query);
+      if (mounted && widget.controller.text.trim() == query) {
+        setState(() {
+          if (response != null) {
+            _suggestions = response.suggestions;
+            _isNotFound = response.isNotFound;
+          } else {
+            _suggestions = [];
+            _isNotFound = false;
+          }
+          _isLoadingSuggestions = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _suggestions = [];
+          _isLoadingSuggestions = false;
+          _isNotFound = false;
+        });
+      }
+    }
+  }
+
+  void _onSuggestionTap(YoudaoSuggestion suggestion) {
+    widget.controller.text = suggestion.word;
+    widget.controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: suggestion.word.length),
+    );
+
+    setState(() {
+      _suggestions = [];
+    });
+
+    // Trigger submission if callback is provided
+    widget.onSuggestionTap?.call(suggestion.word);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final hasText = widget.controller.text.isNotEmpty;
+    final showSuggestions =
+        widget.enableSuggestions &&
+        !widget.readOnly &&
+        _suggestions.isNotEmpty &&
+        hasText;
+    final showNotFound =
+        widget.enableSuggestions &&
+        !widget.readOnly &&
+        _isNotFound &&
+        hasText &&
+        !_isLoadingSuggestions;
 
     return Container(
       decoration: BoxDecoration(
@@ -129,7 +259,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '识别为 ',
+                            '??? ',
                             style: TextStyle(
                               fontSize: 12,
                               color: theme.colorScheme.onSurface.withValues(
@@ -158,6 +288,138 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                         widget.focusNode.requestFocus();
                       }
                     },
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Suggestions list
+          if (showSuggestions) ...[
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(12.0),
+                  bottomRight: Radius.circular(12.0),
+                ),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                ),
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                itemCount: _suggestions.length,
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                ),
+                itemBuilder: (context, index) {
+                  final suggestion = _suggestions[index];
+                  return InkWell(
+                    onTap: () => _onSuggestionTap(suggestion),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.search,
+                            size: 18,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  suggestion.word,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (suggestion.explain != null &&
+                                    suggestion.explain!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    suggestion.explain!,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+
+          // Loading indicator for suggestions
+          if (_isLoadingSuggestions && hasText && !widget.readOnly) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          // Not found message
+          if (showNotFound) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 18,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      l10n?.noSuggestionsFound ??
+                          'No suggestions found for your query',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

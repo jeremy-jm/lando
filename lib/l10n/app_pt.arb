@@ -61,5 +61,6 @@
   "openSourceLicenses": "Licenças de Código Aberto",
   "copyright": "Direitos autorais © 2024 Lando Dicionário. Todos os direitos reservados.",
   "close": "Fechar",
-  "aboutDescription": "Sobre este aplicativo, informações da versão e documentos legais"
+  "aboutDescription": "Sobre este aplicativo, informações da versão e documentos legais",
+  "noSuggestionsFound": "Nenhuma sugestão encontrada para sua consulta"
 }

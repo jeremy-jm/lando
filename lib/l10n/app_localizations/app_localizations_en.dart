@@ -203,4 +203,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aboutDescription =>
       'About this app, version information, and legal documents';
+
+  @override
+  String get noSuggestionsFound => 'No suggestions found for your query';
 }

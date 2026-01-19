@@ -247,5 +247,9 @@
   "aboutDescription": "About this app, version information, and legal documents",
   "@aboutDescription": {
     "description": "About page description"
+  },
+  "noSuggestionsFound": "No suggestions found for your query",
+  "@noSuggestionsFound": {
+    "description": "Message shown when no suggestions are found for the query"
   }
 }

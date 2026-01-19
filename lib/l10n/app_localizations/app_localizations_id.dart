@@ -203,4 +203,7 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get aboutDescription =>
       'Tentang aplikasi ini, informasi versi, dan dokumen hukum';
+
+  @override
+  String get noSuggestionsFound => 'Tidak ada saran ditemukan untuk kueri Anda';
 }

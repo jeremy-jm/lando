@@ -203,4 +203,7 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get aboutDescription =>
       'इस ऐप, संस्करण जानकारी और कानूनी दस्तावेजों के बारे में';
+
+  @override
+  String get noSuggestionsFound => 'आपकी क्वेरी के लिए कोई सुझाव नहीं मिला';
 }

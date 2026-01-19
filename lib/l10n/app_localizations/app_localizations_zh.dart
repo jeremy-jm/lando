@@ -195,4 +195,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aboutDescription => '关于本应用、版本信息和法律文档';
+
+  @override
+  String get noSuggestionsFound => '没有你要查询的内容';
 }

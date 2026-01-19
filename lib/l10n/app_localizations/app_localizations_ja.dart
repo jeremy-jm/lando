@@ -195,4 +195,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aboutDescription => 'このアプリ、バージョン情報、法的文書について';
+
+  @override
+  String get noSuggestionsFound => '検索結果が見つかりませんでした';
 }

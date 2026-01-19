@@ -61,5 +61,6 @@
   "openSourceLicenses": "オープンソースライセンス",
   "copyright": "著作権 © 2024 Lando 辞書。全著作権所有。",
   "close": "閉じる",
-  "aboutDescription": "このアプリ、バージョン情報、法的文書について"
+  "aboutDescription": "このアプリ、バージョン情報、法的文書について",
+  "noSuggestionsFound": "検索結果が見つかりませんでした"
 }

@@ -479,6 +479,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About this app, version information, and legal documents'**
   String get aboutDescription;
+
+  /// Message shown when no suggestions are found for the query
+  ///
+  /// In en, this message translates to:
+  /// **'No suggestions found for your query'**
+  String get noSuggestionsFound;
 }
 
 class _AppLocalizationsDelegate
