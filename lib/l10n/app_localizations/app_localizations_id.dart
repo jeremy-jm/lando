@@ -73,14 +73,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get russian => 'Rusia';
 
   @override
-  String get pronunciationSource => 'Pronunciation Source';
+  String get pronunciationSource => 'Sumber Pengucapan';
 
   @override
   String get pronunciationSourceDescription =>
-      'Select the pronunciation service to use';
+      'Pilih layanan pengucapan yang akan digunakan';
 
   @override
-  String get pronunciationSystem => 'System';
+  String get pronunciationSystem => 'Sistem';
 
   @override
   String get pronunciationYoudao => 'Youdao';
@@ -96,4 +96,52 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get pronunciationApple => 'Apple';
+
+  @override
+  String get me => 'Saya';
+
+  @override
+  String get favorites => 'Favorit';
+
+  @override
+  String get history => 'Riwayat';
+
+  @override
+  String get noHistory => 'Tidak ada riwayat kueri';
+
+  @override
+  String get clearHistory => 'Hapus Riwayat';
+
+  @override
+  String get delete => 'Hapus';
+
+  @override
+  String get confirmClearHistory =>
+      'Apakah Anda yakin ingin menghapus semua riwayat?';
+
+  @override
+  String get confirm => 'Konfirmasi';
+
+  @override
+  String get cancel => 'Batal';
+
+  @override
+  String get noFavorites => 'Tidak ada favorit';
+
+  @override
+  String get clearFavorites => 'Hapus Favorit';
+
+  @override
+  String get confirmClearFavorites =>
+      'Apakah Anda yakin ingin menghapus semua favorit?';
+
+  @override
+  String get cannotFavorite =>
+      'Tidak dapat menambahkan ke favorit: terjemahan tidak tersedia';
+
+  @override
+  String get removedFromFavorites => 'Dihapus dari favorit';
+
+  @override
+  String get addedToFavorites => 'Ditambahkan ke favorit';
 }

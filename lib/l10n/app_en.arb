@@ -115,5 +115,65 @@
   "pronunciationApple": "Apple",
   "@pronunciationApple": {
     "description": "Apple pronunciation option"
+  },
+  "me": "Me",
+  "@me": {
+    "description": "Me page title"
+  },
+  "favorites": "Favorites",
+  "@favorites": {
+    "description": "Favorites page title"
+  },
+  "history": "History",
+  "@history": {
+    "description": "History page title"
+  },
+  "noHistory": "No query history",
+  "@noHistory": {
+    "description": "Message shown when there is no query history"
+  },
+  "clearHistory": "Clear History",
+  "@clearHistory": {
+    "description": "Button to clear all query history"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button label"
+  },
+  "confirmClearHistory": "Are you sure you want to clear all history?",
+  "@confirmClearHistory": {
+    "description": "Confirmation message before clearing all history"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button label"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button label"
+  },
+  "noFavorites": "No favorites",
+  "@noFavorites": {
+    "description": "Message shown when there are no favorites"
+  },
+  "clearFavorites": "Clear Favorites",
+  "@clearFavorites": {
+    "description": "Button to clear all favorites"
+  },
+  "confirmClearFavorites": "Are you sure you want to clear all favorites?",
+  "@confirmClearFavorites": {
+    "description": "Confirmation message before clearing all favorites"
+  },
+  "cannotFavorite": "Cannot favorite: no translation available",
+  "@cannotFavorite": {
+    "description": "Message shown when trying to favorite a word without translation"
+  },
+  "removedFromFavorites": "Removed from favorites",
+  "@removedFromFavorites": {
+    "description": "Message shown when a word is removed from favorites"
+  },
+  "addedToFavorites": "Added to favorites",
+  "@addedToFavorites": {
+    "description": "Message shown when a word is added to favorites"
   }
 }

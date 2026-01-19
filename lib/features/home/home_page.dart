@@ -216,8 +216,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         label: l10n.translation,
                       ),
                       BottomNavigationBarItem(
-                        icon: const Icon(Icons.settings),
-                        label: l10n.settings,
+                        icon: const Icon(Icons.person),
+                        label: l10n.me,
                       ),
                     ],
                     onTap: (index) {
@@ -226,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           AppNavigator.pushNamed(context, AppRoutes.home);
                           break;
                         case 1:
-                          AppNavigator.pushNamed(context, AppRoutes.settings);
+                          AppNavigator.pushNamed(context, AppRoutes.me);
                           break;
                         case 2:
                           AppNavigator.pushNamed(context, AppRoutes.profile);

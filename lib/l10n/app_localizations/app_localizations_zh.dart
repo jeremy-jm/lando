@@ -94,4 +94,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pronunciationApple => '苹果';
+
+  @override
+  String get me => '我的';
+
+  @override
+  String get favorites => '收藏';
+
+  @override
+  String get history => '查词记录';
+
+  @override
+  String get noHistory => '暂无查词记录';
+
+  @override
+  String get clearHistory => '清空历史';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get confirmClearHistory => '确定要清空所有查词记录吗？';
+
+  @override
+  String get confirm => '确定';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get noFavorites => '暂无收藏';
+
+  @override
+  String get clearFavorites => '清空收藏';
+
+  @override
+  String get confirmClearFavorites => '确定要清空所有收藏吗？';
+
+  @override
+  String get cannotFavorite => '无法收藏：没有可用的翻译';
+
+  @override
+  String get removedFromFavorites => '已从收藏中移除';
+
+  @override
+  String get addedToFavorites => '已添加到收藏';
 }

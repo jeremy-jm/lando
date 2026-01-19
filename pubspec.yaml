@@ -52,6 +52,9 @@ dependencies:
   # Crypto for generating signatures
   crypto: ^3.0.3
 
+  # Internationalization and date formatting
+  intl: ^0.20.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

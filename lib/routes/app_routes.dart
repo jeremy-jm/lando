@@ -6,6 +6,9 @@ import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/not_found_page.dart';
 import 'package:lando/features/me/profile_page.dart';
 import 'package:lando/features/me/settings_page.dart';
+import 'package:lando/features/me/me_page.dart';
+import 'package:lando/features/me/favorites_page.dart';
+import 'package:lando/features/me/history_page.dart';
 
 /// Route name constants class
 /// Centralized management of all route names to avoid hardcoded strings
@@ -19,6 +22,9 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String profile = '/profile';
   static const String about = '/about';
+  static const String me = '/me';
+  static const String favorites = '/favorites';
+  static const String history = '/history';
 
   /// Route generator
   /// Returns the corresponding Widget based on route name
@@ -55,6 +61,21 @@ class AppRoutes {
           builder: (_) => const AboutPage(),
           settings: routeSettings,
         );
+      case me:
+        return MaterialPageRoute(
+          builder: (_) => const MePage(),
+          settings: routeSettings,
+        );
+      case favorites:
+        return MaterialPageRoute(
+          builder: (_) => const FavoritesPage(),
+          settings: routeSettings,
+        );
+      case history:
+        return MaterialPageRoute(
+          builder: (_) => const HistoryPage(),
+          settings: routeSettings,
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => const NotFoundPage(),
@@ -74,6 +95,9 @@ class AppRoutes {
       settings: (_) => const SettingsPage(),
       profile: (_) => const ProfilePage(),
       about: (_) => const AboutPage(),
+      me: (_) => const MePage(),
+      favorites: (_) => const FavoritesPage(),
+      history: (_) => const HistoryPage(),
     };
   }
 }

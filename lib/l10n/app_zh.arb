@@ -28,5 +28,20 @@
   "pronunciationBaidu": "百度",
   "pronunciationBing": "必应",
   "pronunciationGoogle": "谷歌",
-  "pronunciationApple": "苹果"
+  "pronunciationApple": "苹果",
+  "me": "我的",
+  "favorites": "收藏",
+  "history": "查词记录",
+  "noHistory": "暂无查词记录",
+  "clearHistory": "清空历史",
+  "delete": "删除",
+  "confirmClearHistory": "确定要清空所有查词记录吗？",
+  "confirm": "确定",
+  "cancel": "取消",
+  "noFavorites": "暂无收藏",
+  "clearFavorites": "清空收藏",
+  "confirmClearFavorites": "确定要清空所有收藏吗？",
+  "cannotFavorite": "无法收藏：没有可用的翻译",
+  "removedFromFavorites": "已从收藏中移除",
+  "addedToFavorites": "已添加到收藏"
 }

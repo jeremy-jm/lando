@@ -72,20 +72,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get russian => 'ロシア語';
 
   @override
-  String get pronunciationSource => 'Pronunciation Source';
+  String get pronunciationSource => '発音ソース';
 
   @override
-  String get pronunciationSourceDescription =>
-      'Select the pronunciation service to use';
+  String get pronunciationSourceDescription => '使用する発音サービスを選択';
 
   @override
-  String get pronunciationSystem => 'System';
+  String get pronunciationSystem => 'システム';
 
   @override
-  String get pronunciationYoudao => 'Youdao';
+  String get pronunciationYoudao => '有道';
 
   @override
-  String get pronunciationBaidu => 'Baidu';
+  String get pronunciationBaidu => '百度';
 
   @override
   String get pronunciationBing => 'Bing';
@@ -95,4 +94,49 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get pronunciationApple => 'Apple';
+
+  @override
+  String get me => '私';
+
+  @override
+  String get favorites => 'お気に入り';
+
+  @override
+  String get history => '検索履歴';
+
+  @override
+  String get noHistory => '検索履歴がありません';
+
+  @override
+  String get clearHistory => '履歴をクリア';
+
+  @override
+  String get delete => '削除';
+
+  @override
+  String get confirmClearHistory => 'すべての検索履歴をクリアしてもよろしいですか？';
+
+  @override
+  String get confirm => '確認';
+
+  @override
+  String get cancel => 'キャンセル';
+
+  @override
+  String get noFavorites => 'お気に入りがありません';
+
+  @override
+  String get clearFavorites => 'お気に入りをクリア';
+
+  @override
+  String get confirmClearFavorites => 'すべてのお気に入りをクリアしてもよろしいですか？';
+
+  @override
+  String get cannotFavorite => 'お気に入りに追加できません：翻訳が利用できません';
+
+  @override
+  String get removedFromFavorites => 'お気に入りから削除しました';
+
+  @override
+  String get addedToFavorites => 'お気に入りに追加しました';
 }

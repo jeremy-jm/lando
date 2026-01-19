@@ -73,14 +73,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get russian => 'Русский';
 
   @override
-  String get pronunciationSource => 'Pronunciation Source';
+  String get pronunciationSource => 'Источник произношения';
 
   @override
   String get pronunciationSourceDescription =>
-      'Select the pronunciation service to use';
+      'Выберите службу произношения для использования';
 
   @override
-  String get pronunciationSystem => 'System';
+  String get pronunciationSystem => 'Система';
 
   @override
   String get pronunciationYoudao => 'Youdao';
@@ -96,4 +96,52 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pronunciationApple => 'Apple';
+
+  @override
+  String get me => 'Я';
+
+  @override
+  String get favorites => 'Избранное';
+
+  @override
+  String get history => 'История';
+
+  @override
+  String get noHistory => 'Нет истории запросов';
+
+  @override
+  String get clearHistory => 'Очистить историю';
+
+  @override
+  String get delete => 'Удалить';
+
+  @override
+  String get confirmClearHistory =>
+      'Вы уверены, что хотите очистить всю историю?';
+
+  @override
+  String get confirm => 'Подтвердить';
+
+  @override
+  String get cancel => 'Отмена';
+
+  @override
+  String get noFavorites => 'Нет избранного';
+
+  @override
+  String get clearFavorites => 'Очистить избранное';
+
+  @override
+  String get confirmClearFavorites =>
+      'Вы уверены, что хотите очистить все избранное?';
+
+  @override
+  String get cannotFavorite =>
+      'Невозможно добавить в избранное: перевод недоступен';
+
+  @override
+  String get removedFromFavorites => 'Удалено из избранного';
+
+  @override
+  String get addedToFavorites => 'Добавлено в избранное';
 }

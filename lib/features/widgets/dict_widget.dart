@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/models/query_history_item.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/services/audio/pronunciation_service_manager.dart';
+import 'package:lando/storage/favorites_storage.dart';
 import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/services/translation/translation_service_factory.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
@@ -16,6 +19,7 @@ class DictWidget extends StatelessWidget {
     required this.query,
     required this.platforms,
     this.translationServiceFactory,
+    this.onQueryTap,
   });
 
   /// The query text to translate.
@@ -26,6 +30,9 @@ class DictWidget extends StatelessWidget {
 
   /// Optional translation service factory. If not provided, a default one will be created.
   final TranslationServiceFactory? translationServiceFactory;
+
+  /// Callback when a word or phrase is tapped to query.
+  final ValueChanged<String>? onQueryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +51,7 @@ class DictWidget extends StatelessWidget {
               query: query,
               platform: platform,
               translationServiceFactory: translationServiceFactory,
+              onQueryTap: onQueryTap,
             ),
           );
         }).toList(),
@@ -62,11 +70,13 @@ class PlatformDictWidget extends StatefulWidget {
     required this.query,
     required this.platform,
     this.translationServiceFactory,
+    this.onQueryTap,
   });
 
   final String query;
   final TranslationServiceType platform;
   final TranslationServiceFactory? translationServiceFactory;
+  final ValueChanged<String>? onQueryTap;
 
   @override
   State<PlatformDictWidget> createState() => _PlatformDictWidgetState();
@@ -76,6 +86,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
   ResultModel? _result;
   String? _error;
   bool _loading = false;
+  bool _isFavorite = false;
   final PronunciationServiceManager _pronunciationManager =
       PronunciationServiceManager();
 
@@ -100,6 +111,118 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
     super.dispose();
   }
 
+  /// Extract meaning text from ResultModel.
+  String _extractMeaning(ResultModel result) {
+    // Priority 1: simpleExplanation
+    if (result.simpleExplanation != null &&
+        result.simpleExplanation!.isNotEmpty) {
+      return result.simpleExplanation!;
+    }
+
+    // Priority 2: translationsByPos
+    if (result.translationsByPos != null &&
+        result.translationsByPos!.isNotEmpty) {
+      final meanings = result.translationsByPos!
+          .map((t) => '${t['name'] ?? ''} ${t['value'] ?? ''}')
+          .where((s) => s.trim().isNotEmpty)
+          .join('; ');
+      if (meanings.isNotEmpty) {
+        return meanings;
+      }
+    }
+
+    // Priority 3: webTranslations
+    if (result.webTranslations != null && result.webTranslations!.isNotEmpty) {
+      final meanings = result.webTranslations!
+          .map((t) => '${t['key'] ?? ''} ${t['value'] ?? ''}')
+          .where((s) => s.trim().isNotEmpty)
+          .join('; ');
+      if (meanings.isNotEmpty) {
+        return meanings;
+      }
+    }
+
+    // Fallback: return empty string
+    return '';
+  }
+
+  /// Toggle favorite status for the current word.
+  Future<void> _toggleFavorite(ResultModel result) async {
+    if (result.query.trim().isEmpty) {
+      return;
+    }
+
+    final meaning = _extractMeaning(result);
+    if (meaning.isEmpty) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n?.cannotFavorite ??
+                  'Cannot favorite: no translation available',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      final l10n = AppLocalizations.of(context);
+      if (_isFavorite) {
+        // Remove from favorites
+        final success = await FavoritesStorage.deleteFavorite(result.query);
+        if (success && mounted) {
+          setState(() {
+            _isFavorite = false;
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  l10n?.removedFromFavorites ?? 'Removed from favorites',
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+      } else {
+        // Add to favorites
+        final favoriteItem = QueryHistoryItem(
+          word: result.query.trim(),
+          meaning: meaning,
+          timestamp: DateTime.now().millisecondsSinceEpoch,
+        );
+        final success = await FavoritesStorage.saveFavorite(favoriteItem);
+        if (success && mounted) {
+          setState(() {
+            _isFavorite = true;
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(l10n?.addedToFavorites ?? 'Added to favorites'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _fetchResult() async {
     if (widget.query.trim().isEmpty) {
       return;
@@ -118,10 +241,13 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
       final result = await service.getDetailedResult(widget.query);
 
       if (mounted) {
+        // Check if word is favorited
+        final isFav = await FavoritesStorage.isFavorite(widget.query);
         setState(() {
           _result = result;
           _loading = false;
           _error = null;
+          _isFavorite = isFav;
         });
       }
     } catch (e) {
@@ -223,16 +349,37 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
     ThemeData theme,
     ResultModel result,
   ) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Query word
-        Text(
-          result.query,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
-          ),
+        // Query word with favorite button
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                result.query,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: Icon(
+                _isFavorite ? Icons.star : Icons.star_border,
+                color: _isFavorite
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              onPressed: () => _toggleFavorite(result),
+              tooltip: _isFavorite
+                  ? (l10n?.removedFromFavorites ?? 'Remove from favorites')
+                  : (l10n?.addedToFavorites ?? 'Add to favorites'),
+            ),
+          ],
         ),
 
         // Pronunciation
@@ -302,13 +449,13 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
                   children: [
                     SizedBox(
                       width: 34,
-                      child: Text(
+                      child: _buildClickableText(
+                        context,
+                        theme,
                         translation['name'] ?? '',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.primary,
-                        ),
+                        onTap: () {
+                          widget.onQueryTap?.call(translation['name'] ?? '');
+                        },
                       ),
                     ),
                     const SizedBox(width: 16.0),
@@ -395,19 +542,19 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
                           wf['name'] ?? '',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.primary,
+                            color: theme.colorScheme.onSurface,
                           ),
                         ),
                       ),
                       const SizedBox(width: 16.0),
                       Expanded(
-                        child: Text(
+                        child: _buildClickableText(
+                          context,
+                          theme,
                           wf['value'] ?? '',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface,
-                          ),
+                          onTap: () {
+                            widget.onQueryTap?.call(wf['name'] ?? '');
+                          },
                         ),
                       ),
                     ],
@@ -439,18 +586,29 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: result.phrases!.map((phrase) {
+                final phraseName = phrase['name'] ?? '';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        phrase['name'] ?? '',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.primary,
-                        ),
+                      Row(
+                        children: [
+                          _buildClickableText(
+                            context,
+                            theme,
+                            phraseName,
+                            onTap: () {
+                              widget.onQueryTap?.call(phraseName);
+                            },
+                          ),
+                          const SizedBox(width: 8.0),
+                          _buildPhrasePronunciationButton(
+                            context,
+                            theme,
+                            phraseName,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4.0),
                       Text(
@@ -497,13 +655,13 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      _buildClickableText(
+                        context,
+                        theme,
                         '${webTrans['name'] ?? ''}: ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
-                        ),
+                        onTap: () {
+                          widget.onQueryTap?.call(webTrans['name'] ?? '');
+                        },
                       ),
                       Expanded(
                         child: Text(
@@ -598,6 +756,114 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
             ],
             Icon(Icons.volume_up, size: 20, color: theme.colorScheme.primary),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds a clickable text widget with primary color styling.
+  Widget _buildClickableText(
+    BuildContext context,
+    ThemeData theme,
+    String text, {
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(4.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: text.contains(':') ? 14 : (text.length <= 4 ? 12 : 14),
+            fontWeight: text.contains(':') ? FontWeight.w600 : FontWeight.w500,
+            color: theme.colorScheme.primary,
+            decoration: TextDecoration.underline,
+            decorationColor: theme.colorScheme.primary.withValues(alpha: 0.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a pronunciation button for phrases.
+  Widget _buildPhrasePronunciationButton(
+    BuildContext context,
+    ThemeData theme,
+    String phrase,
+  ) {
+    return InkWell(
+      onTap: () async {
+        if (!mounted) return;
+
+        try {
+          await _pronunciationManager.stop();
+
+          // Build pronunciation URL for the phrase
+          String? pronunciationUrl;
+          if (widget.platform == TranslationServiceType.youdao) {
+            // Get language code from preferences and map to Youdao format
+            final languageCode = PreferencesStorage.getTranslationToLanguage();
+            String le;
+            if (languageCode == null || languageCode == 'auto') {
+              le = 'auto';
+            } else {
+              final code = languageCode.toLowerCase();
+              le = code == 'en' ? 'eng' : code;
+            }
+
+            final encodedPhrase = Uri.encodeComponent(phrase);
+
+            // Build URL based on language
+            if (le == 'eng') {
+              pronunciationUrl =
+                  'https://dict.youdao.com/dictvoice?audio=$encodedPhrase&le=$le&type=2';
+            } else {
+              pronunciationUrl =
+                  'https://dict.youdao.com/dictvoice?audio=$encodedPhrase&le=$le';
+            }
+          }
+
+          // Get current service type to determine if we should use URL or text
+          final serviceType = PreferencesStorage.getPronunciationServiceType();
+          final isSystemTts = serviceType == null || serviceType == 'system';
+
+          // For system TTS, use text directly. For others, use URL.
+          final success = await _pronunciationManager.speak(
+            text: phrase,
+            languageCode: null,
+            url: isSystemTts ? null : pronunciationUrl,
+          );
+
+          if (!mounted) return;
+
+          if (!success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Error playing pronunciation'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        } catch (e) {
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error playing pronunciation: $e'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      borderRadius: BorderRadius.circular(8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Icon(
+          Icons.volume_up,
+          size: 16,
+          color: theme.colorScheme.primary,
         ),
       ),
     );

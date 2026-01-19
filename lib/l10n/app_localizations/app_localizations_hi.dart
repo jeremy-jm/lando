@@ -73,14 +73,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String get russian => 'रूसी';
 
   @override
-  String get pronunciationSource => 'Pronunciation Source';
+  String get pronunciationSource => 'उच्चारण स्रोत';
 
   @override
   String get pronunciationSourceDescription =>
-      'Select the pronunciation service to use';
+      'उपयोग करने के लिए उच्चारण सेवा चुनें';
 
   @override
-  String get pronunciationSystem => 'System';
+  String get pronunciationSystem => 'सिस्टम';
 
   @override
   String get pronunciationYoudao => 'Youdao';
@@ -96,4 +96,52 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get pronunciationApple => 'Apple';
+
+  @override
+  String get me => 'मैं';
+
+  @override
+  String get favorites => 'पसंदीदा';
+
+  @override
+  String get history => 'इतिहास';
+
+  @override
+  String get noHistory => 'कोई क्वेरी इतिहास नहीं';
+
+  @override
+  String get clearHistory => 'इतिहास साफ करें';
+
+  @override
+  String get delete => 'हटाएं';
+
+  @override
+  String get confirmClearHistory =>
+      'क्या आप वाकई सभी इतिहास साफ करना चाहते हैं?';
+
+  @override
+  String get confirm => 'पुष्टि करें';
+
+  @override
+  String get cancel => 'रद्द करें';
+
+  @override
+  String get noFavorites => 'कोई पसंदीदा नहीं';
+
+  @override
+  String get clearFavorites => 'पसंदीदा साफ करें';
+
+  @override
+  String get confirmClearFavorites =>
+      'क्या आप वाकई सभी पसंदीदा साफ करना चाहते हैं?';
+
+  @override
+  String get cannotFavorite =>
+      'पसंदीदा में नहीं जोड़ा जा सकता: अनुवाद उपलब्ध नहीं';
+
+  @override
+  String get removedFromFavorites => 'पसंदीदा से हटा दिया गया';
+
+  @override
+  String get addedToFavorites => 'पसंदीदा में जोड़ा गया';
 }

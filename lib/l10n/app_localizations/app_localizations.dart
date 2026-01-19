@@ -281,6 +281,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Apple'**
   String get pronunciationApple;
+
+  /// Me page title
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get me;
+
+  /// Favorites page title
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favorites;
+
+  /// History page title
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// Message shown when there is no query history
+  ///
+  /// In en, this message translates to:
+  /// **'No query history'**
+  String get noHistory;
+
+  /// Button to clear all query history
+  ///
+  /// In en, this message translates to:
+  /// **'Clear History'**
+  String get clearHistory;
+
+  /// Delete button label
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Confirmation message before clearing all history
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear all history?'**
+  String get confirmClearHistory;
+
+  /// Confirm button label
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// Cancel button label
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Message shown when there are no favorites
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites'**
+  String get noFavorites;
+
+  /// Button to clear all favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Favorites'**
+  String get clearFavorites;
+
+  /// Confirmation message before clearing all favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear all favorites?'**
+  String get confirmClearFavorites;
+
+  /// Message shown when trying to favorite a word without translation
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot favorite: no translation available'**
+  String get cannotFavorite;
+
+  /// Message shown when a word is removed from favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get removedFromFavorites;
+
+  /// Message shown when a word is added to favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favorites'**
+  String get addedToFavorites;
 }
 
 class _AppLocalizationsDelegate

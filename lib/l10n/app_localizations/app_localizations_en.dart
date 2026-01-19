@@ -96,4 +96,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pronunciationApple => 'Apple';
+
+  @override
+  String get me => 'Me';
+
+  @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get noHistory => 'No query history';
+
+  @override
+  String get clearHistory => 'Clear History';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get confirmClearHistory =>
+      'Are you sure you want to clear all history?';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get noFavorites => 'No favorites';
+
+  @override
+  String get clearFavorites => 'Clear Favorites';
+
+  @override
+  String get confirmClearFavorites =>
+      'Are you sure you want to clear all favorites?';
+
+  @override
+  String get cannotFavorite => 'Cannot favorite: no translation available';
+
+  @override
+  String get removedFromFavorites => 'Removed from favorites';
+
+  @override
+  String get addedToFavorites => 'Added to favorites';
 }

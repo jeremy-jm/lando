@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:lando/features/home/query/query_repository.dart';
+import 'package:lando/models/query_history_item.dart';
 import 'package:lando/services/translation/youdao/models/youdao_response.dart';
+import 'package:lando/storage/query_history_storage.dart';
 
 /// Events for [QueryBloc].
 sealed class QueryEvent {
@@ -114,10 +116,23 @@ class QueryBloc {
       );
       try {
         final result = await _repository.lookupWithPronunciation(query);
+        final translation = result['translation'] ?? '';
+        
+        // Save to query history if translation is not empty
+        if (translation.isNotEmpty && query.trim().isNotEmpty) {
+          final historyItem = QueryHistoryItem(
+            word: query.trim(),
+            meaning: translation,
+            timestamp: DateTime.now().millisecondsSinceEpoch,
+          );
+          // Save asynchronously without blocking the UI
+          QueryHistoryStorage.saveHistoryItem(historyItem);
+        }
+        
         _emit(
           _state.copyWith(
             isLoading: false,
-            result: result['translation'] ?? '',
+            result: translation,
             usPronunciationUrl: result['usPronunciationUrl'] as String?,
             ukPronunciationUrl: result['ukPronunciationUrl'] as String?,
             generalPronunciationUrl:

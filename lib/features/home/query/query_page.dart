@@ -280,6 +280,11 @@ class _QueryPageState extends State<QueryPage> {
                           // TranslationServiceType.google,
                           // TranslationServiceType.bing,
                         ],
+                        onQueryTap: (queryText) {
+                          // Update TextField and trigger search
+                          _controller.text = queryText;
+                          _bloc.add(QuerySearchSubmitted(queryText));
+                        },
                       );
                     }
 
