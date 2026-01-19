@@ -111,8 +111,10 @@ class _QueryPageState extends State<QueryPage> {
   }) async {
     if (text.trim().isEmpty) {
       if (mounted) {
+        final messenger = ScaffoldMessenger.of(context);
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (!mounted) return;
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
               l10n?.pronunciationNotAvailable ?? 'Pronunciation not available',
@@ -139,8 +141,10 @@ class _QueryPageState extends State<QueryPage> {
       );
 
       if (!success && mounted) {
+        final messenger = ScaffoldMessenger.of(context);
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (!mounted) return;
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
               l10n?.errorPlayingPronunciation ?? 'Error playing pronunciation',
@@ -151,8 +155,10 @@ class _QueryPageState extends State<QueryPage> {
       }
     } catch (e) {
       if (mounted) {
+        final messenger = ScaffoldMessenger.of(context);
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (!mounted) return;
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
               l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??

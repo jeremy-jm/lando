@@ -67,35 +67,29 @@ class SettingsPage extends StatelessWidget {
                     title: Text(l10n.themeMode),
                     subtitle: Text(l10n.themeModeDescription),
                   ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(l10n.followSystem),
-                    value: ThemeMode.system,
+                  RadioGroup<ThemeMode>(
                     groupValue: mode,
                     onChanged: (ThemeMode? value) {
                       if (value != null) {
                         ThemeController.instance.setMode(value);
                       }
                     },
-                  ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(l10n.light),
-                    value: ThemeMode.light,
-                    groupValue: mode,
-                    onChanged: (ThemeMode? value) {
-                      if (value != null) {
-                        ThemeController.instance.setMode(value);
-                      }
-                    },
-                  ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(l10n.dark),
-                    value: ThemeMode.dark,
-                    groupValue: mode,
-                    onChanged: (ThemeMode? value) {
-                      if (value != null) {
-                        ThemeController.instance.setMode(value);
-                      }
-                    },
+                    child: Column(
+                      children: [
+                        RadioListTile<ThemeMode>(
+                          title: Text(l10n.followSystem),
+                          value: ThemeMode.system,
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: Text(l10n.light),
+                          value: ThemeMode.light,
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: Text(l10n.dark),
+                          value: ThemeMode.dark,
+                        ),
+                      ],
+                    ),
                   ),
                   const Divider(),
                   // Language Selection
@@ -103,22 +97,26 @@ class SettingsPage extends StatelessWidget {
                     title: Text(l10n.language),
                     subtitle: Text(l10n.selectLanguage),
                   ),
-                  ...LocaleController.supportedLocales.map((locale) {
-                    return RadioListTile<Locale>(
-                      title: Text(
-                        _getLanguageName(l10n, locale.languageCode),
-                      ),
-                      value: locale,
-                      groupValue: currentLocale,
-                      onChanged: (Locale? value) {
-                        if (value != null) {
-                          LocaleController.instance.setLocale(value);
-                        }
-                      },
-                    );
-                  }),
+                  RadioGroup<Locale>(
+                    groupValue: currentLocale,
+                    onChanged: (Locale? value) {
+                      if (value != null) {
+                        LocaleController.instance.setLocale(value);
+                      }
+                    },
+                    child: Column(
+                      children: LocaleController.supportedLocales.map((locale) {
+                        return RadioListTile<Locale>(
+                          title: Text(
+                            _getLanguageName(l10n, locale.languageCode),
+                          ),
+                          value: locale,
+                        );
+                      }).toList(),
+                    ),
+                  ),
                   const Divider(height: 32),
-                  
+
                   // Dictionary Section
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -131,10 +129,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   ListTile(
-                    leading: Icon(
-                      Icons.book,
-                      color: theme.colorScheme.primary,
-                    ),
+                    leading: Icon(Icons.book, color: theme.colorScheme.primary),
                     title: Text(l10n.dictionarySettings),
                     subtitle: Text(l10n.dictionarySettingsDescription),
                     trailing: const Icon(Icons.chevron_right),
@@ -147,7 +142,7 @@ class SettingsPage extends StatelessWidget {
                     },
                   ),
                   const Divider(height: 32),
-                  
+
                   // About Section
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -184,4 +179,3 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
-

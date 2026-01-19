@@ -43,11 +43,12 @@ class _FavoritesPageState extends State<FavoritesPage> {
     if (success && mounted) {
       await _loadFavorites();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        final l10n = AppLocalizations.of(context);
+        if (!mounted) return;
+        messenger.showSnackBar(
           SnackBar(
-            content: Text(
-              '${item.word} ${AppLocalizations.of(context)!.delete}',
-            ),
+            content: Text('${item.word} ${l10n!.delete}'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -83,7 +84,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
       if (success && mounted) {
         await _loadFavorites();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          final messenger = ScaffoldMessenger.of(context);
+          if (!mounted) return;
+          messenger.showSnackBar(
             SnackBar(
               content: Text(l10n.clearFavorites),
               duration: const Duration(seconds: 2),

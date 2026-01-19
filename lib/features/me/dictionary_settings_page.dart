@@ -93,14 +93,18 @@ class _DictionarySettingsPageState extends State<DictionarySettingsPage> {
             title: Text(l10n.pronunciationSource),
             subtitle: Text(l10n.pronunciationSourceDescription),
           ),
-          ...PronunciationServiceType.values.map((type) {
-            return RadioListTile<PronunciationServiceType>(
-              title: Text(_getPronunciationServiceName(l10n, type)),
-              value: type,
-              groupValue: _currentPronunciationService,
-              onChanged: _onPronunciationServiceChanged,
-            );
-          }),
+          RadioGroup<PronunciationServiceType>(
+            groupValue: _currentPronunciationService,
+            onChanged: _onPronunciationServiceChanged,
+            child: Column(
+              children: PronunciationServiceType.values.map((type) {
+                return RadioListTile<PronunciationServiceType>(
+                  title: Text(_getPronunciationServiceName(l10n, type)),
+                  value: type,
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );

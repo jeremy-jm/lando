@@ -29,7 +29,7 @@ class _HistoryPageState extends State<HistoryPage> {
     });
 
     final history = await QueryHistoryStorage.getHistory();
-    
+
     if (mounted) {
       setState(() {
         _history = history;
@@ -43,9 +43,12 @@ class _HistoryPageState extends State<HistoryPage> {
     if (success && mounted) {
       await _loadHistory();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        final l10n = AppLocalizations.of(context);
+        if (!mounted) return;
+        messenger.showSnackBar(
           SnackBar(
-            content: Text('${item.word} ${AppLocalizations.of(context)!.delete}'),
+            content: Text('${item.word} ${l10n!.delete}'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -81,7 +84,9 @@ class _HistoryPageState extends State<HistoryPage> {
       if (success && mounted) {
         await _loadHistory();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          final messenger = ScaffoldMessenger.of(context);
+          if (!mounted) return;
+          messenger.showSnackBar(
             SnackBar(
               content: Text(l10n.clearHistory),
               duration: const Duration(seconds: 2),
@@ -93,10 +98,9 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   void _navigateToQuery(String word) {
-    Navigator.of(context).pushNamed(
-      AppRoutes.query,
-      arguments: {'query': word},
-    );
+    Navigator.of(
+      context,
+    ).pushNamed(AppRoutes.query, arguments: {'query': word});
   }
 
   String _formatTimestamp(int timestamp) {
@@ -142,63 +146,54 @@ class _HistoryPageState extends State<HistoryPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _history.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.history,
-                        size: 64,
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        l10n.noHistory,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.6,
-                          ),
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.history,
+                    size: 64,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadHistory,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: _history.length,
-                    itemBuilder: (context, index) {
-                      final item = _history[index];
-                      return Dismissible(
-                        key: Key('${item.word}-${item.timestamp}'),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.error,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ),
-                        ),
-                        onDismissed: (direction) {
-                          _deleteItem(item);
-                        },
-                        confirmDismiss: (direction) async {
-                          return await showDialog<bool>(
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.noHistory,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadHistory,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(8),
+                itemCount: _history.length,
+                itemBuilder: (context, index) {
+                  final item = _history[index];
+                  return Dismissible(
+                    key: Key('${item.word}-${item.timestamp}'),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 20),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    onDismissed: (direction) {
+                      _deleteItem(item);
+                    },
+                    confirmDismiss: (direction) async {
+                      return await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
                               title: Text(l10n.delete),
-                              content: Text(
-                                '${l10n.delete} "${item.word}"?',
-                              ),
+                              content: Text('${l10n.delete} "${item.word}"?'),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
@@ -209,73 +204,74 @@ class _HistoryPageState extends State<HistoryPage> {
                                   onPressed: () =>
                                       Navigator.of(context).pop(true),
                                   style: TextButton.styleFrom(
-                                    foregroundColor:
-                                        theme.colorScheme.error,
+                                    foregroundColor: theme.colorScheme.error,
                                   ),
                                   child: Text(l10n.confirm),
                                 ),
                               ],
                             ),
                           ) ??
-                              false;
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            title: Text(
-                              item.word,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.meaning,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(alpha: 0.7),
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _formatTimestamp(item.timestamp),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(alpha: 0.5),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete_outline),
-                              onPressed: () => _deleteItem(item),
-                              tooltip: l10n.delete,
-                            ),
-                            onTap: () => _navigateToQuery(item.word),
+                          false;
+                    },
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        title: Text(
+                          item.word,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.meaning,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _formatTimestamp(item.timestamp),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => _deleteItem(item),
+                          tooltip: l10n.delete,
+                        ),
+                        onTap: () => _navigateToQuery(item.word),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

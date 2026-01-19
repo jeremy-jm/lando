@@ -170,7 +170,6 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
     }
 
     try {
-      final l10n = AppLocalizations.of(context);
       if (_isFavorite) {
         // Remove from favorites
         final success = await FavoritesStorage.deleteFavorite(result.query);
@@ -179,6 +178,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
             _isFavorite = false;
           });
           if (mounted) {
+            final l10n = AppLocalizations.of(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -202,6 +202,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
             _isFavorite = true;
           });
           if (mounted) {
+            final l10n = AppLocalizations.of(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(l10n?.addedToFavorites ?? 'Added to favorites'),
@@ -712,7 +713,9 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           if (!mounted) return;
 
           if (!success) {
+            if (!mounted) return;
             final l10n = AppLocalizations.of(context);
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -727,6 +730,7 @@ class _PlatformDictWidgetState extends State<PlatformDictWidget> {
           if (!mounted) return;
 
           final l10n = AppLocalizations.of(context);
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
