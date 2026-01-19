@@ -246,4 +246,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get webTranslations => 'Terjemahan Web';
+
+  @override
+  String get navigateBack => 'Kembali';
+
+  @override
+  String get navigateForward => 'Maju';
 }

@@ -22,6 +22,10 @@ class TranslationInputWidget extends StatefulWidget {
     this.suggestionService,
     this.onSuggestionTap,
     this.enableSuggestions = true,
+    this.onNavigateBack,
+    this.onNavigateForward,
+    this.canNavigateBack = false,
+    this.canNavigateForward = false,
   });
 
   final TextEditingController controller;
@@ -36,6 +40,10 @@ class TranslationInputWidget extends StatefulWidget {
   final YoudaoSuggestionService? suggestionService;
   final ValueChanged<String>? onSuggestionTap;
   final bool enableSuggestions;
+  final VoidCallback? onNavigateBack;
+  final VoidCallback? onNavigateForward;
+  final bool canNavigateBack;
+  final bool canNavigateForward;
 
   @override
   State<TranslationInputWidget> createState() => _TranslationInputWidgetState();
@@ -236,7 +244,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
               hasText) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              height: 40,
+              alignment: Alignment.center,
+              height: 30,
               decoration: BoxDecoration(
                 // color: theme.colorScheme.error,
                 borderRadius: BorderRadius.circular(8.0),
@@ -275,6 +284,111 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                     constraints: const BoxConstraints(),
                   ),
                   const Spacer(),
+                  // Navigation bar (back/forward buttons)
+                  // Always show navigation bar in query page (when callbacks are provided)
+                  if (!widget.readOnly &&
+                      (widget.onNavigateBack != null ||
+                          widget.onNavigateForward != null))
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 4.0,
+                      ),
+                      height: 30,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.1,
+                            ),
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Back button
+                          if (widget.onNavigateBack != null)
+                            Tooltip(
+                              message: l10n?.navigateBack ?? 'Navigate back',
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: widget.canNavigateBack
+                                      ? widget.onNavigateBack
+                                      : null,
+                                  borderRadius: BorderRadius.circular(20),
+                                  splashColor: widget.canNavigateBack
+                                      ? theme.colorScheme.primary.withValues(
+                                          alpha: 0.1,
+                                        )
+                                      : null,
+                                  highlightColor: widget.canNavigateBack
+                                      ? theme.colorScheme.primary.withValues(
+                                          alpha: 0.05,
+                                        )
+                                      : null,
+                                  child: Container(
+                                    width: 36,
+                                    height: 36,
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.arrow_back,
+                                      size: 20,
+                                      color: widget.canNavigateBack
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurface
+                                                .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          // Forward button
+                          if (widget.onNavigateForward != null) ...[
+                            if (widget.onNavigateBack != null)
+                              const SizedBox(width: 4),
+                            Tooltip(
+                              message:
+                                  l10n?.navigateForward ?? 'Navigate forward',
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: widget.canNavigateForward
+                                      ? widget.onNavigateForward
+                                      : null,
+                                  borderRadius: BorderRadius.circular(20),
+                                  splashColor: widget.canNavigateForward
+                                      ? theme.colorScheme.primary.withValues(
+                                          alpha: 0.1,
+                                        )
+                                      : null,
+                                  highlightColor: widget.canNavigateForward
+                                      ? theme.colorScheme.primary.withValues(
+                                          alpha: 0.05,
+                                        )
+                                      : null,
+                                  child: Container(
+                                    width: 36,
+                                    height: 36,
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.arrow_forward,
+                                      size: 20,
+                                      color: widget.canNavigateForward
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurface
+                                                .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   // Language detection label
                   GestureDetector(
                     onTap: () {
@@ -328,7 +442,6 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
 
           // Suggestions list
           if (showSuggestions) ...[
-            const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,

@@ -238,4 +238,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get webTranslations => 'ウェブ翻訳';
+
+  @override
+  String get navigateBack => '戻る';
+
+  @override
+  String get navigateForward => '進む';
 }

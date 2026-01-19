@@ -238,4 +238,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get webTranslations => '网络翻译';
+
+  @override
+  String get navigateBack => '后退';
+
+  @override
+  String get navigateForward => '前进';
 }

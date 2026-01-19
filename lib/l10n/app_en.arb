@@ -309,5 +309,13 @@
   "webTranslations": "Web Translations",
   "@webTranslations": {
     "description": "Label for web translations section"
+  },
+  "navigateBack": "Navigate back",
+  "@navigateBack": {
+    "description": "Tooltip for navigate back button"
+  },
+  "navigateForward": "Navigate forward",
+  "@navigateForward": {
+    "description": "Tooltip for navigate forward button"
   }
 }

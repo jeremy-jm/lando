@@ -74,5 +74,7 @@
   "partOfSpeech": "शब्द-भेद",
   "tense": "काल",
   "phrases": "वाक्यांश",
-  "webTranslations": "वेब अनुवाद"
+  "webTranslations": "वेब अनुवाद",
+  "navigateBack": "पीछे जाएं",
+  "navigateForward": "आगे जाएं"
 }

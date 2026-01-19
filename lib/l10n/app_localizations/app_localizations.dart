@@ -557,6 +557,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Web Translations'**
   String get webTranslations;
+
+  /// Tooltip for navigate back button
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate back'**
+  String get navigateBack;
+
+  /// Tooltip for navigate forward button
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate forward'**
+  String get navigateForward;
 }
 
 class _AppLocalizationsDelegate

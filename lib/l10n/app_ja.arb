@@ -74,5 +74,7 @@
   "partOfSpeech": "品詞",
   "tense": "時制",
   "phrases": "フレーズ",
-  "webTranslations": "ウェブ翻訳"
+  "webTranslations": "ウェブ翻訳",
+  "navigateBack": "戻る",
+  "navigateForward": "進む"
 }

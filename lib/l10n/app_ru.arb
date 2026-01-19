@@ -74,5 +74,7 @@
   "partOfSpeech": "Часть речи",
   "tense": "Время",
   "phrases": "Фразы",
-  "webTranslations": "Веб-переводы"
+  "webTranslations": "Веб-переводы",
+  "navigateBack": "Назад",
+  "navigateForward": "Вперед"
 }

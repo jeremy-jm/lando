@@ -248,4 +248,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get webTranslations => 'Веб-переводы';
+
+  @override
+  String get navigateBack => 'Назад';
+
+  @override
+  String get navigateForward => 'Вперед';
 }

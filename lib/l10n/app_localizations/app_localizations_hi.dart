@@ -246,4 +246,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get webTranslations => 'वेब अनुवाद';
+
+  @override
+  String get navigateBack => 'पीछे जाएं';
+
+  @override
+  String get navigateForward => 'आगे जाएं';
 }

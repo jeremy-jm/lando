@@ -249,4 +249,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get webTranslations => 'Traduções da Web';
+
+  @override
+  String get navigateBack => 'Voltar';
+
+  @override
+  String get navigateForward => 'Avançar';
 }

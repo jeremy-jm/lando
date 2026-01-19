@@ -152,26 +152,57 @@ class _MyHomePageState extends State<MyHomePage> {
 
               const SizedBox(height: 40.0),
 
-              Builder(
-                builder: (context) {
-                  final l10n = AppLocalizations.of(context)!;
-                  return TranslationInputWidget(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    hintText: l10n.translation,
-                    detectedLanguage: _detectedLanguage,
-                    onSubmitted: (value) {
-                      _navigateToQueryPage(
-                        value.trim().isEmpty ? null : value.trim(),
-                      );
-                    },
-                    onSuggestionTap: (word) {
-                      // Auto-navigate to query page when suggestion is tapped
-                      _navigateToQueryPage(word.trim().isEmpty ? null : word.trim());
-                    },
-                  );
+              InkWell(
+                onTap: () {
+                  _navigateToQueryPage(null);
                 },
+                borderRadius: BorderRadius.circular(16.0),
+                child: Container(
+                  padding: const EdgeInsets.all(10.0),
+                  width: double.infinity,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)?.enterTextToTranslate ?? '',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
               ),
+
+              // Builder(
+              //   builder: (context) {
+              //     final l10n = AppLocalizations.of(context)!;
+              //     return TranslationInputWidget(
+              //       controller: _controller,
+              //       focusNode: _focusNode,
+              //       hintText: l10n.enterTextToTranslate,
+              //       detectedLanguage: _detectedLanguage,
+              //       onSubmitted: (value) {
+              //         _navigateToQueryPage(
+              //           value.trim().isEmpty ? null : value.trim(),
+              //         );
+              //       },
+              //       onSuggestionTap: (word) {
+              //         // Auto-navigate to query page when suggestion is tapped
+              //         _navigateToQueryPage(
+              //           word.trim().isEmpty ? null : word.trim(),
+              //         );
+              //       },
+              //     );
+              //   },
+              // ),
               const SizedBox(height: 16.0),
               LanguageSelectorWidget(
                 key: ValueKey(_languageSelectorKey),

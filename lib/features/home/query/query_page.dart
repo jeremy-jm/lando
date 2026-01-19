@@ -5,6 +5,7 @@ import 'package:lando/features/home/widgets/language_selector_widget.dart';
 import 'package:lando/features/home/widgets/translation_input_widget.dart';
 import 'package:lando/features/me/settings_page.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_widget.dart';
+import 'package:lando/features/home/providers/query_history_provider.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/audio/pronunciation_service_manager.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
@@ -25,7 +26,10 @@ class _QueryPageState extends State<QueryPage> {
   final FocusNode _focusNode = FocusNode();
   final PronunciationServiceManager _pronunciationManager =
       PronunciationServiceManager();
+  final QueryHistoryProvider _historyProvider = QueryHistoryProvider();
   String? _detectedLanguage;
+  bool _isNavigating =
+      false; // Flag to prevent adding to history during navigation
 
   @override
   void initState() {
@@ -42,9 +46,56 @@ class _QueryPageState extends State<QueryPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
       if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
-        _bloc.add(QuerySearchSubmitted(widget.initialQuery!));
+        final trimmedQuery = widget.initialQuery!.trim();
+        _historyProvider.addQuery(trimmedQuery);
+        _bloc.add(QuerySearchSubmitted(trimmedQuery));
+        setState(() {}); // Update button states
       }
     });
+  }
+
+  void _handleNavigateBack() {
+    final previousQuery = _historyProvider.goBack();
+    if (previousQuery != null && mounted) {
+      _isNavigating = true; // Set flag to prevent adding to history
+      _controller.text = previousQuery;
+      _detectLanguage(); // Update detected language
+      _bloc.add(QuerySearchSubmitted(previousQuery));
+      if (mounted) {
+        setState(() {
+          _isNavigating = false; // Reset flag after state update
+        }); // Update button states
+      }
+    }
+  }
+
+  void _handleNavigateForward() {
+    final nextQuery = _historyProvider.goForward();
+    if (nextQuery != null && mounted) {
+      _isNavigating = true; // Set flag to prevent adding to history
+      _controller.text = nextQuery;
+      _detectLanguage(); // Update detected language
+      _bloc.add(QuerySearchSubmitted(nextQuery));
+      if (mounted) {
+        setState(() {
+          _isNavigating = false; // Reset flag after state update
+        }); // Update button states
+      }
+    }
+  }
+
+  void _handleQuerySubmitted(String query) {
+    if (query.trim().isNotEmpty) {
+      final trimmedQuery = query.trim();
+      // Only add to history if not navigating and it's different from current query
+      if (!_isNavigating && !_historyProvider.isCurrentQuery(trimmedQuery)) {
+        _historyProvider.addQuery(trimmedQuery);
+      }
+      _bloc.add(QuerySearchSubmitted(trimmedQuery));
+      if (mounted) {
+        setState(() {}); // Update button states
+      }
+    }
   }
 
   void _detectLanguage() {
@@ -204,38 +255,47 @@ class _QueryPageState extends State<QueryPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Search TextField
-              StreamBuilder<QueryState>(
-                stream: _bloc.stream,
-                initialData: _bloc.state,
-                builder: (context, snapshot) {
-                  final state = snapshot.data ?? _bloc.state;
-                  return TranslationInputWidget(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    hintText: l10n.translation,
-                    detectedLanguage: _getLanguageDisplayName(
-                      _detectedLanguage,
-                    ),
-                    pronunciationUrl: state.inputPronunciationUrl,
-                    onPronunciationTap: () => _playPronunciation(
-                      text: state.query.isNotEmpty
-                          ? state.query
-                          : _controller.text,
-                      url: state.inputPronunciationUrl,
-                      languageCode:
-                          _detectedLanguage, // Pass language code (e.g., 'zh', 'en')
-                    ),
-                    onSubmitted: (value) {
-                      if (value.trim().isNotEmpty) {
-                        _bloc.add(QuerySearchSubmitted(value.trim()));
-                      }
-                    },
-                    onSuggestionTap: (word) {
-                      // Auto-trigger query when suggestion is tapped
-                      if (word.trim().isNotEmpty) {
-                        _bloc.add(QuerySearchSubmitted(word.trim()));
-                      }
+              // Search TextField with navigation
+              Builder(
+                builder: (context) {
+                  return StreamBuilder<QueryState>(
+                    stream: _bloc.stream,
+                    initialData: _bloc.state,
+                    builder: (context, snapshot) {
+                      final state = snapshot.data ?? _bloc.state;
+                      return TranslationInputWidget(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        hintText: l10n.enterTextToTranslate,
+                        detectedLanguage: _getLanguageDisplayName(
+                          _detectedLanguage,
+                        ),
+                        pronunciationUrl: state.inputPronunciationUrl,
+                        onPronunciationTap: () => _playPronunciation(
+                          text: state.query.isNotEmpty
+                              ? state.query
+                              : _controller.text,
+                          url: state.inputPronunciationUrl,
+                          languageCode:
+                              _detectedLanguage, // Pass language code (e.g., 'zh', 'en')
+                        ),
+                        onSubmitted: _handleQuerySubmitted,
+                        onSuggestionTap: (word) {
+                          // Auto-trigger query when suggestion is tapped
+                          if (word.trim().isNotEmpty) {
+                            final trimmedWord = word.trim();
+                            if (!_historyProvider.isCurrentQuery(trimmedWord)) {
+                              _historyProvider.addQuery(trimmedWord);
+                            }
+                            _bloc.add(QuerySearchSubmitted(trimmedWord));
+                            setState(() {}); // Update button states
+                          }
+                        },
+                        onNavigateBack: _handleNavigateBack,
+                        onNavigateForward: _handleNavigateForward,
+                        canNavigateBack: _historyProvider.canGoBack,
+                        canNavigateForward: _historyProvider.canGoForward,
+                      );
                     },
                   );
                 },

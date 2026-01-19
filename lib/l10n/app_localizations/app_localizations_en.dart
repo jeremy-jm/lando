@@ -246,4 +246,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webTranslations => 'Web Translations';
+
+  @override
+  String get navigateBack => 'Navigate back';
+
+  @override
+  String get navigateForward => 'Navigate forward';
 }

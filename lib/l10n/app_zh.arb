@@ -74,5 +74,7 @@
   "partOfSpeech": "词性",
   "tense": "时态",
   "phrases": "短语",
-  "webTranslations": "网络翻译"
+  "webTranslations": "网络翻译",
+  "navigateBack": "后退",
+  "navigateForward": "前进"
 }
