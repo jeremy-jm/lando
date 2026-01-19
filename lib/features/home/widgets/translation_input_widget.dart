@@ -48,6 +48,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   bool _isNotFound = false;
   Timer? _debounceTimer;
   String _lastQuery = '';
+  bool _isSelectingSuggestion =
+      false; // Flag to prevent re-fetching when selecting a suggestion
 
   @override
   void initState() {
@@ -67,7 +69,9 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   }
 
   void _onTextChanged() {
-    if (!widget.enableSuggestions || widget.readOnly) {
+    if (!widget.enableSuggestions ||
+        widget.readOnly ||
+        _isSelectingSuggestion) {
       return;
     }
 
@@ -136,17 +140,41 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   }
 
   void _onSuggestionTap(YoudaoSuggestion suggestion) {
-    widget.controller.text = suggestion.word;
-    widget.controller.selection = TextSelection.fromPosition(
-      TextPosition(offset: suggestion.word.length),
-    );
+    final word = suggestion.word;
 
+    // Cancel any pending suggestion requests
+    _debounceTimer?.cancel();
+
+    // Set flag to prevent re-fetching suggestions when text changes
+    _isSelectingSuggestion = true;
+
+    // Clear suggestions and reset all suggestion-related states first
     setState(() {
       _suggestions = [];
+      _isNotFound = false;
+      _isLoadingSuggestions = false;
+      _lastQuery = word; // Set to current word to prevent re-fetching
     });
 
-    // Trigger submission if callback is provided
-    widget.onSuggestionTap?.call(suggestion.word);
+    // Update controller text (this will trigger _onTextChanged, but it will be ignored due to _isSelectingSuggestion flag)
+    widget.controller.text = word;
+    widget.controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: word.length),
+    );
+
+    // Reset flag after a short delay to allow text change to complete
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _isSelectingSuggestion = false;
+      }
+    });
+
+    // Trigger submission - prefer onSuggestionTap, fallback to onSubmitted
+    if (widget.onSuggestionTap != null) {
+      widget.onSuggestionTap!.call(word);
+    } else if (widget.onSubmitted != null) {
+      widget.onSubmitted!.call(word);
+    }
   }
 
   @override
@@ -259,7 +287,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '??? ',
+                            '识别为: ',
                             style: TextStyle(
                               fontSize: 12,
                               color: theme.colorScheme.onSurface.withValues(

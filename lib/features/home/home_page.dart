@@ -165,6 +165,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         value.trim().isEmpty ? null : value.trim(),
                       );
                     },
+                    onSuggestionTap: (word) {
+                      // Auto-navigate to query page when suggestion is tapped
+                      _navigateToQueryPage(word.trim().isEmpty ? null : word.trim());
+                    },
                   );
                 },
               ),

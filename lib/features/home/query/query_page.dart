@@ -215,6 +215,12 @@ class _QueryPageState extends State<QueryPage> {
                         _bloc.add(QuerySearchSubmitted(value.trim()));
                       }
                     },
+                    onSuggestionTap: (word) {
+                      // Auto-trigger query when suggestion is tapped
+                      if (word.trim().isNotEmpty) {
+                        _bloc.add(QuerySearchSubmitted(word.trim()));
+                      }
+                    },
                   );
                 },
               ),
