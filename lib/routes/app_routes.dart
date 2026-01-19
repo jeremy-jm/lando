@@ -43,9 +43,8 @@ class AppRoutes {
       case query:
         final args = routeSettings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (context) => QueryPage(
-            initialQuery: args?['query'] as String?,
-          ),
+          builder: (context) =>
+              QueryPage(initialQuery: args?['query'] as String?),
           settings: routeSettings,
         );
       case settings:

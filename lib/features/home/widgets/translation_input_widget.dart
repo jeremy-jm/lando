@@ -58,6 +58,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   String _lastQuery = '';
   bool _isSelectingSuggestion =
       false; // Flag to prevent re-fetching when selecting a suggestion
+  bool _isNavigating =
+      false; // Flag to prevent re-fetching suggestions during navigation
 
   @override
   void initState() {
@@ -67,19 +69,47 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
           widget.suggestionService ?? YoudaoSuggestionService(ApiClient());
     }
     widget.controller.addListener(_onTextChanged);
+    widget.focusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
     widget.controller.removeListener(_onTextChanged);
+    widget.focusNode.removeListener(_onFocusChanged);
     super.dispose();
+  }
+
+  void _onFocusChanged() {
+    // Close suggestions when TextField loses focus
+    // Delay to allow suggestion tap to complete first
+    if (!widget.focusNode.hasFocus && !_isSelectingSuggestion) {
+      _debounceTimer?.cancel();
+      // Small delay to allow suggestion tap to complete
+      Future.delayed(const Duration(milliseconds: 150), () {
+        if (mounted && !widget.focusNode.hasFocus && !_isSelectingSuggestion) {
+          _closeSuggestions();
+        }
+      });
+    }
+  }
+
+  void _closeSuggestions() {
+    _debounceTimer?.cancel();
+    if (mounted) {
+      setState(() {
+        _suggestions = [];
+        _isLoadingSuggestions = false;
+        _isNotFound = false;
+      });
+    }
   }
 
   void _onTextChanged() {
     if (!widget.enableSuggestions ||
         widget.readOnly ||
-        _isSelectingSuggestion) {
+        _isSelectingSuggestion ||
+        _isNavigating) {
       return;
     }
 
@@ -170,10 +200,12 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
       TextPosition(offset: word.length),
     );
 
-    // Reset flag after a short delay to allow text change to complete
-    Future.delayed(const Duration(milliseconds: 100), () {
+    // Reset flag after a delay to allow text change and focus handling to complete
+    Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
-        _isSelectingSuggestion = false;
+        setState(() {
+          _isSelectingSuggestion = false;
+        });
       }
     });
 
@@ -316,7 +348,27 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: widget.canNavigateBack
-                                      ? widget.onNavigateBack
+                                      ? () {
+                                          _isNavigating = true;
+                                          _closeSuggestions();
+                                          widget.onNavigateBack?.call();
+                                          // Reset navigation flag after a delay to allow text change to complete
+                                          Future.delayed(
+                                            const Duration(milliseconds: 300),
+                                            () {
+                                              if (mounted) {
+                                                setState(() {
+                                                  _isNavigating = false;
+                                                  // Update _lastQuery to prevent re-fetching
+                                                  _lastQuery = widget
+                                                      .controller
+                                                      .text
+                                                      .trim();
+                                                });
+                                              }
+                                            },
+                                          );
+                                        }
                                       : null,
                                   borderRadius: BorderRadius.circular(20),
                                   splashColor: widget.canNavigateBack
@@ -356,7 +408,27 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: widget.canNavigateForward
-                                      ? widget.onNavigateForward
+                                      ? () {
+                                          _isNavigating = true;
+                                          _closeSuggestions();
+                                          widget.onNavigateForward?.call();
+                                          // Reset navigation flag after a delay to allow text change to complete
+                                          Future.delayed(
+                                            const Duration(milliseconds: 300),
+                                            () {
+                                              if (mounted) {
+                                                setState(() {
+                                                  _isNavigating = false;
+                                                  // Update _lastQuery to prevent re-fetching
+                                                  _lastQuery = widget
+                                                      .controller
+                                                      .text
+                                                      .trim();
+                                                });
+                                              }
+                                            },
+                                          );
+                                        }
                                       : null,
                                   borderRadius: BorderRadius.circular(20),
                                   splashColor: widget.canNavigateForward

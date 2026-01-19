@@ -160,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Container(
                   padding: const EdgeInsets.all(10.0),
                   width: double.infinity,
-                  height: 40,
+                  height: 60,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Theme.of(
@@ -176,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   child: Text(
                     AppLocalizations.of(context)?.enterTextToTranslate ?? '',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
               ),
@@ -206,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 16.0),
               LanguageSelectorWidget(
                 key: ValueKey(_languageSelectorKey),
-                showBackground: true,
+                showBackground: false,
               ),
             ],
           ),
