@@ -5,6 +5,7 @@ import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/youdao_suggestion.dart';
 import 'package:lando/network/api_client.dart';
 import 'package:lando/services/suggestion/youdao_suggestion_service.dart';
+import 'package:lando/storage/preferences_storage.dart';
 
 /// Unified translation input widget with language detection display and suggestions.
 class TranslationInputWidget extends StatefulWidget {
@@ -55,6 +56,9 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   bool _isLoadingSuggestions = false;
   bool _isNotFound = false;
   Timer? _debounceTimer;
+  Timer? _focusDelayTimer;
+  Timer? _suggestionResetTimer;
+  Timer? _navigationResetTimer;
   String _lastQuery = '';
   bool _isSelectingSuggestion =
       false; // Flag to prevent re-fetching when selecting a suggestion
@@ -66,7 +70,10 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     super.initState();
     if (widget.enableSuggestions) {
       _suggestionService =
-          widget.suggestionService ?? YoudaoSuggestionService(ApiClient());
+          widget.suggestionService ??
+          YoudaoSuggestionService(
+            ApiClient(corsProxyUrl: PreferencesStorage.getCorsProxyUrl()),
+          );
     }
     widget.controller.addListener(_onTextChanged);
     widget.focusNode.addListener(_onFocusChanged);
@@ -75,6 +82,9 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   @override
   void dispose() {
     _debounceTimer?.cancel();
+    _focusDelayTimer?.cancel();
+    _suggestionResetTimer?.cancel();
+    _navigationResetTimer?.cancel();
     widget.controller.removeListener(_onTextChanged);
     widget.focusNode.removeListener(_onFocusChanged);
     super.dispose();
@@ -85,8 +95,9 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     // Delay to allow suggestion tap to complete first
     if (!widget.focusNode.hasFocus && !_isSelectingSuggestion) {
       _debounceTimer?.cancel();
+      _focusDelayTimer?.cancel();
       // Small delay to allow suggestion tap to complete
-      Future.delayed(const Duration(milliseconds: 150), () {
+      _focusDelayTimer = Timer(const Duration(milliseconds: 150), () {
         if (mounted && !widget.focusNode.hasFocus && !_isSelectingSuggestion) {
           _closeSuggestions();
         }
@@ -201,7 +212,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     );
 
     // Reset flag after a delay to allow text change and focus handling to complete
-    Future.delayed(const Duration(milliseconds: 200), () {
+    _suggestionResetTimer?.cancel();
+    _suggestionResetTimer = Timer(const Duration(milliseconds: 200), () {
       if (mounted) {
         setState(() {
           _isSelectingSuggestion = false;
@@ -353,7 +365,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                           _closeSuggestions();
                                           widget.onNavigateBack?.call();
                                           // Reset navigation flag after a delay to allow text change to complete
-                                          Future.delayed(
+                                          _navigationResetTimer?.cancel();
+                                          _navigationResetTimer = Timer(
                                             const Duration(milliseconds: 300),
                                             () {
                                               if (mounted) {
@@ -413,7 +426,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                           _closeSuggestions();
                                           widget.onNavigateForward?.call();
                                           // Reset navigation flag after a delay to allow text change to complete
-                                          Future.delayed(
+                                          _navigationResetTimer?.cancel();
+                                          _navigationResetTimer = Timer(
                                             const Duration(milliseconds: 300),
                                             () {
                                               if (mounted) {

@@ -4,12 +4,16 @@ import 'package:lando/services/translation/google_translation_service.dart';
 import 'package:lando/services/translation/translation_service.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
 import 'package:lando/services/translation/youdao_translation_service.dart';
+import 'package:lando/storage/preferences_storage.dart';
 
 /// Factory class for creating translation service instances.
 class TranslationServiceFactory {
   TranslationServiceFactory({
     ApiClient? apiClient,
-  }) : _apiClient = apiClient ?? ApiClient();
+  }) : _apiClient = apiClient ??
+            ApiClient(
+              corsProxyUrl: PreferencesStorage.getCorsProxyUrl(),
+            );
 
   final ApiClient _apiClient;
 

@@ -30,6 +30,7 @@ class _QueryPageState extends State<QueryPage> {
   String? _detectedLanguage;
   bool _isNavigating =
       false; // Flag to prevent adding to history during navigation
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -44,12 +45,16 @@ class _QueryPageState extends State<QueryPage> {
 
     // Auto focus and trigger search if initial query is provided
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-      if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
-        final trimmedQuery = widget.initialQuery!.trim();
-        _historyProvider.addQuery(trimmedQuery);
-        _bloc.add(QuerySearchSubmitted(trimmedQuery));
-        setState(() {}); // Update button states
+      if (!_isDisposed && mounted) {
+        _focusNode.requestFocus();
+        if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+          final trimmedQuery = widget.initialQuery!.trim();
+          _historyProvider.addQuery(trimmedQuery);
+          _bloc.add(QuerySearchSubmitted(trimmedQuery));
+          if (mounted) {
+            setState(() {}); // Update button states
+          }
+        }
       }
     });
   }
@@ -144,6 +149,7 @@ class _QueryPageState extends State<QueryPage> {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _bloc.dispose();
     _controller.dispose();
     _focusNode.dispose();

@@ -7,6 +7,7 @@ class StorageKeys {
   static const String translationFromLanguage = 'translation_from_language';
   static const String translationToLanguage = 'translation_to_language';
   static const String pronunciationServiceType = 'pronunciation_service_type';
+  static const String corsProxyUrl = 'cors_proxy_url';
 }
 
 /// Storage service for managing user preferences
@@ -99,6 +100,22 @@ class PreferencesStorage {
   /// Get pronunciation service type
   static String? getPronunciationServiceType() {
     return prefs.getString(StorageKeys.pronunciationServiceType);
+  }
+
+  // ==================== CORS Proxy URL ====================
+
+  /// Save CORS proxy URL (for Web platform development)
+  /// Set to null to disable CORS proxy
+  static Future<bool> saveCorsProxyUrl(String? proxyUrl) async {
+    if (proxyUrl == null || proxyUrl.isEmpty) {
+      return await prefs.remove(StorageKeys.corsProxyUrl);
+    }
+    return await prefs.setString(StorageKeys.corsProxyUrl, proxyUrl);
+  }
+
+  /// Get CORS proxy URL
+  static String? getCorsProxyUrl() {
+    return prefs.getString(StorageKeys.corsProxyUrl);
   }
 
   // ==================== Clear ====================

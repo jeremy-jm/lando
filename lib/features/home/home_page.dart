@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -19,16 +20,19 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   int _languageSelectorKey = 0;
+  Timer? _focusDelayTimer;
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
     // Navigate when TextField gains focus (user taps on it)
     _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
+      if (_focusNode.hasFocus && !_isDisposed) {
         // Small delay to allow user to see the focus effect
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted && _focusNode.hasFocus) {
+        _focusDelayTimer?.cancel();
+        _focusDelayTimer = Timer(const Duration(milliseconds: 100), () {
+          if (!_isDisposed && mounted && _focusNode.hasFocus) {
             _navigateToQueryPage(
               _controller.text.trim().isEmpty ? null : _controller.text.trim(),
             );
@@ -47,13 +51,15 @@ class _MyHomePageState extends State<MyHomePage> {
     super.didChangeDependencies();
     // Force rebuild language selector when returning from another page
     // This ensures language changes are reflected
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _languageSelectorKey++;
-        });
-      }
-    });
+    if (!_isDisposed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isDisposed && mounted) {
+          setState(() {
+            _languageSelectorKey++;
+          });
+        }
+      });
+    }
   }
 
   void _detectLanguage() {
@@ -64,7 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Simple language detection (can be improved with ML or API)
-    final detected = _simpleLanguageDetection(text);
+    // Currently not used but kept for future use
+    _simpleLanguageDetection(text); // ignore: unused_result
     setState(() {});
   }
 
@@ -80,6 +87,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
+    _isDisposed = true;
+    _focusDelayTimer?.cancel();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();

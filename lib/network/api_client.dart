@@ -14,7 +14,9 @@ class ApiClient {
     String? baseUrl,
     Duration? connectTimeout,
     Duration? receiveTimeout,
-  }) : _dio =
+    String? corsProxyUrl,
+  }) : _corsProxyUrl = corsProxyUrl,
+       _dio =
            dio ??
            Dio(
              BaseOptions(
@@ -35,8 +37,12 @@ class ApiClient {
           handler.next(response);
         },
         onError: (error, handler) {
-          // Convert DioException to a more user-friendly error message
-          debugPrint('API Error: ${error.message}');
+          // Log error details for debugging
+          debugPrint('API Error: ${error.type} - ${error.message}');
+          if (error.error != null) {
+            debugPrint('Error details: ${error.error}');
+          }
+          // Always pass the error through so it can be handled by the catch blocks
           handler.next(error);
         },
       ),
@@ -44,6 +50,26 @@ class ApiClient {
   }
 
   final Dio _dio;
+  final String? _corsProxyUrl;
+
+  /// Applies CORS proxy to URL if configured and on Web platform.
+  String _applyCorsProxy(String uri) {
+    if (!kIsWeb || _corsProxyUrl == null || _corsProxyUrl.isEmpty) {
+      return uri;
+    }
+
+    // Only apply proxy to external URLs (http/https)
+    if (!uri.startsWith('http://') && !uri.startsWith('https://')) {
+      return uri;
+    }
+
+    // Remove trailing slash from proxy URL if present
+    final proxy = _corsProxyUrl.endsWith('/')
+        ? _corsProxyUrl.substring(0, _corsProxyUrl.length - 1)
+        : _corsProxyUrl;
+
+    return '$proxy/$uri';
+  }
 
   /// Executes a GET request and returns the decoded JSON body.
   ///
@@ -56,8 +82,9 @@ class ApiClient {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
+      final finalUri = _applyCorsProxy(uri);
       final response = await _dio.get<Map<String, dynamic>>(
-        uri,
+        finalUri,
         queryParameters: queryParameters,
         options: Options(headers: headers),
       );
@@ -91,8 +118,9 @@ class ApiClient {
           )
           .join('&');
 
+      final finalUri = _applyCorsProxy(uri);
       final response = await _dio.post<Map<String, dynamic>>(
-        uri,
+        finalUri,
         data: formData,
         options: Options(
           headers: {
@@ -109,6 +137,13 @@ class ApiClient {
       return response.data!;
     } on DioException catch (e) {
       throw _handleDioError(e);
+    } catch (e) {
+      // Catch any other unexpected errors
+      debugPrint('Unexpected error in postForm: $e');
+      throw HttpException(
+        'Unexpected error: ${e.toString()}',
+        uri: Uri.tryParse(uri),
+      );
     }
   }
 
@@ -123,8 +158,9 @@ class ApiClient {
     Map<String, String>? headers,
   }) async {
     try {
+      final finalUri = _applyCorsProxy(uri);
       final response = await _dio.post<Map<String, dynamic>>(
-        uri,
+        finalUri,
         data: body,
         options: Options(headers: headers),
       );
@@ -136,6 +172,13 @@ class ApiClient {
       return response.data!;
     } on DioException catch (e) {
       throw _handleDioError(e);
+    } catch (e) {
+      // Catch any other unexpected errors
+      debugPrint('Unexpected error in postJson: $e');
+      throw HttpException(
+        'Unexpected error: ${e.toString()}',
+        uri: Uri.tryParse(uri),
+      );
     }
   }
 
@@ -165,8 +208,9 @@ class ApiClient {
         ),
       });
 
+      final finalUri = _applyCorsProxy(uri);
       final response = await _dio.post<Map<String, dynamic>>(
-        uri,
+        finalUri,
         data: formData,
         options: Options(headers: headers),
       );
@@ -178,22 +222,61 @@ class ApiClient {
       return response.data!;
     } on DioException catch (e) {
       throw _handleDioError(e);
+    } catch (e) {
+      // Catch any other unexpected errors
+      debugPrint('Unexpected error in upload: $e');
+      throw HttpException(
+        'Unexpected error: ${e.toString()}',
+        uri: Uri.tryParse(uri),
+      );
     }
   }
 
   /// Handles DioException and converts it to a more user-friendly error.
   Exception _handleDioError(DioException error) {
+    // Log detailed error information for debugging
+    debugPrint(
+      'Handling DioException: type=${error.type}, message=${error.message}',
+    );
+    if (error.error != null) {
+      debugPrint('Error object: ${error.error}');
+    }
+    debugPrint('Stack trace: ${error.stackTrace}');
+
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return HttpException(
-          'Request timeout: ${error.message}',
+          'Request timeout: ${error.message ?? 'Connection timed out'}',
+          uri: error.requestOptions.uri,
+        );
+      case DioExceptionType.connectionError:
+        // Provide a user-friendly message for connection errors
+        final errorMessage = error.message ?? 'Unable to connect to the server';
+        final isWebError =
+            errorMessage.contains('XMLHttpRequest') ||
+            errorMessage.contains('onError callback');
+
+        // On Web, this is almost always a CORS issue
+        if (kIsWeb && isWebError) {
+          return HttpException(
+            'CORS Error: The server does not allow cross-origin requests from web browsers. '
+            'This is a browser security restriction. The API server needs to include '
+            'CORS headers in its response. Please contact the API provider or use a CORS proxy for development.',
+            uri: error.requestOptions.uri,
+          );
+        }
+
+        return HttpException(
+          isWebError
+              ? 'Connection error: Unable to connect to the server. Please check your internet connection and try again.'
+              : 'Connection error: $errorMessage',
           uri: error.requestOptions.uri,
         );
       case DioExceptionType.badResponse:
         return HttpException(
-          'Request failed with status: ${error.response?.statusCode}',
+          'Request failed with status: ${error.response?.statusCode ?? 'unknown'}',
           uri: error.requestOptions.uri,
         );
       case DioExceptionType.cancel:
@@ -201,10 +284,14 @@ class ApiClient {
           'Request cancelled',
           uri: error.requestOptions.uri,
         );
-      case DioExceptionType.unknown:
-      default:
+      case DioExceptionType.badCertificate:
         return HttpException(
-          'Network error: ${error.message}',
+          'SSL certificate error: ${error.message ?? 'Invalid certificate'}',
+          uri: error.requestOptions.uri,
+        );
+      case DioExceptionType.unknown:
+        return HttpException(
+          'Network error: ${error.message ?? 'An unknown error occurred'}',
           uri: error.requestOptions.uri,
         );
     }

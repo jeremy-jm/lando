@@ -21,6 +21,7 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
   String? _fromLanguage;
   String? _toLanguage;
   bool _isSwapping = false;
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -35,9 +36,10 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
   }
 
   Future<void> _loadSavedLanguages() async {
+    if (_isDisposed) return;
     final from = PreferencesStorage.getTranslationFromLanguage();
     final to = PreferencesStorage.getTranslationToLanguage();
-    if (mounted) {
+    if (!_isDisposed && mounted) {
       setState(() {
         _fromLanguage = from;
         _toLanguage = to;
@@ -173,10 +175,13 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
     super.didChangeDependencies();
     // Reload language settings when dependencies change (e.g., when returning from another page)
     // This ensures the widget stays in sync with stored preferences
-    _checkAndReloadLanguages();
+    if (!_isDisposed) {
+      _checkAndReloadLanguages();
+    }
   }
 
   void _checkAndReloadLanguages() {
+    if (_isDisposed) return;
     final currentFrom = PreferencesStorage.getTranslationFromLanguage();
     final currentTo = PreferencesStorage.getTranslationToLanguage();
     if (currentFrom != _fromLanguage || currentTo != _toLanguage) {
@@ -185,15 +190,14 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
   }
 
   @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    // Also check in build method as a fallback
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _checkAndReloadLanguages();
-      }
-    });
 
     // Build language selector widgets
     final fromLanguageWidget = _buildLanguageSelector(
