@@ -256,35 +256,35 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navigateForward => 'Вперед';
 
   @override
-  String get shortcuts => 'Shortcuts';
+  String get shortcuts => 'Горячие клавиши';
 
   @override
-  String get showWindowHotkey => 'Show Window Hotkey';
+  String get showWindowHotkey => 'Горячая клавиша показа окна';
 
   @override
   String get showWindowHotkeyDescription =>
-      'Set a global hotkey to show the main window';
+      'Установить глобальную горячую клавишу для показа главного окна';
 
   @override
-  String get currentHotkey => 'Current Hotkey';
+  String get currentHotkey => 'Текущая горячая клавиша';
 
   @override
-  String get recordHotkey => 'Record';
+  String get recordHotkey => 'Записать';
 
   @override
-  String get recording => 'Recording...';
+  String get recording => 'Запись...';
 
   @override
-  String get pressKeysToRecord => 'Press keys to record...';
+  String get pressKeysToRecord => 'Нажмите клавиши для записи...';
 
   @override
-  String get hotkeySaved => 'Hotkey saved';
+  String get hotkeySaved => 'Горячая клавиша сохранена';
 
   @override
   String get hotkeyRequiresModifier =>
-      'Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20';
+      'Пожалуйста, включите хотя бы одну клавишу-модификатор (Ctrl/Cmd, Alt или Shift) или используйте F1-F20';
 
   @override
   String get hotkeyRequiresValidKey =>
-      'Please include a letter, digit, or symbol key';
+      'Пожалуйста, включите клавишу буквы, цифры или символа';
 }

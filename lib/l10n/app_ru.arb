@@ -76,5 +76,45 @@
   "phrases": "Фразы",
   "webTranslations": "Веб-переводы",
   "navigateBack": "Назад",
-  "navigateForward": "Вперед"
+  "navigateForward": "Вперед",
+  "shortcuts": "Горячие клавиши",
+  "@shortcuts": {
+    "description": "Shortcuts settings section title"
+  },
+  "showWindowHotkey": "Горячая клавиша показа окна",
+  "@showWindowHotkey": {
+    "description": "Show window hotkey setting title"
+  },
+  "showWindowHotkeyDescription": "Установить глобальную горячую клавишу для показа главного окна",
+  "@showWindowHotkeyDescription": {
+    "description": "Show window hotkey setting description"
+  },
+  "currentHotkey": "Текущая горячая клавиша",
+  "@currentHotkey": {
+    "description": "Label for current hotkey display"
+  },
+  "recordHotkey": "Записать",
+  "@recordHotkey": {
+    "description": "Button to record a new hotkey"
+  },
+  "recording": "Запись...",
+  "@recording": {
+    "description": "Text shown when recording a hotkey"
+  },
+  "pressKeysToRecord": "Нажмите клавиши для записи...",
+  "@pressKeysToRecord": {
+    "description": "Instruction text when recording hotkey"
+  },
+  "hotkeySaved": "Горячая клавиша сохранена",
+  "@hotkeySaved": {
+    "description": "Message shown when hotkey is saved"
+  },
+  "hotkeyRequiresModifier": "Пожалуйста, включите хотя бы одну клавишу-модификатор (Ctrl/Cmd, Alt или Shift) или используйте F1-F20",
+  "@hotkeyRequiresModifier": {
+    "description": "Error message when hotkey doesn't have modifier keys"
+  },
+  "hotkeyRequiresValidKey": "Пожалуйста, включите клавишу буквы, цифры или символа",
+  "@hotkeyRequiresValidKey": {
+    "description": "Error message when hotkey doesn't have a valid key"
+  }
 }

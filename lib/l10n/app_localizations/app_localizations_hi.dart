@@ -254,35 +254,35 @@ class AppLocalizationsHi extends AppLocalizations {
   String get navigateForward => 'आगे जाएं';
 
   @override
-  String get shortcuts => 'Shortcuts';
+  String get shortcuts => 'शॉर्टकट';
 
   @override
-  String get showWindowHotkey => 'Show Window Hotkey';
+  String get showWindowHotkey => 'विंडो दिखाएं शॉर्टकट';
 
   @override
   String get showWindowHotkeyDescription =>
-      'Set a global hotkey to show the main window';
+      'मुख्य विंडो दिखाने के लिए एक वैश्विक शॉर्टकट सेट करें';
 
   @override
-  String get currentHotkey => 'Current Hotkey';
+  String get currentHotkey => 'वर्तमान शॉर्टकट';
 
   @override
-  String get recordHotkey => 'Record';
+  String get recordHotkey => 'रिकॉर्ड';
 
   @override
-  String get recording => 'Recording...';
+  String get recording => 'रिकॉर्डिंग...';
 
   @override
-  String get pressKeysToRecord => 'Press keys to record...';
+  String get pressKeysToRecord => 'रिकॉर्ड करने के लिए कुंजियाँ दबाएं...';
 
   @override
-  String get hotkeySaved => 'Hotkey saved';
+  String get hotkeySaved => 'शॉर्टकट सहेजा गया';
 
   @override
   String get hotkeyRequiresModifier =>
-      'Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20';
+      'कृपया कम से कम एक संशोधक कुंजी (Ctrl/Cmd, Alt, या Shift) शामिल करें, या F1-F20 का उपयोग करें';
 
   @override
   String get hotkeyRequiresValidKey =>
-      'Please include a letter, digit, or symbol key';
+      'कृपया एक अक्षर, अंक या प्रतीक कुंजी शामिल करें';
 }

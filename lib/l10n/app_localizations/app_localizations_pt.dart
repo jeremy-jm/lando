@@ -257,35 +257,35 @@ class AppLocalizationsPt extends AppLocalizations {
   String get navigateForward => 'Avançar';
 
   @override
-  String get shortcuts => 'Shortcuts';
+  String get shortcuts => 'Atalhos';
 
   @override
-  String get showWindowHotkey => 'Show Window Hotkey';
+  String get showWindowHotkey => 'Atalho Mostrar Janela';
 
   @override
   String get showWindowHotkeyDescription =>
-      'Set a global hotkey to show the main window';
+      'Defina um atalho global para mostrar a janela principal';
 
   @override
-  String get currentHotkey => 'Current Hotkey';
+  String get currentHotkey => 'Atalho Atual';
 
   @override
-  String get recordHotkey => 'Record';
+  String get recordHotkey => 'Gravar';
 
   @override
-  String get recording => 'Recording...';
+  String get recording => 'Gravando...';
 
   @override
-  String get pressKeysToRecord => 'Press keys to record...';
+  String get pressKeysToRecord => 'Pressione as teclas para gravar...';
 
   @override
-  String get hotkeySaved => 'Hotkey saved';
+  String get hotkeySaved => 'Atalho salvo';
 
   @override
   String get hotkeyRequiresModifier =>
-      'Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20';
+      'Por favor, inclua pelo menos uma tecla modificadora (Ctrl/Cmd, Alt ou Shift) ou use F1-F20';
 
   @override
   String get hotkeyRequiresValidKey =>
-      'Please include a letter, digit, or symbol key';
+      'Por favor, inclua uma tecla de letra, dígito ou símbolo';
 }

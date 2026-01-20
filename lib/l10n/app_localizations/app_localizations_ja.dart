@@ -246,35 +246,33 @@ class AppLocalizationsJa extends AppLocalizations {
   String get navigateForward => '進む';
 
   @override
-  String get shortcuts => 'Shortcuts';
+  String get shortcuts => 'ショートカット';
 
   @override
-  String get showWindowHotkey => 'Show Window Hotkey';
+  String get showWindowHotkey => 'ウィンドウ表示ショートカット';
 
   @override
-  String get showWindowHotkeyDescription =>
-      'Set a global hotkey to show the main window';
+  String get showWindowHotkeyDescription => 'メインウィンドウを表示するグローバルショートカットを設定';
 
   @override
-  String get currentHotkey => 'Current Hotkey';
+  String get currentHotkey => '現在のショートカット';
 
   @override
-  String get recordHotkey => 'Record';
+  String get recordHotkey => '録画';
 
   @override
-  String get recording => 'Recording...';
+  String get recording => '録画中...';
 
   @override
-  String get pressKeysToRecord => 'Press keys to record...';
+  String get pressKeysToRecord => 'キーを押して録画...';
 
   @override
-  String get hotkeySaved => 'Hotkey saved';
+  String get hotkeySaved => 'ショートカットを保存しました';
 
   @override
   String get hotkeyRequiresModifier =>
-      'Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20';
+      '修飾キー（Ctrl/Cmd、Alt、または Shift）を少なくとも1つ含めるか、F1-F20を使用してください';
 
   @override
-  String get hotkeyRequiresValidKey =>
-      'Please include a letter, digit, or symbol key';
+  String get hotkeyRequiresValidKey => '文字、数字、または記号キーを含めてください';
 }

@@ -76,5 +76,45 @@
   "phrases": "Frasa",
   "webTranslations": "Terjemahan Web",
   "navigateBack": "Kembali",
-  "navigateForward": "Maju"
+  "navigateForward": "Maju",
+  "shortcuts": "Pintasan",
+  "@shortcuts": {
+    "description": "Shortcuts settings section title"
+  },
+  "showWindowHotkey": "Pintasan Tampilkan Jendela",
+  "@showWindowHotkey": {
+    "description": "Show window hotkey setting title"
+  },
+  "showWindowHotkeyDescription": "Atur pintasan global untuk menampilkan jendela utama",
+  "@showWindowHotkeyDescription": {
+    "description": "Show window hotkey setting description"
+  },
+  "currentHotkey": "Pintasan Saat Ini",
+  "@currentHotkey": {
+    "description": "Label for current hotkey display"
+  },
+  "recordHotkey": "Rekam",
+  "@recordHotkey": {
+    "description": "Button to record a new hotkey"
+  },
+  "recording": "Merekam...",
+  "@recording": {
+    "description": "Text shown when recording a hotkey"
+  },
+  "pressKeysToRecord": "Tekan tombol untuk merekam...",
+  "@pressKeysToRecord": {
+    "description": "Instruction text when recording hotkey"
+  },
+  "hotkeySaved": "Pintasan disimpan",
+  "@hotkeySaved": {
+    "description": "Message shown when hotkey is saved"
+  },
+  "hotkeyRequiresModifier": "Harap sertakan setidaknya satu tombol pengubah (Ctrl/Cmd, Alt, atau Shift), atau gunakan F1-F20",
+  "@hotkeyRequiresModifier": {
+    "description": "Error message when hotkey doesn't have modifier keys"
+  },
+  "hotkeyRequiresValidKey": "Harap sertakan tombol huruf, angka, atau simbol",
+  "@hotkeyRequiresValidKey": {
+    "description": "Error message when hotkey doesn't have a valid key"
+  }
 }

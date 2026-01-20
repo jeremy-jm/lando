@@ -76,5 +76,45 @@
   "phrases": "Frases",
   "webTranslations": "Traduções da Web",
   "navigateBack": "Voltar",
-  "navigateForward": "Avançar"
+  "navigateForward": "Avançar",
+  "shortcuts": "Atalhos",
+  "@shortcuts": {
+    "description": "Shortcuts settings section title"
+  },
+  "showWindowHotkey": "Atalho Mostrar Janela",
+  "@showWindowHotkey": {
+    "description": "Show window hotkey setting title"
+  },
+  "showWindowHotkeyDescription": "Defina um atalho global para mostrar a janela principal",
+  "@showWindowHotkeyDescription": {
+    "description": "Show window hotkey setting description"
+  },
+  "currentHotkey": "Atalho Atual",
+  "@currentHotkey": {
+    "description": "Label for current hotkey display"
+  },
+  "recordHotkey": "Gravar",
+  "@recordHotkey": {
+    "description": "Button to record a new hotkey"
+  },
+  "recording": "Gravando...",
+  "@recording": {
+    "description": "Text shown when recording a hotkey"
+  },
+  "pressKeysToRecord": "Pressione as teclas para gravar...",
+  "@pressKeysToRecord": {
+    "description": "Instruction text when recording hotkey"
+  },
+  "hotkeySaved": "Atalho salvo",
+  "@hotkeySaved": {
+    "description": "Message shown when hotkey is saved"
+  },
+  "hotkeyRequiresModifier": "Por favor, inclua pelo menos uma tecla modificadora (Ctrl/Cmd, Alt ou Shift) ou use F1-F20",
+  "@hotkeyRequiresModifier": {
+    "description": "Error message when hotkey doesn't have modifier keys"
+  },
+  "hotkeyRequiresValidKey": "Por favor, inclua uma tecla de letra, dígito ou símbolo",
+  "@hotkeyRequiresValidKey": {
+    "description": "Error message when hotkey doesn't have a valid key"
+  }
 }

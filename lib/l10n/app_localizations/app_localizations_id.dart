@@ -254,35 +254,35 @@ class AppLocalizationsId extends AppLocalizations {
   String get navigateForward => 'Maju';
 
   @override
-  String get shortcuts => 'Shortcuts';
+  String get shortcuts => 'Pintasan';
 
   @override
-  String get showWindowHotkey => 'Show Window Hotkey';
+  String get showWindowHotkey => 'Pintasan Tampilkan Jendela';
 
   @override
   String get showWindowHotkeyDescription =>
-      'Set a global hotkey to show the main window';
+      'Atur pintasan global untuk menampilkan jendela utama';
 
   @override
-  String get currentHotkey => 'Current Hotkey';
+  String get currentHotkey => 'Pintasan Saat Ini';
 
   @override
-  String get recordHotkey => 'Record';
+  String get recordHotkey => 'Rekam';
 
   @override
-  String get recording => 'Recording...';
+  String get recording => 'Merekam...';
 
   @override
-  String get pressKeysToRecord => 'Press keys to record...';
+  String get pressKeysToRecord => 'Tekan tombol untuk merekam...';
 
   @override
-  String get hotkeySaved => 'Hotkey saved';
+  String get hotkeySaved => 'Pintasan disimpan';
 
   @override
   String get hotkeyRequiresModifier =>
-      'Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20';
+      'Harap sertakan setidaknya satu tombol pengubah (Ctrl/Cmd, Alt, atau Shift), atau gunakan F1-F20';
 
   @override
   String get hotkeyRequiresValidKey =>
-      'Please include a letter, digit, or symbol key';
+      'Harap sertakan tombol huruf, angka, atau simbol';
 }

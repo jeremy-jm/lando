@@ -76,5 +76,45 @@
   "phrases": "フレーズ",
   "webTranslations": "ウェブ翻訳",
   "navigateBack": "戻る",
-  "navigateForward": "進む"
+  "navigateForward": "進む",
+  "shortcuts": "ショートカット",
+  "@shortcuts": {
+    "description": "Shortcuts settings section title"
+  },
+  "showWindowHotkey": "ウィンドウ表示ショートカット",
+  "@showWindowHotkey": {
+    "description": "Show window hotkey setting title"
+  },
+  "showWindowHotkeyDescription": "メインウィンドウを表示するグローバルショートカットを設定",
+  "@showWindowHotkeyDescription": {
+    "description": "Show window hotkey setting description"
+  },
+  "currentHotkey": "現在のショートカット",
+  "@currentHotkey": {
+    "description": "Label for current hotkey display"
+  },
+  "recordHotkey": "録画",
+  "@recordHotkey": {
+    "description": "Button to record a new hotkey"
+  },
+  "recording": "録画中...",
+  "@recording": {
+    "description": "Text shown when recording a hotkey"
+  },
+  "pressKeysToRecord": "キーを押して録画...",
+  "@pressKeysToRecord": {
+    "description": "Instruction text when recording hotkey"
+  },
+  "hotkeySaved": "ショートカットを保存しました",
+  "@hotkeySaved": {
+    "description": "Message shown when hotkey is saved"
+  },
+  "hotkeyRequiresModifier": "修飾キー（Ctrl/Cmd、Alt、または Shift）を少なくとも1つ含めるか、F1-F20を使用してください",
+  "@hotkeyRequiresModifier": {
+    "description": "Error message when hotkey doesn't have modifier keys"
+  },
+  "hotkeyRequiresValidKey": "文字、数字、または記号キーを含めてください",
+  "@hotkeyRequiresValidKey": {
+    "description": "Error message when hotkey doesn't have a valid key"
+  }
 }
