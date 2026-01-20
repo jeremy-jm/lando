@@ -244,4 +244,35 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get navigateForward => '前进';
+
+  @override
+  String get shortcuts => '快捷键';
+
+  @override
+  String get showWindowHotkey => '显示窗口快捷键';
+
+  @override
+  String get showWindowHotkeyDescription => '设置全局快捷键以显示主窗口';
+
+  @override
+  String get currentHotkey => '当前快捷键';
+
+  @override
+  String get recordHotkey => '录制';
+
+  @override
+  String get recording => '录制中...';
+
+  @override
+  String get pressKeysToRecord => '按下按键进行录制...';
+
+  @override
+  String get hotkeySaved => '快捷键已保存';
+
+  @override
+  String get hotkeyRequiresModifier =>
+      '请至少包含一个修饰键（Ctrl/Cmd、Alt 或 Shift），或使用 F1-F20';
+
+  @override
+  String get hotkeyRequiresValidKey => '请包含一个字母、数字或符号键';
 }

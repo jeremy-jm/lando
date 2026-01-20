@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/theme/theme_controller.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/features/me/dictionary_settings_page.dart';
 import 'package:lando/features/me/about_page.dart';
+import 'package:lando/features/me/hotkey_settings_widget.dart';
 
 /// Settings page organized into three sections: General, Dictionary, and About.
 class SettingsPage extends StatelessWidget {
@@ -116,6 +118,24 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   const Divider(height: 32),
+
+                  // Hotkey Section (Desktop only)
+                  if (Platform.isWindows ||
+                      Platform.isMacOS ||
+                      Platform.isLinux) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        l10n.shortcuts,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const HotkeySettingsWidget(),
+                    const Divider(height: 32),
+                  ],
 
                   // Dictionary Section
                   Padding(

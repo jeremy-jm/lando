@@ -569,6 +569,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Navigate forward'**
   String get navigateForward;
+
+  /// Shortcuts settings section title
+  ///
+  /// In en, this message translates to:
+  /// **'Shortcuts'**
+  String get shortcuts;
+
+  /// Show window hotkey setting title
+  ///
+  /// In en, this message translates to:
+  /// **'Show Window Hotkey'**
+  String get showWindowHotkey;
+
+  /// Show window hotkey setting description
+  ///
+  /// In en, this message translates to:
+  /// **'Set a global hotkey to show the main window'**
+  String get showWindowHotkeyDescription;
+
+  /// Label for current hotkey display
+  ///
+  /// In en, this message translates to:
+  /// **'Current Hotkey'**
+  String get currentHotkey;
+
+  /// Button to record a new hotkey
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get recordHotkey;
+
+  /// Text shown when recording a hotkey
+  ///
+  /// In en, this message translates to:
+  /// **'Recording...'**
+  String get recording;
+
+  /// Instruction text when recording hotkey
+  ///
+  /// In en, this message translates to:
+  /// **'Press keys to record...'**
+  String get pressKeysToRecord;
+
+  /// Message shown when hotkey is saved
+  ///
+  /// In en, this message translates to:
+  /// **'Hotkey saved'**
+  String get hotkeySaved;
+
+  /// Error message when hotkey doesn't have modifier keys
+  ///
+  /// In en, this message translates to:
+  /// **'Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20'**
+  String get hotkeyRequiresModifier;
+
+  /// Error message when hotkey doesn't have a valid key
+  ///
+  /// In en, this message translates to:
+  /// **'Please include a letter, digit, or symbol key'**
+  String get hotkeyRequiresValidKey;
 }
 
 class _AppLocalizationsDelegate

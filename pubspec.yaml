@@ -58,6 +58,12 @@ dependencies:
   # Package info for version information
   package_info_plus: ^8.0.0
 
+  # Global hotkey manager for desktop platforms
+  hotkey_manager: ^0.2.3
+
+  # Window management for desktop platforms
+  window_manager: ^0.3.8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

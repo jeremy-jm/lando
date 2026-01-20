@@ -252,4 +252,37 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get navigateForward => 'Maju';
+
+  @override
+  String get shortcuts => 'Shortcuts';
+
+  @override
+  String get showWindowHotkey => 'Show Window Hotkey';
+
+  @override
+  String get showWindowHotkeyDescription =>
+      'Set a global hotkey to show the main window';
+
+  @override
+  String get currentHotkey => 'Current Hotkey';
+
+  @override
+  String get recordHotkey => 'Record';
+
+  @override
+  String get recording => 'Recording...';
+
+  @override
+  String get pressKeysToRecord => 'Press keys to record...';
+
+  @override
+  String get hotkeySaved => 'Hotkey saved';
+
+  @override
+  String get hotkeyRequiresModifier =>
+      'Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20';
+
+  @override
+  String get hotkeyRequiresValidKey =>
+      'Please include a letter, digit, or symbol key';
 }

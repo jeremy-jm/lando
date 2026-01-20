@@ -317,5 +317,45 @@
   "navigateForward": "Navigate forward",
   "@navigateForward": {
     "description": "Tooltip for navigate forward button"
+  },
+  "shortcuts": "Shortcuts",
+  "@shortcuts": {
+    "description": "Shortcuts settings section title"
+  },
+  "showWindowHotkey": "Show Window Hotkey",
+  "@showWindowHotkey": {
+    "description": "Show window hotkey setting title"
+  },
+  "showWindowHotkeyDescription": "Set a global hotkey to show the main window",
+  "@showWindowHotkeyDescription": {
+    "description": "Show window hotkey setting description"
+  },
+  "currentHotkey": "Current Hotkey",
+  "@currentHotkey": {
+    "description": "Label for current hotkey display"
+  },
+  "recordHotkey": "Record",
+  "@recordHotkey": {
+    "description": "Button to record a new hotkey"
+  },
+  "recording": "Recording...",
+  "@recording": {
+    "description": "Text shown when recording a hotkey"
+  },
+  "pressKeysToRecord": "Press keys to record...",
+  "@pressKeysToRecord": {
+    "description": "Instruction text when recording hotkey"
+  },
+  "hotkeySaved": "Hotkey saved",
+  "@hotkeySaved": {
+    "description": "Message shown when hotkey is saved"
+  },
+  "hotkeyRequiresModifier": "Please include at least one modifier key (Ctrl/Cmd, Alt, or Shift), or use F1-F20",
+  "@hotkeyRequiresModifier": {
+    "description": "Error message when hotkey doesn't have modifier keys"
+  },
+  "hotkeyRequiresValidKey": "Please include a letter, digit, or symbol key",
+  "@hotkeyRequiresValidKey": {
+    "description": "Error message when hotkey doesn't have a valid key"
   }
 }

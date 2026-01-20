@@ -76,5 +76,45 @@
   "phrases": "短语",
   "webTranslations": "网络翻译",
   "navigateBack": "后退",
-  "navigateForward": "前进"
+  "navigateForward": "前进",
+  "shortcuts": "快捷键",
+  "@shortcuts": {
+    "description": "Shortcuts settings section title"
+  },
+  "showWindowHotkey": "显示窗口快捷键",
+  "@showWindowHotkey": {
+    "description": "Show window hotkey setting title"
+  },
+  "showWindowHotkeyDescription": "设置全局快捷键以显示主窗口",
+  "@showWindowHotkeyDescription": {
+    "description": "Show window hotkey setting description"
+  },
+  "currentHotkey": "当前快捷键",
+  "@currentHotkey": {
+    "description": "Label for current hotkey display"
+  },
+  "recordHotkey": "录制",
+  "@recordHotkey": {
+    "description": "Button to record a new hotkey"
+  },
+  "recording": "录制中...",
+  "@recording": {
+    "description": "Text shown when recording a hotkey"
+  },
+  "pressKeysToRecord": "按下按键进行录制...",
+  "@pressKeysToRecord": {
+    "description": "Instruction text when recording hotkey"
+  },
+  "hotkeySaved": "快捷键已保存",
+  "@hotkeySaved": {
+    "description": "Message shown when hotkey is saved"
+  },
+  "hotkeyRequiresModifier": "请至少包含一个修饰键（Ctrl/Cmd、Alt 或 Shift），或使用 F1-F20",
+  "@hotkeyRequiresModifier": {
+    "description": "Error message when hotkey doesn't have modifier keys"
+  },
+  "hotkeyRequiresValidKey": "请包含一个字母、数字或符号键",
+  "@hotkeyRequiresValidKey": {
+    "description": "Error message when hotkey doesn't have a valid key"
+  }
 }

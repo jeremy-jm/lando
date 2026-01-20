@@ -8,6 +8,7 @@ class StorageKeys {
   static const String translationToLanguage = 'translation_to_language';
   static const String pronunciationServiceType = 'pronunciation_service_type';
   static const String corsProxyUrl = 'cors_proxy_url';
+  static const String showWindowHotkey = 'show_window_hotkey';
 }
 
 /// Storage service for managing user preferences
@@ -116,6 +117,20 @@ class PreferencesStorage {
   /// Get CORS proxy URL
   static String? getCorsProxyUrl() {
     return prefs.getString(StorageKeys.corsProxyUrl);
+  }
+
+  // ==================== Hotkey ====================
+
+  /// Save show window hotkey
+  /// Format: "keyCode:modifiers" (e.g., "76:3" for Cmd+Alt+L on Mac)
+  static Future<bool> saveShowWindowHotkey(String hotkey) async {
+    return await prefs.setString(StorageKeys.showWindowHotkey, hotkey);
+  }
+
+  /// Get show window hotkey
+  /// Returns null if not set
+  static String? getShowWindowHotkey() {
+    return prefs.getString(StorageKeys.showWindowHotkey);
   }
 
   // ==================== Clear ====================
