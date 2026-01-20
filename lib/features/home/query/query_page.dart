@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_repository.dart';
 import 'package:lando/features/home/query/query_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:lando/features/home/providers/query_history_provider.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/audio/pronunciation_service_manager.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
+import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
 class QueryPage extends StatefulWidget {
@@ -43,6 +45,13 @@ class _QueryPageState extends State<QueryPage> {
     _controller.addListener(_detectLanguage);
     _detectLanguage();
 
+    // Listen to window visibility changes (for desktop platforms)
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      WindowVisibilityService.instance.windowShownNotifier.addListener(
+        _onWindowShown,
+      );
+    }
+
     // Auto focus and trigger search if initial query is provided
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_isDisposed && mounted) {
@@ -55,6 +64,36 @@ class _QueryPageState extends State<QueryPage> {
             setState(() {}); // Update button states
           }
         }
+      }
+    });
+  }
+
+  /// Handle window shown/focused event
+  /// Selects all text in the input field when window is shown via hotkey
+  void _onWindowShown() {
+    if (_isDisposed || !mounted) return;
+
+    // Small delay to ensure focus is set
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isDisposed || !mounted) return;
+
+      // Check if the input field has focus
+      if (_focusNode.hasFocus) {
+        // Select all text in the input field
+        _controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _controller.text.length,
+        );
+      } else {
+        // Request focus first, then select text
+        _focusNode.requestFocus();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_isDisposed || !mounted) return;
+          _controller.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _controller.text.length,
+          );
+        });
       }
     });
   }
@@ -150,6 +189,14 @@ class _QueryPageState extends State<QueryPage> {
   @override
   void dispose() {
     _isDisposed = true;
+
+    // Remove window visibility listener
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      WindowVisibilityService.instance.windowShownNotifier.removeListener(
+        _onWindowShown,
+      );
+    }
+
     _bloc.dispose();
     _controller.dispose();
     _focusNode.dispose();

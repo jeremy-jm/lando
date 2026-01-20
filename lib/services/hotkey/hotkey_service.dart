@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
 /// Service for managing global hotkeys to toggle main window visibility.
@@ -80,6 +81,38 @@ class HotkeyService {
             PhysicalKeyboardKey.space,
             PhysicalKeyboardKey.enter,
             PhysicalKeyboardKey.escape,
+            PhysicalKeyboardKey.f1,
+            PhysicalKeyboardKey.f2,
+            PhysicalKeyboardKey.f3,
+            PhysicalKeyboardKey.f4,
+            PhysicalKeyboardKey.f5,
+            PhysicalKeyboardKey.f6,
+            PhysicalKeyboardKey.f7,
+            PhysicalKeyboardKey.f8,
+            PhysicalKeyboardKey.f9,
+            PhysicalKeyboardKey.f10,
+            PhysicalKeyboardKey.f11,
+            PhysicalKeyboardKey.f12,
+            PhysicalKeyboardKey.f13,
+            PhysicalKeyboardKey.f14,
+            PhysicalKeyboardKey.f15,
+            PhysicalKeyboardKey.f16,
+            PhysicalKeyboardKey.f17,
+            PhysicalKeyboardKey.f18,
+            PhysicalKeyboardKey.f19,
+            PhysicalKeyboardKey.f20,
+            // Symbol keys on the right side of the keyboard or near Enter
+            PhysicalKeyboardKey.quote, // ' or "
+            PhysicalKeyboardKey.comma, // ,
+            PhysicalKeyboardKey.period, // .
+            PhysicalKeyboardKey.slash, // /
+            PhysicalKeyboardKey.semicolon, // ;
+            PhysicalKeyboardKey.minus, // -
+            PhysicalKeyboardKey.equal, // =
+            PhysicalKeyboardKey.bracketLeft, // [
+            PhysicalKeyboardKey.bracketRight, // ]
+            PhysicalKeyboardKey.backslash, // \
+            PhysicalKeyboardKey.backquote, // `
           ];
 
           for (final key in commonKeys) {
@@ -167,6 +200,8 @@ class HotkeyService {
               // Window is hidden, show and focus it
               await windowManager.show();
               await windowManager.focus();
+              // Notify that window has been shown
+              WindowVisibilityService.instance.notifyWindowShown();
             }
           } catch (e) {
             debugPrint('Error toggling window visibility: $e');

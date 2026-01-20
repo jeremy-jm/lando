@@ -7,6 +7,7 @@ import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/routes/app_routes.dart';
 import 'package:lando/services/hotkey/hotkey_service.dart';
+import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/theme/app_colors.dart';
 import 'package:lando/theme/theme_controller.dart';
@@ -73,6 +74,14 @@ class _MyAppState extends State<MyApp> with WindowListener {
     // Hide window instead of closing when user clicks close button
     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
       await windowManager.hide();
+    }
+  }
+
+  @override
+  void onWindowFocus() {
+    // Notify that window has gained focus
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      WindowVisibilityService.instance.notifyWindowShown();
     }
   }
 

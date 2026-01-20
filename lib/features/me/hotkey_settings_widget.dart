@@ -81,6 +81,38 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
             PhysicalKeyboardKey.space,
             PhysicalKeyboardKey.enter,
             PhysicalKeyboardKey.escape,
+            PhysicalKeyboardKey.f1,
+            PhysicalKeyboardKey.f2,
+            PhysicalKeyboardKey.f3,
+            PhysicalKeyboardKey.f4,
+            PhysicalKeyboardKey.f5,
+            PhysicalKeyboardKey.f6,
+            PhysicalKeyboardKey.f7,
+            PhysicalKeyboardKey.f8,
+            PhysicalKeyboardKey.f9,
+            PhysicalKeyboardKey.f10,
+            PhysicalKeyboardKey.f11,
+            PhysicalKeyboardKey.f12,
+            PhysicalKeyboardKey.f13,
+            PhysicalKeyboardKey.f14,
+            PhysicalKeyboardKey.f15,
+            PhysicalKeyboardKey.f16,
+            PhysicalKeyboardKey.f17,
+            PhysicalKeyboardKey.f18,
+            PhysicalKeyboardKey.f19,
+            PhysicalKeyboardKey.f20,
+            // Symbol keys on the right side of the keyboard or near Enter
+            PhysicalKeyboardKey.quote, // ' or "
+            PhysicalKeyboardKey.comma, // ,
+            PhysicalKeyboardKey.period, // .
+            PhysicalKeyboardKey.slash, // /
+            PhysicalKeyboardKey.semicolon, // ;
+            PhysicalKeyboardKey.minus, // -
+            PhysicalKeyboardKey.equal, // =
+            PhysicalKeyboardKey.bracketLeft, // [
+            PhysicalKeyboardKey.bracketRight, // ]
+            PhysicalKeyboardKey.backslash, // \
+            PhysicalKeyboardKey.backquote, // `
           ];
 
           for (final key in commonKeys) {
@@ -179,6 +211,24 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
     if (key == PhysicalKeyboardKey.enter) return 'Enter';
     if (key == PhysicalKeyboardKey.escape) return 'Esc';
 
+    // Map symbol keys to readable names
+    final symbolKeyMap = {
+      PhysicalKeyboardKey.quote: "'",
+      PhysicalKeyboardKey.comma: ',',
+      PhysicalKeyboardKey.period: '.',
+      PhysicalKeyboardKey.slash: '/',
+      PhysicalKeyboardKey.semicolon: ';',
+      PhysicalKeyboardKey.minus: '-',
+      PhysicalKeyboardKey.equal: '=',
+      PhysicalKeyboardKey.bracketLeft: '[',
+      PhysicalKeyboardKey.bracketRight: ']',
+      PhysicalKeyboardKey.backslash: '\\',
+      PhysicalKeyboardKey.backquote: '`',
+    };
+    if (symbolKeyMap.containsKey(key)) {
+      return symbolKeyMap[key]!;
+    }
+
     // Check for function keys F1-F20
     final keyName = key.debugName ?? '';
     final functionKeyPattern = RegExp(r'^F([1-9]|1[0-9]|20)$');
@@ -202,7 +252,7 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
       if (logicalKey != null) {
         final label = logicalKey.keyLabel;
         if (label.isNotEmpty && label.length == 1) {
-          return label.toUpperCase();
+          return label;
         }
       }
     } catch (e) {
@@ -274,6 +324,24 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
       PhysicalKeyboardKey.digit9,
     ];
     if (commonDigits.contains(key)) {
+      return true;
+    }
+
+    // Check if it's a symbol key (on the right side of keyboard or near Enter)
+    final symbolKeys = [
+      PhysicalKeyboardKey.quote, // ' or "
+      PhysicalKeyboardKey.comma, // ,
+      PhysicalKeyboardKey.period, // .
+      PhysicalKeyboardKey.slash, // /
+      PhysicalKeyboardKey.semicolon, // ;
+      PhysicalKeyboardKey.minus, // -
+      PhysicalKeyboardKey.equal, // =
+      PhysicalKeyboardKey.bracketLeft, // [
+      PhysicalKeyboardKey.bracketRight, // ]
+      PhysicalKeyboardKey.backslash, // \
+      PhysicalKeyboardKey.backquote, // `
+    ];
+    if (symbolKeys.contains(key)) {
       return true;
     }
 
