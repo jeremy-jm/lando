@@ -1,0 +1,290 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libgtk-3-dev \
+            liblzma-dev \
+            libstdc++-12-dev \
+            fakeroot \
+            libkeybinder-3.0-dev \
+            gir1.2-keybinder-3.0
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      - name: Build Linux
+        run: flutter build linux --release
+
+      - name: Create Linux TAR.GZ
+        run: |
+          cd build/linux/x64/release/bundle
+          tar -czf ../../../lando-linux-x64.tar.gz .
+          mv ../../../lando-linux-x64.tar.gz build/linux/
+
+      - name: Get version from pubspec.yaml
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Create Linux DEB package
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p deb-package/DEBIAN
+          mkdir -p deb-package/usr/bin
+          mkdir -p deb-package/usr/share/applications
+          
+          # Copy files
+          cp -r build/linux/x64/release/bundle/* deb-package/usr/bin/
+          
+          # Create control file
+          cat > deb-package/DEBIAN/control <<EOF
+          Package: lando
+          Version: $VERSION
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Maintainer: Lando Team
+          Description: A translation software that uses third-party services for word lookup
+          EOF
+          
+          # Create desktop file
+          cat > deb-package/usr/share/applications/lando.desktop <<EOF
+          [Desktop Entry]
+          Version=$VERSION
+          Type=Application
+          Name=Lando Dictionary
+          Comment=A translation software
+          Exec=/usr/bin/lando
+          Icon=lando
+          Terminal=false
+          Categories=Utility;
+          EOF
+          
+          # Build DEB
+          fakeroot dpkg-deb --build deb-package build/linux/lando-linux-amd64.deb
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: |
+            build/linux/lando-linux-x64.tar.gz
+            build/linux/lando-linux-amd64.deb
+          if-no-files-found: warn
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Create Windows ZIP
+        shell: powershell
+        run: |
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\windows\lando-windows-x64.zip -Force
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: build/windows/lando-windows-x64.zip
+          if-no-files-found: warn
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      - name: Build macOS
+        run: flutter build macos --release
+
+      - name: Create macOS ZIP
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r ../../../lando-macos.zip lando.app
+          mv ../../../lando-macos.zip build/macos/
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Create macOS DMG
+        run: |
+          cd build/macos/Build/Products/Release
+          create-dmg \
+            --volname "Lando Dictionary" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "lando.app" 200 190 \
+            --hide-extension "lando.app" \
+            --app-drop-link 600 190 \
+            "../../../lando-macos.dmg" \
+            "lando.app"
+          mv ../../../lando-macos.dmg build/macos/
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: |
+            build/macos/lando-macos.zip
+            build/macos/lando-macos.dmg
+          if-no-files-found: warn
+
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: warn
+
+  release:
+    needs: [build-linux, build-windows, build-macos, build-android]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Get version from pubspec.yaml
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: List artifacts
+        run: |
+          find artifacts -type f || true
+          ls -la artifacts/ || true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## Release v${{ steps.version.outputs.version }}
+            
+            ### Downloads
+            
+            - **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos.zip)
+            - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64.zip)
+            - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64.tar.gz)
+            - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release.aab)
+            
+            ### Changes
+            See commit history for details.
+          files: |
+            artifacts/linux-artifacts/*
+            artifacts/windows-artifacts/*
+            artifacts/macos-artifacts/*
+            artifacts/android-artifacts/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
