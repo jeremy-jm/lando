@@ -353,12 +353,27 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
     );
   }
 
+  /// Detects language code from the query text.
+  String? _detectLanguageCode(String text) {
+    if (text.trim().isEmpty) return null;
+    // Simple language detection (can be improved with ML or API)
+    // Returns language code (e.g., 'zh', 'ja', 'hi', 'en') for TTS compatibility
+    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return 'zh';
+    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return 'ja';
+    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return 'hi';
+    // Default to English for Latin scripts
+    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return 'en';
+    return 'en'; // Default fallback
+  }
+
   Widget _buildResultContent(
     BuildContext context,
     ThemeData theme,
     ResultModel result,
   ) {
     final l10n = AppLocalizations.of(context);
+    // Detect language code from the query
+    final detectedLanguageCode = _detectLanguageCode(result.query);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -616,6 +631,7 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
                             context,
                             theme,
                             phraseName,
+                            languageCode: detectedLanguageCode,
                           ),
                         ],
                       ),
@@ -811,8 +827,9 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
   Widget _buildPhrasePronunciationButton(
     BuildContext context,
     ThemeData theme,
-    String phrase,
-  ) {
+    String phrase, {
+    String? languageCode,
+  }) {
     return InkWell(
       onTap: () async {
         if (!mounted) return;
@@ -823,13 +840,21 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
           // Build pronunciation URL for the phrase
           String? pronunciationUrl;
           if (widget.platform == TranslationServiceType.youdao) {
-            // Get language code from preferences and map to Youdao format
-            final languageCode = PreferencesStorage.getTranslationToLanguage();
+            // Use provided language code or fallback to preferences
+            final detectedLang =
+                languageCode ?? PreferencesStorage.getTranslationToLanguage();
             String le;
-            if (languageCode == null || languageCode == 'auto') {
-              le = 'auto';
+            if (detectedLang == null || detectedLang == 'auto') {
+              // Try to detect from phrase text if not provided
+              final phraseLang = _detectLanguageCode(phrase);
+              if (phraseLang != null) {
+                final code = phraseLang.toLowerCase();
+                le = code == 'en' ? 'eng' : code;
+              } else {
+                le = 'auto';
+              }
             } else {
-              final code = languageCode.toLowerCase();
+              final code = detectedLang.toLowerCase();
               le = code == 'en' ? 'eng' : code;
             }
 
@@ -850,9 +875,11 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
           final isSystemTts = serviceType == null || serviceType == 'system';
 
           // For system TTS, use text directly. For others, use URL.
+          // Use provided language code or detect from phrase
+          final finalLanguageCode = languageCode ?? _detectLanguageCode(phrase);
           final success = await _pronunciationManager.speak(
             text: phrase,
-            languageCode: null,
+            languageCode: finalLanguageCode,
             url: isSystemTts ? null : pronunciationUrl,
           );
 

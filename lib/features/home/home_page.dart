@@ -29,14 +29,28 @@ class _MyHomePageState extends State<MyHomePage> {
     // Navigate when TextField gains focus (user taps on it)
     _focusNode.addListener(() {
       if (_focusNode.hasFocus && !_isDisposed) {
-        // Small delay to allow user to see the focus effect
+        // Cancel any pending navigation
         _focusDelayTimer?.cancel();
-        _focusDelayTimer = Timer(const Duration(milliseconds: 100), () {
+        // Use post frame callback to ensure keyboard events are processed first
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!_isDisposed && mounted && _focusNode.hasFocus) {
-            _navigateToQueryPage(
-              _controller.text.trim().isEmpty ? null : _controller.text.trim(),
-            );
-            _focusNode.unfocus();
+            // Small delay to allow keyboard events to complete
+            _focusDelayTimer = Timer(const Duration(milliseconds: 150), () {
+              if (!_isDisposed && mounted && _focusNode.hasFocus) {
+                // Unfocus first to avoid keyboard state issues
+                _focusNode.unfocus();
+                // Navigate after a brief delay to ensure unfocus completes
+                Future.delayed(const Duration(milliseconds: 50), () {
+                  if (!_isDisposed && mounted) {
+                    _navigateToQueryPage(
+                      _controller.text.trim().isEmpty
+                          ? null
+                          : _controller.text.trim(),
+                    );
+                  }
+                });
+              }
+            });
           }
         });
       }
