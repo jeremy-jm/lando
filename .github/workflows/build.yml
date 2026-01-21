@@ -306,8 +306,38 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
-          cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-android-v${VERSION}-${COMMIT_ID}.apk
-          cp build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/app-release-android-v${VERSION}-${COMMIT_ID}.aab
+          APK_SRC="build/app/outputs/flutter-apk/app-release.apk"
+          AAB_SRC="build/app/outputs/bundle/release/app-release.aab"
+          APK_DST="build/app/outputs/flutter-apk/app-release-android-v${VERSION}-${COMMIT_ID}.apk"
+          AAB_DST="build/app/outputs/bundle/release/app-release-android-v${VERSION}-${COMMIT_ID}.aab"
+
+          echo "Checking Android outputs..."
+          ls -la build/app/outputs/flutter-apk/ || true
+          ls -la build/app/outputs/bundle/release/ || true
+
+          if [ ! -f "$APK_SRC" ]; then
+            echo "Missing APK: $APK_SRC"
+            exit 1
+          fi
+          if [ ! -f "$AAB_SRC" ]; then
+            echo "Missing AAB: $AAB_SRC"
+            exit 1
+          fi
+
+          cp "$APK_SRC" "$APK_DST"
+          cp "$AAB_SRC" "$AAB_DST"
+
+          if [ ! -f "$APK_DST" ]; then
+            echo "Failed to create APK: $APK_DST"
+            exit 1
+          fi
+          if [ ! -f "$AAB_DST" ]; then
+            echo "Failed to create AAB: $AAB_DST"
+            exit 1
+          fi
+
+          echo "Renamed Android artifacts:"
+          ls -la "$APK_DST" "$AAB_DST"
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
@@ -316,7 +346,7 @@ jobs:
           path: |
             build/app/outputs/flutter-apk/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk
             build/app/outputs/bundle/release/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab
-          if-no-files-found: warn
+          if-no-files-found: error
 
   build-ios:
     runs-on: macos-latest
