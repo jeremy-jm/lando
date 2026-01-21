@@ -6,6 +6,7 @@ import 'package:lando/features/home/query/query_page.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -114,6 +115,10 @@ class _MyHomePageState extends State<MyHomePage> {
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 QueryPage(initialQuery: query),
+            settings: RouteSettings(
+              name: AppRoutes.query,
+              arguments: query == null ? null : <String, dynamic>{'query': query},
+            ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
                   // Fade and slide animation
@@ -170,9 +175,10 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 40.0),
 
               InkWell(
-                onTap: () {
-                  _navigateToQueryPage(null);
-                },
+                onTap: AnalyticsService.instance.wrapTap(
+                  'tap_home_enter_translate',
+                  () => _navigateToQueryPage(null),
+                ),
                 borderRadius: BorderRadius.circular(16.0),
                 child: Container(
                   padding: const EdgeInsets.all(10.0),
@@ -250,6 +256,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                     onTap: (index) {
+                      AnalyticsService.instance.event(
+                        'tap_bottom_nav',
+                        properties: {'index': index},
+                      );
                       switch (index) {
                         case 0:
                           AppNavigator.pushNamed(context, AppRoutes.home);

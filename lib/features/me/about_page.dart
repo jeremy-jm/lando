@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// About page showing app information, version, and legal links.
@@ -40,6 +41,7 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   void _showPrivacyPolicy() {
+    AnalyticsService.instance.event('tap_about_privacy_policy');
     // TODO: Implement privacy policy page or open URL
     showDialog(
       context: context,
@@ -57,6 +59,7 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   void _showTermsOfService() {
+    AnalyticsService.instance.event('tap_about_terms_of_service');
     // TODO: Implement terms of service page or open URL
     showDialog(
       context: context,
@@ -74,6 +77,7 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   void _showLicense() {
+    AnalyticsService.instance.event('tap_about_license');
     showLicensePage(
       context: context,
       applicationName: AppLocalizations.of(context)!.appTitle,
@@ -83,6 +87,7 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   void _copyVersionInfo() {
+    AnalyticsService.instance.event('tap_about_copy_version');
     if (_packageInfo != null) {
       final versionInfo = '${AppLocalizations.of(context)!.appTitle}\n'
           '${AppLocalizations.of(context)!.version}: ${_packageInfo!.version}\n'

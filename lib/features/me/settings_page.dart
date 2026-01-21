@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/routes/app_routes.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/theme/theme_controller.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/features/me/dictionary_settings_page.dart';
@@ -73,6 +75,10 @@ class SettingsPage extends StatelessWidget {
                     groupValue: mode,
                     onChanged: (ThemeMode? value) {
                       if (value != null) {
+                        AnalyticsService.instance.event(
+                          'tap_settings_theme',
+                          properties: {'theme': value.toString()},
+                        );
                         ThemeController.instance.setMode(value);
                       }
                     },
@@ -103,6 +109,10 @@ class SettingsPage extends StatelessWidget {
                     groupValue: currentLocale,
                     onChanged: (Locale? value) {
                       if (value != null) {
+                        AnalyticsService.instance.event(
+                          'tap_settings_language',
+                          properties: {'locale': value.languageCode},
+                        );
                         LocaleController.instance.setLocale(value);
                       }
                     },
@@ -153,13 +163,19 @@ class SettingsPage extends StatelessWidget {
                     title: Text(l10n.dictionarySettings),
                     subtitle: Text(l10n.dictionarySettingsDescription),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const DictionarySettingsPage(),
-                        ),
-                      );
-                    },
+                    onTap: AnalyticsService.instance.wrapTap(
+                      'tap_settings_dictionary',
+                      () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const DictionarySettingsPage(),
+                            settings: const RouteSettings(
+                              name: AppRoutes.dictionarySettings,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   const Divider(height: 32),
 
@@ -182,13 +198,19 @@ class SettingsPage extends StatelessWidget {
                     title: Text(l10n.about),
                     subtitle: Text(l10n.aboutDescription),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const AboutPage(),
-                        ),
-                      );
-                    },
+                    onTap: AnalyticsService.instance.wrapTap(
+                      'tap_settings_about',
+                      () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const AboutPage(),
+                            settings: const RouteSettings(
+                              name: AppRoutes.about,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               );

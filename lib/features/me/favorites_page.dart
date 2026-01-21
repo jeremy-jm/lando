@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 import 'package:lando/routes/app_routes.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/storage/favorites_storage.dart';
 import 'package:lando/features/shared/widgets/query_history_item_tile.dart';
 import 'package:lando/features/shared/widgets/empty_state_widget.dart';
@@ -42,6 +43,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   Future<void> _deleteItem(QueryHistoryItem item) async {
+    AnalyticsService.instance.event(
+      'tap_favorites_delete_item',
+      properties: {'word': item.word},
+    );
     final success = await FavoritesStorage.deleteFavorite(item.word);
     if (success && mounted) {
       await _loadFavorites();
@@ -60,6 +65,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   Future<void> _clearFavorites() async {
+    AnalyticsService.instance.event('tap_favorites_clear');
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmDialogWidget.show(
       context,
@@ -91,6 +97,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   void _navigateToQuery(String word) {
+    AnalyticsService.instance.event(
+      'tap_favorites_item',
+      properties: {'word': word},
+    );
     Navigator.of(
       context,
     ).pushNamed(AppRoutes.query, arguments: {'query': word});
@@ -132,7 +142,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
             IconButton(
               icon: const Icon(Icons.delete_outline),
               tooltip: l10n.clearFavorites,
-              onPressed: _clearFavorites,
+              onPressed: AnalyticsService.instance.wrapTap(
+                'tap_favorites_clear_button',
+                _clearFavorites,
+              ),
             ),
         ],
       ),

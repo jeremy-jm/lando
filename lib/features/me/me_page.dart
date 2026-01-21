@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/features/me/settings_page.dart';
 
 /// "我的"页面，包含收藏、查词记录、设置三个选项
@@ -27,9 +28,10 @@ class MePage extends StatelessWidget {
             ),
             title: Text(l10n.favorites),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              AppNavigator.pushNamed(context, AppRoutes.favorites);
-            },
+            onTap: AnalyticsService.instance.wrapTap(
+              'tap_me_favorites',
+              () => AppNavigator.pushNamed(context, AppRoutes.favorites),
+            ),
           ),
           const Divider(),
           // 查词记录
@@ -40,9 +42,10 @@ class MePage extends StatelessWidget {
             ),
             title: Text(l10n.history),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              AppNavigator.pushNamed(context, AppRoutes.history);
-            },
+            onTap: AnalyticsService.instance.wrapTap(
+              'tap_me_history',
+              () => AppNavigator.pushNamed(context, AppRoutes.history),
+            ),
           ),
           const Divider(),
           // 设置
@@ -53,13 +56,19 @@ class MePage extends StatelessWidget {
             ),
             title: Text(l10n.settings),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const SettingsPage(),
-                ),
-              );
-            },
+            onTap: AnalyticsService.instance.wrapTap(
+              'tap_me_settings',
+              () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                    settings: const RouteSettings(
+                      name: AppRoutes.settings,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

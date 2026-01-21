@@ -38,5 +38,16 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_macos_build_settings(target)
+    
+    # Suppress Swift warning for HotKey extension conformance
+    # Warning: "extension declares a conformance of imported type 'ModifierFlags' to imported protocol 'CustomStringConvertible'"
+    # This is a known issue with the HotKey library and doesn't affect functionality.
+    # The warning is about potential future compatibility issues if AppKit adds this conformance.
+    if target.name == 'HotKey'
+      target.build_configurations.each do |config|
+        # Suppress all Swift warnings for HotKey target to avoid this specific warning
+        config.build_settings['SWIFT_SUPPRESS_WARNINGS'] = 'YES'
+      end
+    end
   end
 end

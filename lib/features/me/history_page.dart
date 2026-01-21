@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 import 'package:lando/routes/app_routes.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/storage/query_history_storage.dart';
 import 'package:lando/features/shared/widgets/query_history_item_tile.dart';
 import 'package:lando/features/shared/widgets/empty_state_widget.dart';
@@ -42,6 +43,10 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> _deleteItem(QueryHistoryItem item) async {
+    AnalyticsService.instance.event(
+      'tap_history_delete_item',
+      properties: {'word': item.word},
+    );
     final success = await QueryHistoryStorage.deleteHistoryItem(item.word);
     if (success && mounted) {
       await _loadHistory();
@@ -60,6 +65,7 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> _clearHistory() async {
+    AnalyticsService.instance.event('tap_history_clear');
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmDialogWidget.show(
       context,
@@ -91,6 +97,10 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   void _navigateToQuery(String word) {
+    AnalyticsService.instance.event(
+      'tap_history_item',
+      properties: {'word': word},
+    );
     Navigator.of(
       context,
     ).pushNamed(AppRoutes.query, arguments: {'query': word});
@@ -132,7 +142,10 @@ class _HistoryPageState extends State<HistoryPage> {
             IconButton(
               icon: const Icon(Icons.delete_outline),
               tooltip: l10n.clearHistory,
-              onPressed: _clearHistory,
+              onPressed: AnalyticsService.instance.wrapTap(
+                'tap_history_clear_button',
+                _clearHistory,
+              ),
             ),
         ],
       ),

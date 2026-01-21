@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/services/audio/pronunciation_service_type.dart';
 import 'package:lando/services/audio/pronunciation_service_manager.dart';
 import 'package:lando/storage/preferences_storage.dart';
@@ -46,6 +47,10 @@ class _DictionarySettingsPageState extends State<DictionarySettingsPage> {
   ) async {
     if (value == null) return;
 
+    AnalyticsService.instance.event(
+      'tap_dictionary_settings_pronunciation',
+      properties: {'service': value.name},
+    );
     await PreferencesStorage.savePronunciationServiceType(value.name);
     PronunciationServiceManager().reloadService();
 

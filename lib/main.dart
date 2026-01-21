@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -6,6 +9,9 @@ import 'package:window_manager/window_manager.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/routes/app_routes.dart';
+import 'package:lando/services/analytics/analytics_navigator_observer.dart';
+import 'package:lando/services/analytics/analytics_service.dart';
+import 'package:lando/services/analytics/analytics_tap_capture.dart';
 import 'package:lando/services/hotkey/hotkey_service.dart';
 import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
@@ -38,7 +44,63 @@ void main() async {
   await ThemeController.instance.init();
   await LocaleController.instance.init();
 
-  runApp(const MyApp());
+  // Initialize analytics for mobile platforms (Android/iOS)
+  await AnalyticsService.instance.initialize();
+
+  // Initialize APM for error tracking (after analytics is initialized)
+  if (Platform.isAndroid || Platform.isIOS) {
+    await AnalyticsService.instance.initializeApm();
+  }
+
+  // Set up global error handlers for crash tracking
+  _setupErrorHandlers();
+
+  runZonedGuarded(
+    () {
+      runApp(const MyApp());
+    },
+    (error, stackTrace) {
+      // Report uncaught errors to Umeng APM
+      AnalyticsService.instance.reportError(
+        error,
+        stackTrace,
+        extra: <String, dynamic>{
+          'type': 'uncaught_error',
+          'platform': Platform.operatingSystem,
+        },
+      );
+      // Also log to console in debug mode
+      if (kDebugMode) {
+        FlutterError.presentError(
+          FlutterErrorDetails(
+            exception: error,
+            stack: stackTrace,
+          ),
+        );
+      }
+    },
+  );
+}
+
+void _setupErrorHandlers() {
+  // Handle Flutter framework errors
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // Report Flutter errors to Umeng APM
+    AnalyticsService.instance.reportError(
+      details.exception,
+      details.stack,
+      extra: <String, dynamic>{
+        'type': 'flutter_error',
+        'library': details.library,
+        'context': details.context?.toString(),
+        'platform': Platform.operatingSystem,
+      },
+    );
+    // Also log to console in debug mode
+    if (kDebugMode) {
+      FlutterError.presentError(details);
+    }
+  };
 }
 
 class MyApp extends StatefulWidget {
@@ -96,6 +158,11 @@ class _MyAppState extends State<MyApp> with WindowListener {
           builder: (context, _) {
             return MaterialApp(
               title: 'Lando Dictionary',
+              builder: (context, child) {
+                return AnalyticsTapCapture(
+                  child: child ?? const SizedBox.shrink(),
+                );
+              },
               // Localization configuration
               localizationsDelegates: const [
                 AppLocalizations.delegate,
@@ -120,6 +187,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
               initialRoute: AppRoutes.home,
               routes: AppRoutes.getRoutes(),
               onGenerateRoute: AppRoutes.generateRoute,
+              navigatorObservers: [AnalyticsNavigatorObserver.instance],
             );
           },
         );
