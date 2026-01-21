@@ -46,10 +46,19 @@ jobs:
 
       - name: Get version from pubspec.yaml
         id: version
+        shell: bash
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
+
+      - name: Get commit ID
+        id: commit
+        shell: bash
+        run: |
+          COMMIT_ID=${GITHUB_SHA:0:8}
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
+          echo "Commit ID: $COMMIT_ID"
 
       - name: Build Linux
         run: flutter build linux --release
@@ -57,13 +66,14 @@ jobs:
       - name: Create Linux TAR.GZ
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           cd build/linux/x64/release/bundle
-          tar -czf ../../../lando-linux-x64-linux-v${VERSION}.tar.gz .
-          mv ../../../lando-linux-x64-linux-v${VERSION}.tar.gz build/linux/
+          tar -czf ../../../lando-linux-x64-linux-v${VERSION}-${COMMIT_ID}.tar.gz .
 
       - name: Create Linux DEB package
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           mkdir -p deb-package/DEBIAN
           mkdir -p deb-package/usr/bin
           mkdir -p deb-package/usr/share/applications
@@ -96,15 +106,15 @@ jobs:
           EOF
           
           # Build DEB
-          fakeroot dpkg-deb --build deb-package build/linux/lando-linux-amd64-linux-v${VERSION}.deb
+          fakeroot dpkg-deb --build deb-package build/linux/lando-linux-amd64-linux-v${VERSION}-${COMMIT_ID}.deb
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifacts
           path: |
-            build/linux/lando-linux-x64-linux-v${{ steps.version.outputs.version }}.tar.gz
-            build/linux/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}.deb
+            build/linux/lando-linux-x64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz
+            build/linux/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb
           if-no-files-found: warn
 
   build-windows:
@@ -129,10 +139,19 @@ jobs:
 
       - name: Get version from pubspec.yaml
         id: version
+        shell: bash
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
+
+      - name: Get commit ID
+        id: commit
+        shell: bash
+        run: |
+          COMMIT_ID=${GITHUB_SHA:0:8}
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
+          echo "Commit ID: $COMMIT_ID"
 
       - name: Build Windows
         run: flutter build windows --release
@@ -141,13 +160,14 @@ jobs:
         shell: powershell
         run: |
           $VERSION = "${{ steps.version.outputs.version }}"
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\windows\lando-windows-x64-windows-v${VERSION}.zip -Force
+          $COMMIT_ID = "${{ steps.commit.outputs.commit_id }}"
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\windows\lando-windows-x64-windows-v${VERSION}-${COMMIT_ID}.zip -Force
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-artifacts
-          path: build/windows/lando-windows-x64-windows-v${{ steps.version.outputs.version }}.zip
+          path: build/windows/lando-windows-x64-windows-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip
           if-no-files-found: warn
 
   build-macos:
@@ -172,19 +192,37 @@ jobs:
 
       - name: Get version from pubspec.yaml
         id: version
+        shell: bash
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
 
+      - name: Get commit ID
+        id: commit
+        shell: bash
+        run: |
+          COMMIT_ID=${GITHUB_SHA:0:8}
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
+          echo "Commit ID: $COMMIT_ID"
+
       - name: Build macOS
         run: flutter build macos --release
+
+      - name: Clean previous macOS packages
+        run: |
+          # Remove previous ZIP and DMG files from build/macos directory
+          rm -f build/macos/*.zip build/macos/*.dmg || true
+          # Remove previous ZIP and DMG files from build/macos/Build/Products/Release directory
+          rm -f build/macos/Build/Products/Release/*.zip build/macos/Build/Products/Release/*.dmg || true
 
       - name: Create macOS ZIP
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           cd build/macos/Build/Products/Release
-          zip -r ../../../lando-macos-macos-v${VERSION}.zip lando.app
+          # Create ZIP file with only lando.app
+          zip -r ../../../lando-macos-macos-v${VERSION}-${COMMIT_ID}.zip lando.app
 
       - name: Install create-dmg
         run: brew install create-dmg
@@ -192,6 +230,7 @@ jobs:
       - name: Create macOS DMG
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           cd build/macos/Build/Products/Release
           create-dmg \
             --volname "Lando Dictionary" \
@@ -201,7 +240,7 @@ jobs:
             --icon "lando.app" 200 190 \
             --hide-extension "lando.app" \
             --app-drop-link 600 190 \
-            "../../../lando-macos-macos-v${VERSION}.dmg" \
+            "../../../lando-macos-macos-v${VERSION}-${COMMIT_ID}.dmg" \
             "lando.app"
 
       - name: Upload macOS artifacts
@@ -209,8 +248,8 @@ jobs:
         with:
           name: macos-artifacts
           path: |
-            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}.zip
-            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}.dmg
+            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip
+            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.dmg
           if-no-files-found: warn
 
   build-android:
@@ -240,10 +279,19 @@ jobs:
 
       - name: Get version from pubspec.yaml
         id: version
+        shell: bash
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
+
+      - name: Get commit ID
+        id: commit
+        shell: bash
+        run: |
+          COMMIT_ID=${GITHUB_SHA:0:8}
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
+          echo "Commit ID: $COMMIT_ID"
 
       - name: Build Android APK
         run: flutter build apk --release
@@ -254,16 +302,17 @@ jobs:
       - name: Rename Android artifacts
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-android-v${VERSION}.apk
-          cp build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/app-release-android-v${VERSION}.aab
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
+          cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-android-v${VERSION}-${COMMIT_ID}.apk
+          cp build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/app-release-android-v${VERSION}-${COMMIT_ID}.aab
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts
           path: |
-            build/app/outputs/flutter-apk/app-release-android-v${{ steps.version.outputs.version }}.apk
-            build/app/outputs/bundle/release/app-release-android-v${{ steps.version.outputs.version }}.aab
+            build/app/outputs/flutter-apk/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk
+            build/app/outputs/bundle/release/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab
           if-no-files-found: warn
 
   release:
@@ -282,10 +331,19 @@ jobs:
 
       - name: Get version from pubspec.yaml
         id: version
+        shell: bash
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
+
+      - name: Get commit ID
+        id: commit
+        shell: bash
+        run: |
+          COMMIT_ID=${GITHUB_SHA:0:8}
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
+          echo "Commit ID: $COMMIT_ID"
 
       - name: List artifacts
         run: |
@@ -311,10 +369,10 @@ jobs:
             
             ### Downloads
             
-            - **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}.zip)
-            - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64-windows-v${{ steps.version.outputs.version }}.zip)
-            - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64-linux-v${{ steps.version.outputs.version }}.tar.gz)
-            - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}.aab)
+            - **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip)
+            - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64-windows-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip)
+            - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz)
+            - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab)
             
             ### Changes
             See commit history for details.
