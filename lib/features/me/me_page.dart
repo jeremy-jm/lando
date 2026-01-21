@@ -6,7 +6,9 @@ import 'package:lando/features/me/settings_page.dart';
 
 /// "我的"页面，包含收藏、查词记录、设置三个选项
 class MePage extends StatelessWidget {
-  const MePage({super.key});
+  const MePage({super.key, this.showAppBar = true});
+
+  final bool showAppBar;
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +16,12 @@ class MePage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.me),
-        backgroundColor: theme.colorScheme.inversePrimary,
-      ),
+      appBar: showAppBar
+          ? AppBar(
+              title: Text(l10n.me),
+              backgroundColor: theme.colorScheme.inversePrimary,
+            )
+          : null,
       body: ListView(
         children: [
           // 收藏
