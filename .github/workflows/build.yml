@@ -354,24 +354,33 @@ jobs:
           echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
           echo "Commit ID: $COMMIT_ID"
 
-      - name: Build iOS IPA (no codesign)
+      - name: Clean previous iOS packages
         shell: bash
         run: |
-          flutter build ipa --release --no-codesign
-          ls -la build/ios/ipa || true
+          rm -rf build/ios/ipa || true
 
-      - name: Rename iOS IPA
+      - name: Build iOS (no codesign)
+        shell: bash
+        run: |
+          flutter build ios --release --no-codesign
+          ls -la build/ios/iphoneos || true
+
+      - name: Package unsigned IPA
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
-          mkdir -p build/ios/ipa
-          IPA_FILE="$(ls -1 build/ios/ipa/*.ipa 2>/dev/null | head -n 1 || true)"
-          if [ -z "$IPA_FILE" ]; then
-            echo "No .ipa found in build/ios/ipa. Build may have failed to produce an IPA."
+          APP_PATH="$(find build/ios/iphoneos -maxdepth 2 -type d -name '*.app' | head -n 1 || true)"
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app found under build/ios/iphoneos. iOS build may have failed."
             exit 1
           fi
-          mv "$IPA_FILE" "build/ios/ipa/lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa"
+
+          mkdir -p build/ios/ipa/Payload
+          cp -R "$APP_PATH" build/ios/ipa/Payload/
+
+          (cd build/ios/ipa && zip -r "lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa" Payload)
+          ls -la build/ios/ipa || true
 
       - name: Upload iOS artifacts
         uses: actions/upload-artifact@v4
