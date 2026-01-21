@@ -431,11 +431,53 @@ jobs:
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           TAG="v${VERSION}"
           ANDROID_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/app-release-android-v${VERSION}-${COMMIT_ID}.apk"
-          IOS_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa"
+          IOS_IPA_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa"
+
+          # iOS OTA install requires an HTTPS-hosted manifest.plist that points to the IPA.
+          # QR encodes: itms-services://?action=download-manifest&url=<https manifest url>
+          mkdir -p artifacts/ios-manifest
+          IOS_MANIFEST_FILENAME="lando-ios-ios-v${VERSION}-${COMMIT_ID}.plist"
+          IOS_MANIFEST_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${IOS_MANIFEST_FILENAME}"
+
+          cat > "artifacts/ios-manifest/${IOS_MANIFEST_FILENAME}" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>items</key>
+            <array>
+              <dict>
+                <key>assets</key>
+                <array>
+                  <dict>
+                    <key>kind</key>
+                    <string>software-package</string>
+                    <key>url</key>
+                    <string>${IOS_IPA_URL}</string>
+                  </dict>
+                </array>
+                <key>metadata</key>
+                <dict>
+                  <key>bundle-identifier</key>
+                  <string>top.srank.lando</string>
+                  <key>bundle-version</key>
+                  <string>${VERSION}</string>
+                  <key>kind</key>
+                  <string>software</string>
+                  <key>title</key>
+                  <string>Lando</string>
+                </dict>
+              </dict>
+            </array>
+          </dict>
+          </plist>
+          EOF
+
+          IOS_OTA_URL="itms-services://?action=download-manifest&url=${IOS_MANIFEST_URL}"
 
           mkdir -p artifacts/qr
           qrencode -o "artifacts/qr/android-apk-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${ANDROID_URL}"
-          qrencode -o "artifacts/qr/ios-ipa-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${IOS_URL}"
+          qrencode -o "artifacts/qr/ios-ipa-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${IOS_OTA_URL}"
 
       - name: List artifacts
         run: |
@@ -454,6 +496,8 @@ jobs:
           ls -la artifacts/ios-artifacts/ || echo "No iOS artifacts found"
           echo "QR codes:"
           ls -la artifacts/qr/ || echo "No QR codes found"
+          echo "iOS manifest:"
+          ls -la artifacts/ios-manifest/ || echo "No iOS manifest found"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -469,7 +513,7 @@ jobs:
             - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64-windows-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip)
             - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz)
             - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab)
-            - **iOS**: [IPA](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa)
+            - **iOS**: [IPA](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa) | [Manifest (OTA)](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.plist)
 
             ### Mobile QR Codes
 
@@ -488,6 +532,7 @@ jobs:
             artifacts/android-artifacts/*
             artifacts/ios-artifacts/*
             artifacts/qr/*
+            artifacts/ios-manifest/*
           fail_on_unmatched_files: false
           draft: false
           prerelease: false
