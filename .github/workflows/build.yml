@@ -410,6 +410,24 @@ jobs:
           echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
           echo "Commit ID: $COMMIT_ID"
 
+      - name: Install qrencode
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qrencode
+
+      - name: Generate iOS/Android download QR codes
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
+          TAG="v${VERSION}"
+          ANDROID_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/app-release-android-v${VERSION}-${COMMIT_ID}.apk"
+          IOS_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa"
+
+          mkdir -p artifacts/qr
+          qrencode -o "artifacts/qr/android-apk-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${ANDROID_URL}"
+          qrencode -o "artifacts/qr/ios-ipa-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${IOS_URL}"
+
       - name: List artifacts
         run: |
           echo "Checking artifacts..."
@@ -425,6 +443,8 @@ jobs:
           ls -la artifacts/android-artifacts/ || echo "No Android artifacts found"
           echo "iOS artifacts:"
           ls -la artifacts/ios-artifacts/ || echo "No iOS artifacts found"
+          echo "QR codes:"
+          ls -la artifacts/qr/ || echo "No QR codes found"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -441,6 +461,14 @@ jobs:
             - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz)
             - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab)
             - **iOS**: [IPA](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa)
+
+            ### Mobile QR Codes
+
+            **Android (APK)**
+            ![Android APK QR](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/android-apk-qr-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.png)
+
+            **iOS (IPA)**
+            ![iOS IPA QR](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/ios-ipa-qr-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.png)
             
             ### Changes
             See commit history for details.
@@ -450,6 +478,7 @@ jobs:
             artifacts/macos-artifacts/*
             artifacts/android-artifacts/*
             artifacts/ios-artifacts/*
+            artifacts/qr/*
           fail_on_unmatched_files: false
           draft: false
           prerelease: false
