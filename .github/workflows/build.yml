@@ -339,13 +339,23 @@ jobs:
           echo "Renamed Android artifacts:"
           ls -la "$APK_DST" "$AAB_DST"
 
+      - name: Collect Android artifacts (flat)
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
+          mkdir -p dist/android
+          cp "build/app/outputs/flutter-apk/app-release-android-v${VERSION}-${COMMIT_ID}.apk" "dist/android/"
+          cp "build/app/outputs/bundle/release/app-release-android-v${VERSION}-${COMMIT_ID}.aab" "dist/android/"
+          ls -la dist/android/
+
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts
           path: |
-            build/app/outputs/flutter-apk/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk
-            build/app/outputs/bundle/release/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab
+            dist/android/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk
+            dist/android/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab
           if-no-files-found: error
 
   build-ios:
