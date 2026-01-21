@@ -30,6 +30,8 @@ jobs:
             ninja-build \
             pkg-config \
             libgtk-3-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
             liblzma-dev \
             libstdc++-12-dev \
             fakeroot \
@@ -166,7 +168,6 @@ jobs:
         run: |
           cd build/macos/Build/Products/Release
           zip -r ../../../lando-macos.zip lando.app
-          mv ../../../lando-macos.zip build/macos/
 
       - name: Install create-dmg
         run: brew install create-dmg
@@ -184,7 +185,6 @@ jobs:
             --app-drop-link 600 190 \
             "../../../lando-macos.dmg" \
             "lando.app"
-          mv ../../../lando-macos.dmg build/macos/
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
