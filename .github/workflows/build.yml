@@ -419,6 +419,28 @@ jobs:
           echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
           echo "Commit ID: $COMMIT_ID"
 
+      - name: Discover release asset filenames
+        id: assets
+        shell: bash
+        run: |
+          _first() { ls -1 "$@" 2>/dev/null | head -n 1 || true; }
+
+          ANDROID_APK_PATH="$(_first artifacts/android-artifacts/*.apk)"
+          ANDROID_AAB_PATH="$(_first artifacts/android-artifacts/*.aab)"
+          IOS_IPA_PATH="$(_first artifacts/ios-artifacts/*.ipa)"
+
+          ANDROID_APK_NAME="$(basename "${ANDROID_APK_PATH:-}" 2>/dev/null || true)"
+          ANDROID_AAB_NAME="$(basename "${ANDROID_AAB_PATH:-}" 2>/dev/null || true)"
+          IOS_IPA_NAME="$(basename "${IOS_IPA_PATH:-}" 2>/dev/null || true)"
+
+          echo "android_apk_name=$ANDROID_APK_NAME" >> "$GITHUB_OUTPUT"
+          echo "android_aab_name=$ANDROID_AAB_NAME" >> "$GITHUB_OUTPUT"
+          echo "ios_ipa_name=$IOS_IPA_NAME" >> "$GITHUB_OUTPUT"
+
+          echo "Android APK: ${ANDROID_APK_NAME:-<missing>}"
+          echo "Android AAB: ${ANDROID_AAB_NAME:-<missing>}"
+          echo "iOS IPA: ${IOS_IPA_NAME:-<missing>}"
+
       - name: Install qrencode
         run: |
           sudo apt-get update
@@ -430,8 +452,17 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           TAG="v${VERSION}"
-          ANDROID_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/app-release-android-v${VERSION}-${COMMIT_ID}.apk"
-          IOS_IPA_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa"
+          ANDROID_APK_NAME="${{ steps.assets.outputs.android_apk_name }}"
+          IOS_IPA_NAME="${{ steps.assets.outputs.ios_ipa_name }}"
+
+          ANDROID_URL=""
+          IOS_IPA_URL=""
+          if [ -n "$ANDROID_APK_NAME" ]; then
+            ANDROID_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${ANDROID_APK_NAME}"
+          fi
+          if [ -n "$IOS_IPA_NAME" ]; then
+            IOS_IPA_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${IOS_IPA_NAME}"
+          fi
 
           # iOS OTA install requires an HTTPS-hosted manifest.plist that points to the IPA.
           # QR encodes: itms-services://?action=download-manifest&url=<https manifest url>
@@ -476,8 +507,86 @@ jobs:
           IOS_OTA_URL="itms-services://?action=download-manifest&url=${IOS_MANIFEST_URL}"
 
           mkdir -p artifacts/qr
-          qrencode -o "artifacts/qr/android-apk-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${ANDROID_URL}"
-          qrencode -o "artifacts/qr/ios-ipa-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${IOS_OTA_URL}"
+          if [ -n "$ANDROID_URL" ]; then
+            qrencode -o "artifacts/qr/android-apk-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${ANDROID_URL}"
+          else
+            echo "Android APK not found; skipping Android QR code."
+          fi
+          if [ -n "$IOS_IPA_URL" ]; then
+            qrencode -o "artifacts/qr/ios-ipa-qr-v${VERSION}-${COMMIT_ID}.png" -s 8 -m 2 "${IOS_OTA_URL}"
+          else
+            echo "iOS IPA not found; skipping iOS QR code."
+          fi
+
+      - name: Generate release notes
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
+          TAG="v${VERSION}"
+
+          ANDROID_APK_NAME="${{ steps.assets.outputs.android_apk_name }}"
+          ANDROID_AAB_NAME="${{ steps.assets.outputs.android_aab_name }}"
+          IOS_IPA_NAME="${{ steps.assets.outputs.ios_ipa_name }}"
+
+          IOS_MANIFEST_FILENAME="lando-ios-ios-v${VERSION}-${COMMIT_ID}.plist"
+          IOS_QR_NAME="ios-ipa-qr-v${VERSION}-${COMMIT_ID}.png"
+          ANDROID_QR_NAME="android-apk-qr-v${VERSION}-${COMMIT_ID}.png"
+
+          {
+            echo "## Release v${VERSION}"
+            echo
+            echo "### Downloads"
+            echo
+            echo "- **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-macos-macos-v${VERSION}-${COMMIT_ID}.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-macos-macos-v${VERSION}-${COMMIT_ID}.zip)"
+            echo "- **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-windows-x64-windows-v${VERSION}-${COMMIT_ID}.zip)"
+            echo "- **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-linux-amd64-linux-v${VERSION}-${COMMIT_ID}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-linux-x64-linux-v${VERSION}-${COMMIT_ID}.tar.gz)"
+
+            if [ -n "$ANDROID_APK_NAME" ] || [ -n "$ANDROID_AAB_NAME" ]; then
+              echo -n "- **Android**: "
+              if [ -n "$ANDROID_APK_NAME" ]; then
+                echo -n "[APK](https://github.com/${{ github.repository }}/releases/download/${TAG}/${ANDROID_APK_NAME})"
+              else
+                echo -n "APK (not built)"
+              fi
+              echo -n " | "
+              if [ -n "$ANDROID_AAB_NAME" ]; then
+                echo "[AAB](https://github.com/${{ github.repository }}/releases/download/${TAG}/${ANDROID_AAB_NAME})"
+              else
+                echo "AAB (not built)"
+              fi
+            else
+              echo "- **Android**: (not built)"
+            fi
+
+            if [ -n "$IOS_IPA_NAME" ]; then
+              echo "- **iOS**: [IPA](https://github.com/${{ github.repository }}/releases/download/${TAG}/${IOS_IPA_NAME}) | [Manifest (OTA)](https://github.com/${{ github.repository }}/releases/download/${TAG}/${IOS_MANIFEST_FILENAME})"
+            else
+              echo "- **iOS**: (not built)"
+            fi
+
+            echo
+            echo "### Mobile QR Codes"
+            echo
+            if [ -n "$ANDROID_APK_NAME" ]; then
+              echo "**Android (APK)**"
+              echo "![Android APK QR](https://github.com/${{ github.repository }}/releases/download/${TAG}/${ANDROID_QR_NAME})"
+              echo
+            else
+              echo "**Android (APK)**"
+              echo "_Not available (APK not built)_"
+              echo
+            fi
+            echo "**iOS (IPA)**"
+            if [ -n "$IOS_IPA_NAME" ]; then
+              echo "![iOS IPA QR](https://github.com/${{ github.repository }}/releases/download/${TAG}/${IOS_QR_NAME})"
+            else
+              echo "_Not available (IPA not built)_"
+            fi
+            echo
+            echo "### Changes"
+            echo "See commit history for details."
+          } > release_notes.md
 
       - name: List artifacts
         run: |
@@ -504,27 +613,7 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: Release v${{ steps.version.outputs.version }}
-          body: |
-            ## Release v${{ steps.version.outputs.version }}
-            
-            ### Downloads
-            
-            - **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip)
-            - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64-windows-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip)
-            - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz)
-            - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab)
-            - **iOS**: [IPA](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa) | [Manifest (OTA)](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.plist)
-
-            ### Mobile QR Codes
-
-            **Android (APK)**
-            ![Android APK QR](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/android-apk-qr-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.png)
-
-            **iOS (IPA)**
-            ![iOS IPA QR](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/ios-ipa-qr-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.png)
-            
-            ### Changes
-            See commit history for details.
+          body_path: release_notes.md
           files: |
             artifacts/linux-artifacts/*
             artifacts/windows-artifacts/*
