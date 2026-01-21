@@ -44,21 +44,22 @@ jobs:
       - name: Generate localization files
         run: flutter gen-l10n || true || true
 
-      - name: Build Linux
-        run: flutter build linux --release
-
-      - name: Create Linux TAR.GZ
-        run: |
-          cd build/linux/x64/release/bundle
-          tar -czf ../../../lando-linux-x64.tar.gz .
-          mv ../../../lando-linux-x64.tar.gz build/linux/
-
       - name: Get version from pubspec.yaml
         id: version
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
+
+      - name: Build Linux
+        run: flutter build linux --release
+
+      - name: Create Linux TAR.GZ
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          cd build/linux/x64/release/bundle
+          tar -czf ../../../lando-linux-x64-linux-v${VERSION}.tar.gz .
+          mv ../../../lando-linux-x64-linux-v${VERSION}.tar.gz build/linux/
 
       - name: Create Linux DEB package
         run: |
@@ -95,15 +96,15 @@ jobs:
           EOF
           
           # Build DEB
-          fakeroot dpkg-deb --build deb-package build/linux/lando-linux-amd64.deb
+          fakeroot dpkg-deb --build deb-package build/linux/lando-linux-amd64-linux-v${VERSION}.deb
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifacts
           path: |
-            build/linux/lando-linux-x64.tar.gz
-            build/linux/lando-linux-amd64.deb
+            build/linux/lando-linux-x64-linux-v${{ steps.version.outputs.version }}.tar.gz
+            build/linux/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}.deb
           if-no-files-found: warn
 
   build-windows:
@@ -126,19 +127,27 @@ jobs:
       - name: Generate localization files
         run: flutter gen-l10n || true || true
 
+      - name: Get version from pubspec.yaml
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
       - name: Build Windows
         run: flutter build windows --release
 
       - name: Create Windows ZIP
         shell: powershell
         run: |
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\windows\lando-windows-x64.zip -Force
+          $VERSION = "${{ steps.version.outputs.version }}"
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\windows\lando-windows-x64-windows-v${VERSION}.zip -Force
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-artifacts
-          path: build/windows/lando-windows-x64.zip
+          path: build/windows/lando-windows-x64-windows-v${{ steps.version.outputs.version }}.zip
           if-no-files-found: warn
 
   build-macos:
@@ -161,19 +170,28 @@ jobs:
       - name: Generate localization files
         run: flutter gen-l10n || true || true
 
+      - name: Get version from pubspec.yaml
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
       - name: Build macOS
         run: flutter build macos --release
 
       - name: Create macOS ZIP
         run: |
+          VERSION="${{ steps.version.outputs.version }}"
           cd build/macos/Build/Products/Release
-          zip -r ../../../lando-macos.zip lando.app
+          zip -r ../../../lando-macos-macos-v${VERSION}.zip lando.app
 
       - name: Install create-dmg
         run: brew install create-dmg
 
       - name: Create macOS DMG
         run: |
+          VERSION="${{ steps.version.outputs.version }}"
           cd build/macos/Build/Products/Release
           create-dmg \
             --volname "Lando Dictionary" \
@@ -183,7 +201,7 @@ jobs:
             --icon "lando.app" 200 190 \
             --hide-extension "lando.app" \
             --app-drop-link 600 190 \
-            "../../../lando-macos.dmg" \
+            "../../../lando-macos-macos-v${VERSION}.dmg" \
             "lando.app"
 
       - name: Upload macOS artifacts
@@ -191,8 +209,8 @@ jobs:
         with:
           name: macos-artifacts
           path: |
-            build/macos/lando-macos.zip
-            build/macos/lando-macos.dmg
+            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}.zip
+            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}.dmg
           if-no-files-found: warn
 
   build-android:
@@ -220,19 +238,32 @@ jobs:
       - name: Generate localization files
         run: flutter gen-l10n || true || true
 
+      - name: Get version from pubspec.yaml
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
       - name: Build Android APK
         run: flutter build apk --release
 
       - name: Build Android App Bundle
         run: flutter build appbundle --release
 
+      - name: Rename Android artifacts
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-android-v${VERSION}.apk
+          cp build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/app-release-android-v${VERSION}.aab
+
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts
           path: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
+            build/app/outputs/flutter-apk/app-release-android-v${{ steps.version.outputs.version }}.apk
+            build/app/outputs/bundle/release/app-release-android-v${{ steps.version.outputs.version }}.aab
           if-no-files-found: warn
 
   release:
@@ -258,8 +289,17 @@ jobs:
 
       - name: List artifacts
         run: |
+          echo "Checking artifacts..."
           find artifacts -type f || true
           ls -la artifacts/ || true
+          echo "Linux artifacts:"
+          ls -la artifacts/linux-artifacts/ || echo "No Linux artifacts found"
+          echo "Windows artifacts:"
+          ls -la artifacts/windows-artifacts/ || echo "No Windows artifacts found"
+          echo "macOS artifacts:"
+          ls -la artifacts/macos-artifacts/ || echo "No macOS artifacts found"
+          echo "Android artifacts:"
+          ls -la artifacts/android-artifacts/ || echo "No Android artifacts found"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -271,10 +311,10 @@ jobs:
             
             ### Downloads
             
-            - **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos.zip)
-            - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64.zip)
-            - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64.tar.gz)
-            - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release.aab)
+            - **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-macos-macos-v${{ steps.version.outputs.version }}.zip)
+            - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64-windows-v${{ steps.version.outputs.version }}.zip)
+            - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64-linux-v${{ steps.version.outputs.version }}.tar.gz)
+            - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}.aab)
             
             ### Changes
             See commit history for details.
@@ -283,6 +323,7 @@ jobs:
             artifacts/windows-artifacts/*
             artifacts/macos-artifacts/*
             artifacts/android-artifacts/*
+          fail_on_unmatched_files: false
           draft: false
           prerelease: false
         env:
