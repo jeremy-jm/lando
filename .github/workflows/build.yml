@@ -318,8 +318,70 @@ jobs:
             build/app/outputs/bundle/release/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab
           if-no-files-found: warn
 
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization files
+        run: flutter gen-l10n || true || true
+
+      - name: Get version from pubspec.yaml
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Get commit ID
+        id: commit
+        shell: bash
+        run: |
+          COMMIT_ID=${GITHUB_SHA:0:8}
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
+          echo "Commit ID: $COMMIT_ID"
+
+      - name: Build iOS IPA (no codesign)
+        shell: bash
+        run: |
+          flutter build ipa --release --no-codesign
+          ls -la build/ios/ipa || true
+
+      - name: Rename iOS IPA
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
+          mkdir -p build/ios/ipa
+          IPA_FILE="$(ls -1 build/ios/ipa/*.ipa 2>/dev/null | head -n 1 || true)"
+          if [ -z "$IPA_FILE" ]; then
+            echo "No .ipa found in build/ios/ipa. Build may have failed to produce an IPA."
+            exit 1
+          fi
+          mv "$IPA_FILE" "build/ios/ipa/lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa"
+
+      - name: Upload iOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-artifacts
+          path: build/ios/ipa/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa
+          if-no-files-found: warn
+
   release:
-    needs: [build-linux, build-windows, build-macos, build-android]
+    needs: [build-linux, build-windows, build-macos, build-android, build-ios]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     
@@ -361,6 +423,8 @@ jobs:
           ls -la artifacts/macos-artifacts/ || echo "No macOS artifacts found"
           echo "Android artifacts:"
           ls -la artifacts/android-artifacts/ || echo "No Android artifacts found"
+          echo "iOS artifacts:"
+          ls -la artifacts/ios-artifacts/ || echo "No iOS artifacts found"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -376,6 +440,7 @@ jobs:
             - **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-windows-x64-windows-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip)
             - **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-linux-x64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz)
             - **Android**: [APK](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk) | [AAB](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab)
+            - **iOS**: [IPA](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa)
             
             ### Changes
             See commit history for details.
@@ -384,6 +449,7 @@ jobs:
             artifacts/windows-artifacts/*
             artifacts/macos-artifacts/*
             artifacts/android-artifacts/*
+            artifacts/ios-artifacts/*
           fail_on_unmatched_files: false
           draft: false
           prerelease: false
