@@ -35,8 +35,20 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
+}
+
+dependencies {
+    // Add OkHttp dependency for umeng_apm_sdk and EFS SDK
+    // This is required because EFS SDK (used by umeng_apm_sdk) depends on OkHttp3
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
 
 flutter {

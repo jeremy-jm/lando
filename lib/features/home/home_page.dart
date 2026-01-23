@@ -31,6 +31,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    // Listen to text changes and navigate to query page when user types
+    _controller.addListener(_onTextChanged);
+
     // Navigate when TextField gains focus (user taps on it)
     _focusNode.addListener(() {
       if (_focusNode.hasFocus && !_isDisposed) {
@@ -42,18 +46,15 @@ class _MyHomePageState extends State<MyHomePage> {
             // Small delay to allow keyboard events to complete
             _focusDelayTimer = Timer(const Duration(milliseconds: 150), () {
               if (!_isDisposed && mounted && _focusNode.hasFocus) {
-                // Unfocus first to avoid keyboard state issues
-                _focusNode.unfocus();
-                // Navigate after a brief delay to ensure unfocus completes
-                Future.delayed(const Duration(milliseconds: 50), () {
-                  if (!_isDisposed && mounted) {
-                    _navigateToQueryPage(
-                      _controller.text.trim().isEmpty
-                          ? null
-                          : _controller.text.trim(),
-                    );
-                  }
-                });
+                // If there's no text, navigate to empty query page
+                if (_controller.text.trim().isEmpty) {
+                  _focusNode.unfocus();
+                  Future.delayed(const Duration(milliseconds: 50), () {
+                    if (!_isDisposed && mounted) {
+                      _navigateToQueryPage(null);
+                    }
+                  });
+                }
               }
             });
           }
@@ -61,8 +62,38 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
-    // Detect language from input
+    // Detect language from input (also called in _onTextChanged, but kept for compatibility)
     _controller.addListener(_detectLanguage);
+  }
+
+  void _onTextChanged() {
+    if (_isDisposed || !mounted) return;
+
+    final text = _controller.text.trim();
+
+    // If user has typed something, navigate to query page with the text
+    if (text.isNotEmpty) {
+      // Cancel any pending navigation
+      _focusDelayTimer?.cancel();
+
+      // Small delay to allow user to continue typing
+      // After user stops typing for 300ms, navigate to query page
+      _focusDelayTimer = Timer(const Duration(milliseconds: 300), () {
+        if (!_isDisposed && mounted) {
+          final currentText = _controller.text.trim();
+          if (currentText.isNotEmpty) {
+            // Unfocus to avoid keyboard state issues
+            _focusNode.unfocus();
+            // Navigate after a brief delay
+            Future.delayed(const Duration(milliseconds: 50), () {
+              if (!_isDisposed && mounted) {
+                _navigateToQueryPage(currentText);
+              }
+            });
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -179,33 +210,50 @@ class _MyHomePageState extends State<MyHomePage> {
 
               const SizedBox(height: 40.0),
 
-              InkWell(
-                onTap: AnalyticsService.instance.wrapTap(
-                  'tap_home_enter_translate',
-                  () => _navigateToQueryPage(null),
+              // Input field that navigates to query page when user types
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline.withValues(
+                          alpha: 0.1,
+                        ),
+                    width: 1,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(16.0),
-                child: Container(
-                  padding: const EdgeInsets.all(10.0),
-                  width: double.infinity,
-                  height: 60,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(16.0),
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outline.withValues(alpha: 0.1),
-                      width: 1,
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  decoration: InputDecoration(
+                    hintText:
+                        AppLocalizations.of(context)?.enterTextToTranslate ??
+                            'Enter text to translate',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 16.0,
                     ),
                   ),
-                  child: Text(
-                    AppLocalizations.of(context)?.enterTextToTranslate ?? '',
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  textInputAction: TextInputAction.search,
+                  onTap: AnalyticsService.instance.wrapTap(
+                    'tap_home_enter_translate',
+                    () {
+                      // Focus is already handled by focusNode listener
+                    },
                   ),
+                  onSubmitted: (value) {
+                    if (value.trim().isNotEmpty) {
+                      _navigateToQueryPage(value.trim());
+                    } else {
+                      _navigateToQueryPage(null);
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 16.0),
