@@ -8,6 +8,8 @@
   [![Flutter](https://img.shields.io/badge/Flutter-3.5+-02569B?logo=flutter)](https://flutter.dev)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)](https://flutter.dev)
+  
+  [English](README.md) | **简体中文**
 </div>
 
 ---
