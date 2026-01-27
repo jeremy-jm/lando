@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_page.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
+import 'package:lando/features/home/widgets/translation_input_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
@@ -25,75 +24,13 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   int _languageSelectorKey = 0;
-  Timer? _focusDelayTimer;
   bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Listen to text changes and navigate to query page when user types
-    _controller.addListener(_onTextChanged);
-
-    // Navigate when TextField gains focus (user taps on it)
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus && !_isDisposed) {
-        // Cancel any pending navigation
-        _focusDelayTimer?.cancel();
-        // Use post frame callback to ensure keyboard events are processed first
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!_isDisposed && mounted && _focusNode.hasFocus) {
-            // Small delay to allow keyboard events to complete
-            _focusDelayTimer = Timer(const Duration(milliseconds: 150), () {
-              if (!_isDisposed && mounted && _focusNode.hasFocus) {
-                // If there's no text, navigate to empty query page
-                if (_controller.text.trim().isEmpty) {
-                  _focusNode.unfocus();
-                  Future.delayed(const Duration(milliseconds: 50), () {
-                    if (!_isDisposed && mounted) {
-                      _navigateToQueryPage(null);
-                    }
-                  });
-                }
-              }
-            });
-          }
-        });
-      }
-    });
-
-    // Detect language from input (also called in _onTextChanged, but kept for compatibility)
+    // Detect language from input
     _controller.addListener(_detectLanguage);
-  }
-
-  void _onTextChanged() {
-    if (_isDisposed || !mounted) return;
-
-    final text = _controller.text.trim();
-
-    // If user has typed something, navigate to query page with the text
-    if (text.isNotEmpty) {
-      // Cancel any pending navigation
-      _focusDelayTimer?.cancel();
-
-      // Small delay to allow user to continue typing
-      // After user stops typing for 300ms, navigate to query page
-      _focusDelayTimer = Timer(const Duration(milliseconds: 300), () {
-        if (!_isDisposed && mounted) {
-          final currentText = _controller.text.trim();
-          if (currentText.isNotEmpty) {
-            // Unfocus to avoid keyboard state issues
-            _focusNode.unfocus();
-            // Navigate after a brief delay
-            Future.delayed(const Duration(milliseconds: 50), () {
-              if (!_isDisposed && mounted) {
-                _navigateToQueryPage(currentText);
-              }
-            });
-          }
-        }
-      });
-    }
   }
 
   @override
@@ -138,7 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     _isDisposed = true;
-    _focusDelayTimer?.cancel();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -210,51 +146,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
               const SizedBox(height: 40.0),
 
-              // Input field that navigates to query page when user types
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(16.0),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withValues(
-                          alpha: 0.1,
-                        ),
-                    width: 1,
-                  ),
-                ),
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText:
-                        AppLocalizations.of(context)?.enterTextToTranslate ??
-                            'Enter text to translate',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 16.0,
-                    ),
-                  ),
-                  textInputAction: TextInputAction.search,
-                  onTap: AnalyticsService.instance.wrapTap(
-                    'tap_home_enter_translate',
-                    () {
-                      // Focus is already handled by focusNode listener
-                    },
-                  ),
-                  onSubmitted: (value) {
-                    if (value.trim().isNotEmpty) {
-                      _navigateToQueryPage(value.trim());
-                    } else {
-                      _navigateToQueryPage(null);
-                    }
+              // Translation input widget that navigates to query page when user presses enter
+              TranslationInputWidget(
+                controller: _controller,
+                focusNode: _focusNode,
+                hintText: AppLocalizations.of(context)?.enterTextToTranslate,
+                onSubmitted: (value) {
+                  AnalyticsService.instance.event('tap_home_enter_translate');
+                  if (value.trim().isNotEmpty) {
+                    _navigateToQueryPage(value.trim());
+                  } else {
+                    _navigateToQueryPage(null);
+                  }
+                },
+                onTap: AnalyticsService.instance.wrapTap(
+                  'tap_home_enter_translate',
+                  () {
+                    // Focus is already handled by focusNode
                   },
                 ),
+                enableSuggestions: true,
               ),
               const SizedBox(height: 16.0),
               LanguageSelectorWidget(
