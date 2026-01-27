@@ -1,37 +1,210 @@
 <div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/images/logo.png?raw=true" height="256">
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/images/logo.png?raw=true" height="256" alt="Lando Logo">
   
-  # Lando
+  # Lando Dictionary
   
-  #### A translation software that collects commonly used translation services without starting ads.
+  #### 🚀 A clean, ad-free translation software that integrates multiple translation services
+  
+  [![Flutter](https://img.shields.io/badge/Flutter-3.5+-02569B?logo=flutter)](https://flutter.dev)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+  [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)](https://flutter.dev)
 </div>
 
-## Background
+---
 
-The author was tired of the startup ads on mobile platforms. With frequent and brief use, searching for words only takes a few seconds, but there are at least 5 seconds of ads every time the software is opened. That's why the author came up with the idea of ​​making a free, ad-free software.
+## 📖 About
 
-## Introduction
+**Lando** is a free, open-source translation dictionary application that aggregates commonly used translation services without any advertisements. Built with Flutter, it provides a clean and fast user experience for quick word lookups.
 
-A dictionary that integrates third-party services and is ad-free.
+### Why Lando?
 
-Currently in its first phase, it only integrates Youdao's services. Support for Bing, Google, and other AI translation tools will be added later.
+The author was frustrated with startup ads on mobile translation apps. When searching for words frequently and briefly, the actual lookup takes only a few seconds, but opening the software often means waiting through at least 5 seconds of ads. That's why Lando was created - a completely free, ad-free alternative.
 
-Supports iOS, Android, macOS, Windows, and Linux.
+---
 
-Windows and Linux versions lack testing and are currently under development. 
+## ✨ Features
 
+- 🚫 **No Ads** - Completely ad-free experience
+- 🌍 **Multi-language Support** - Supports 7 languages (English, Chinese, Japanese, Hindi, Indonesian, Portuguese, Russian)
+- 🎨 **Modern UI** - Material Design 3 with dark/light theme support
+- 🔍 **Multiple Translation Services** - Currently integrates Youdao; Bing, Google, and AI translation tools coming soon
+- 📱 **Cross-platform** - Works on iOS, Android, macOS, Windows, and Linux
+- ⚡ **Fast & Lightweight** - Quick word lookups without unnecessary bloat
+- 🔖 **History & Favorites** - Save your translation history and favorite words
+- 🔊 **Pronunciation** - Multiple pronunciation services (System TTS, Youdao, Baidu, Bing, Google, Apple)
+- ⌨️ **Global Hotkeys** - Quick access with customizable hotkeys (macOS/Windows/Linux)
 
-## Getting Started
+---
+
+## 🛠️ Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| iOS | ✅ Stable | Fully tested |
+| Android | ✅ Stable | Fully tested |
+| macOS | ✅ Stable | Fully tested |
+| Windows | 🚧 In Development | Under active development |
+| Linux | 🚧 In Development | Under active development |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Flutter SDK (>=3.5.0)
+- Dart SDK (>=3.5.0)
+- Platform-specific development tools:
+  - **iOS**: Xcode
+  - **Android**: Android Studio
+  - **macOS**: Xcode Command Line Tools
+  - **Windows**: Visual Studio with C++ support
+  - **Linux**: GCC, CMake
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/jeremy-jm/lando.git
+   cd lando
+   ```
+
+2. **Install dependencies**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Run the app**
+   ```bash
+   # For iOS
+   flutter run -d ios
+   
+   # For Android
+   flutter run -d android
+   
+   # For macOS
+   flutter run -d macos
+   
+   # For Windows
+   flutter run -d windows
+   
+   # For Linux
+   flutter run -d linux
+   ```
+
+### Building for Production
 
 ```bash
- git clone https://github.com/jeremy-jm/lando.git
- flutter pub get
- flutter rub xxx(platform)
- ```
+# Build APK (Android)
+flutter build apk --release
 
+# Build iOS
+flutter build ios --release
 
-## Contributions
+# Build macOS
+flutter build macos --release
 
-If you are also interested, please join the project and submit a pull request.
+# Build Windows
+flutter build windows --release
 
-If you have more ideas, please let me know in the issues. Thank you.
+# Build Linux
+flutter build linux --release
+```
+
+---
+
+## 📱 Screenshots
+
+> Screenshots coming soon...
+
+---
+
+## 🏗️ Project Structure
+
+```
+lando/
+├── lib/
+│   ├── features/          # Feature modules
+│   │   ├── home/          # Home & translation
+│   │   ├── dictionary/    # Dictionary view
+│   │   ├── me/            # Settings & profile
+│   │   └── shared/        # Shared components
+│   ├── l10n/              # Localization files
+│   ├── models/            # Data models
+│   ├── network/           # Network layer
+│   ├── routes/            # App routing
+│   ├── services/          # Business services
+│   ├── storage/           # Local storage
+│   └── theme/             # Theme configuration
+├── test/                  # Test files
+└── assets/                # Images, fonts, etc.
+```
+
+---
+
+## 🧪 Testing
+
+Run the test suite:
+
+```bash
+# Run all tests
+flutter test
+
+# Run with coverage
+flutter test --coverage
+
+# Run specific test file
+flutter test test/unit/models/query_history_item_test.dart
+```
+
+See [TESTING.md](TESTING.md) for more details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! If you're interested in contributing:
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit your changes** (`git commit -m 'Add some amazing feature'`)
+4. **Push to the branch** (`git push origin feature/amazing-feature`)
+5. **Open a Pull Request**
+
+### Areas for Contribution
+
+- 🐛 Bug fixes
+- ✨ New features
+- 📝 Documentation improvements
+- 🎨 UI/UX enhancements
+- 🌍 Additional language support
+- 🔧 Integration with more translation services
+
+If you have ideas or suggestions, please open an issue to discuss them!
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Thanks to all the translation service providers
+- Thanks to the Flutter community
+- Thanks to all contributors and users
+
+---
+
+## 📧 Contact
+
+- **Issues**: [GitHub Issues](https://github.com/jeremy-jm/lando/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/jeremy-jm/lando/discussions)
+
+---
+
+<div align="center">
+  Made with ❤️ using Flutter
+</div>
