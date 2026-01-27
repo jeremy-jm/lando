@@ -287,4 +287,13 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get hotkeyRequiresValidKey =>
       'Пожалуйста, включите клавишу буквы, цифры или символа';
+
+  @override
+  String get selectSourceLanguage => 'Выбрать исходный язык';
+
+  @override
+  String get selectTargetLanguage => 'Выбрать целевой язык';
+
+  @override
+  String get auto => 'Авто';
 }

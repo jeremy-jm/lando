@@ -285,4 +285,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hotkeyRequiresValidKey =>
       'Please include a letter, digit, or symbol key';
+
+  @override
+  String get selectSourceLanguage => 'Select Source Language';
+
+  @override
+  String get selectTargetLanguage => 'Select Target Language';
+
+  @override
+  String get auto => 'Auto';
 }

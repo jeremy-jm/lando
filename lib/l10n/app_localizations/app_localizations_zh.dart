@@ -275,4 +275,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get hotkeyRequiresValidKey => '请包含一个字母、数字或符号键';
+
+  @override
+  String get selectSourceLanguage => '选择源语言';
+
+  @override
+  String get selectTargetLanguage => '选择目标语言';
+
+  @override
+  String get auto => '自动';
 }

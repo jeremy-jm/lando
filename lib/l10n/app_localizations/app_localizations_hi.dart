@@ -285,4 +285,13 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get hotkeyRequiresValidKey =>
       'कृपया एक अक्षर, अंक या प्रतीक कुंजी शामिल करें';
+
+  @override
+  String get selectSourceLanguage => 'स्रोत भाषा चुनें';
+
+  @override
+  String get selectTargetLanguage => 'लक्ष्य भाषा चुनें';
+
+  @override
+  String get auto => 'स्वचालित';
 }

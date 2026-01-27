@@ -275,4 +275,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get hotkeyRequiresValidKey => '文字、数字、または記号キーを含めてください';
+
+  @override
+  String get selectSourceLanguage => 'ソース言語を選択';
+
+  @override
+  String get selectTargetLanguage => 'ターゲット言語を選択';
+
+  @override
+  String get auto => '自動';
 }

@@ -116,5 +116,17 @@
   "hotkeyRequiresValidKey": "कृपया एक अक्षर, अंक या प्रतीक कुंजी शामिल करें",
   "@hotkeyRequiresValidKey": {
     "description": "Error message when hotkey doesn't have a valid key"
+  },
+  "selectSourceLanguage": "स्रोत भाषा चुनें",
+  "@selectSourceLanguage": {
+    "description": "Title for source language selection dialog"
+  },
+  "selectTargetLanguage": "लक्ष्य भाषा चुनें",
+  "@selectTargetLanguage": {
+    "description": "Title for target language selection dialog"
+  },
+  "auto": "स्वचालित",
+  "@auto": {
+    "description": "Auto-detect language option"
   }
 }

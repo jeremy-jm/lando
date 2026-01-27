@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lando/models/youdao_suggestion.dart';
 import 'package:lando/network/api_client.dart';
 import 'package:lando/services/suggestion/youdao_suggestion_service.dart';
 import 'package:lando/storage/preferences_storage.dart';

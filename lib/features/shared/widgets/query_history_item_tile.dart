@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 
@@ -96,7 +97,10 @@ class QueryHistoryItemTile extends StatelessWidget {
             color: theme.colorScheme.error,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.delete, color: Colors.white),
+          child: Icon(
+            Icons.delete,
+            color: theme.colorScheme.onError,
+          ),
         ),
         confirmDismiss: (direction) => confirmDismiss!(item),
         onDismissed: (_) => onDelete(item),
@@ -112,16 +116,20 @@ class QueryHistoryItemTile extends StatelessWidget {
     final now = DateTime.now();
     final difference = now.difference(date);
 
+    // Use DateFormat for better localization support
+    // For today, show only time
     if (difference.inDays == 0) {
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      return DateFormat('HH:mm').format(date);
     }
+    // For yesterday, show date and time
     if (difference.inDays == 1) {
-      return '${date.month}/${date.day}, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      return DateFormat('MMM d, HH:mm').format(date);
     }
+    // For dates within a week, show day and time
     if (difference.inDays < 7) {
-      final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      return '${weekdays[date.weekday - 1]}, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      return DateFormat('EEE, HH:mm').format(date);
     }
-    return '${date.year}/${date.month}/${date.day} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    // For older dates, show full date
+    return DateFormat.yMMMd().add_Hm().format(date);
   }
 }

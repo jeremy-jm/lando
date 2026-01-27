@@ -629,6 +629,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please include a letter, digit, or symbol key'**
   String get hotkeyRequiresValidKey;
+
+  /// Title for source language selection dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Select Source Language'**
+  String get selectSourceLanguage;
+
+  /// Title for target language selection dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Select Target Language'**
+  String get selectTargetLanguage;
+
+  /// Auto-detect language option
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get auto;
 }
 
 class _AppLocalizationsDelegate

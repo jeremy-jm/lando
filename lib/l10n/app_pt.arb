@@ -116,5 +116,17 @@
   "hotkeyRequiresValidKey": "Por favor, inclua uma tecla de letra, dígito ou símbolo",
   "@hotkeyRequiresValidKey": {
     "description": "Error message when hotkey doesn't have a valid key"
+  },
+  "selectSourceLanguage": "Selecionar Idioma de Origem",
+  "@selectSourceLanguage": {
+    "description": "Title for source language selection dialog"
+  },
+  "selectTargetLanguage": "Selecionar Idioma de Destino",
+  "@selectTargetLanguage": {
+    "description": "Title for target language selection dialog"
+  },
+  "auto": "Automático",
+  "@auto": {
+    "description": "Auto-detect language option"
   }
 }

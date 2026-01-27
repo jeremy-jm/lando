@@ -3,7 +3,6 @@ import 'package:lando/features/home/query/query_bloc.dart';
 import 'package:lando/features/home/query/query_repository.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/services/translation/translation_service.dart';
-import 'package:lando/services/translation/translation_service_type.dart';
 
 void main() {
   group('QueryBloc', () {

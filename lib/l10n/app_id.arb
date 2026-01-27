@@ -116,5 +116,17 @@
   "hotkeyRequiresValidKey": "Harap sertakan tombol huruf, angka, atau simbol",
   "@hotkeyRequiresValidKey": {
     "description": "Error message when hotkey doesn't have a valid key"
+  },
+  "selectSourceLanguage": "Pilih Bahasa Sumber",
+  "@selectSourceLanguage": {
+    "description": "Title for source language selection dialog"
+  },
+  "selectTargetLanguage": "Pilih Bahasa Target",
+  "@selectTargetLanguage": {
+    "description": "Title for target language selection dialog"
+  },
+  "auto": "Otomatis",
+  "@auto": {
+    "description": "Auto-detect language option"
   }
 }

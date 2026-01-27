@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
@@ -48,16 +49,29 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
   }
 
   String _getLanguageName(String languageCode) {
-    const names = {
-      'en': '英语',
-      'zh': '中文',
-      'ja': '日语',
-      'hi': '印地语',
-      'id': '印尼语',
-      'pt': '葡萄牙语',
-      'ru': '俄语',
-    };
-    return names[languageCode] ?? languageCode.toUpperCase();
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return languageCode.toUpperCase();
+    }
+
+    switch (languageCode) {
+      case 'en':
+        return l10n.english;
+      case 'zh':
+        return l10n.chinese;
+      case 'ja':
+        return l10n.japanese;
+      case 'hi':
+        return l10n.hindi;
+      case 'id':
+        return l10n.indonesian;
+      case 'pt':
+        return l10n.portuguese;
+      case 'ru':
+        return l10n.russian;
+      default:
+        return languageCode.toUpperCase();
+    }
   }
 
   Widget _buildLanguageSelector(
@@ -103,10 +117,13 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
   }
 
   Future<void> _showFromLanguageDialog() async {
+    final l10n = AppLocalizations.of(context);
     final selected = await showDialog<String>(
       context: context,
-      builder: (context) =>
-          _LanguageDialog(title: '选择源语言', currentSelection: _fromLanguage),
+      builder: (context) => _LanguageDialog(
+        title: l10n?.selectSourceLanguage ?? 'Select Source Language',
+        currentSelection: _fromLanguage,
+      ),
     );
 
     if (selected != null && mounted) {
@@ -125,10 +142,13 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
   }
 
   Future<void> _showToLanguageDialog() async {
+    final l10n = AppLocalizations.of(context);
     final selected = await showDialog<String>(
       context: context,
-      builder: (context) =>
-          _LanguageDialog(title: '选择目标语言', currentSelection: _toLanguage),
+      builder: (context) => _LanguageDialog(
+        title: l10n?.selectTargetLanguage ?? 'Select Target Language',
+        currentSelection: _toLanguage,
+      ),
     );
 
     if (selected != null && mounted) {
@@ -199,16 +219,21 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final l10n = AppLocalizations.of(context);
     // Build language selector widgets
     final fromLanguageWidget = _buildLanguageSelector(
       theme,
-      _fromLanguage == null ? '自动' : _getLanguageName(_fromLanguage!),
+      _fromLanguage == null
+          ? (l10n?.auto ?? 'Auto')
+          : _getLanguageName(_fromLanguage!),
       _showFromLanguageDialog,
     );
 
     final toLanguageWidget = _buildLanguageSelector(
       theme,
-      _toLanguage == null ? '自动' : _getLanguageName(_toLanguage!),
+      _toLanguage == null
+          ? (l10n?.auto ?? 'Auto')
+          : _getLanguageName(_toLanguage!),
       _showToLanguageDialog,
     );
 
@@ -276,6 +301,7 @@ class _LanguageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final supportedLanguages = LocaleController.supportedLocales;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
       title: Text(title),
@@ -286,7 +312,7 @@ class _LanguageDialog extends StatelessWidget {
             // Auto option
             _LanguageOption(
               code: 'auto',
-              name: '自动',
+              name: l10n?.auto ?? 'Auto',
               isSelected: currentSelection == null,
               onTap: () => Navigator.of(context).pop('auto'),
             ),
@@ -295,7 +321,7 @@ class _LanguageDialog extends StatelessWidget {
             ...supportedLanguages.map(
               (locale) => _LanguageOption(
                 code: locale.languageCode,
-                name: _getLanguageName(locale.languageCode),
+                name: _getLanguageName(locale.languageCode, context),
                 isSelected: currentSelection == locale.languageCode,
                 onTap: () => Navigator.of(context).pop(locale.languageCode),
               ),
@@ -306,17 +332,30 @@ class _LanguageDialog extends StatelessWidget {
     );
   }
 
-  String _getLanguageName(String languageCode) {
-    const names = {
-      'en': '英语',
-      'zh': '中文',
-      'ja': '日语',
-      'hi': '印地语',
-      'id': '印尼语',
-      'pt': '葡萄牙语',
-      'ru': '俄语',
-    };
-    return names[languageCode] ?? languageCode.toUpperCase();
+  String _getLanguageName(String languageCode, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return languageCode.toUpperCase();
+    }
+
+    switch (languageCode) {
+      case 'en':
+        return l10n.english;
+      case 'zh':
+        return l10n.chinese;
+      case 'ja':
+        return l10n.japanese;
+      case 'hi':
+        return l10n.hindi;
+      case 'id':
+        return l10n.indonesian;
+      case 'pt':
+        return l10n.portuguese;
+      case 'ru':
+        return l10n.russian;
+      default:
+        return languageCode.toUpperCase();
+    }
   }
 }
 

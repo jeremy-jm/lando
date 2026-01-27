@@ -288,4 +288,13 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get hotkeyRequiresValidKey =>
       'Por favor, inclua uma tecla de letra, dígito ou símbolo';
+
+  @override
+  String get selectSourceLanguage => 'Selecionar Idioma de Origem';
+
+  @override
+  String get selectTargetLanguage => 'Selecionar Idioma de Destino';
+
+  @override
+  String get auto => 'Automático';
 }

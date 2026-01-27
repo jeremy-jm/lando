@@ -77,13 +77,9 @@ void main() {
 
     testWidgets('should call onLanguageChanged when language is changed',
         (WidgetTester tester) async {
-      LanguagePair? changedPair;
-
       await tester.pumpWidget(
         createTestWidget(
-          onLanguageChanged: (pair) {
-            changedPair = pair;
-          },
+          onLanguageChanged: (pair) {},
         ),
       );
 

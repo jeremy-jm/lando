@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lando/network/api_client.dart';
-import 'package:dio/dio.dart';
 
 void main() {
   group('ApiClient', () {
@@ -81,7 +80,8 @@ void main() {
 
         // This will fail because there's no actual server
         expect(
-          () async => await client.getJson('https://nonexistent-domain-12345.com/test'),
+          () async =>
+              await client.getJson('https://nonexistent-domain-12345.com/test'),
           throwsA(isA<HttpException>()),
         );
 

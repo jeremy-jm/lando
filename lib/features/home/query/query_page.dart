@@ -172,15 +172,26 @@ class _QueryPageState extends State<QueryPage> {
   /// Converts language code to display name for UI
   String? _getLanguageDisplayName(String? languageCode) {
     if (languageCode == null) return null;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return languageCode.toUpperCase();
+    }
+
     switch (languageCode) {
       case 'zh':
-        return '中文';
+        return l10n.chinese;
       case 'ja':
-        return '日语';
+        return l10n.japanese;
       case 'hi':
-        return '印地语';
+        return l10n.hindi;
       case 'en':
-        return '英语';
+        return l10n.english;
+      case 'id':
+        return l10n.indonesian;
+      case 'pt':
+        return l10n.portuguese;
+      case 'ru':
+        return l10n.russian;
       default:
         return languageCode.toUpperCase();
     }

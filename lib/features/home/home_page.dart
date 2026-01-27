@@ -64,12 +64,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String? _simpleLanguageDetection(String text) {
     // Simple heuristic: check for Chinese, Japanese, etc.
-    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return '中文';
-    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return '日语';
-    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return '印地语';
+    // Returns language code (e.g., 'zh', 'ja', 'hi', 'en') for consistency
+    // The display name should be converted using AppLocalizations when displayed
+    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return 'zh';
+    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return 'ja';
+    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return 'hi';
     // Default to English for Latin scripts
-    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return '英语';
-    return '英语'; // Default fallback
+    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return 'en';
+    return 'en'; // Default fallback
   }
 
   @override

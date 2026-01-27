@@ -285,4 +285,13 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get hotkeyRequiresValidKey =>
       'Harap sertakan tombol huruf, angka, atau simbol';
+
+  @override
+  String get selectSourceLanguage => 'Pilih Bahasa Sumber';
+
+  @override
+  String get selectTargetLanguage => 'Pilih Bahasa Target';
+
+  @override
+  String get auto => 'Otomatis';
 }

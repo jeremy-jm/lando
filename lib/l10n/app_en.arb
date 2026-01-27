@@ -357,5 +357,17 @@
   "hotkeyRequiresValidKey": "Please include a letter, digit, or symbol key",
   "@hotkeyRequiresValidKey": {
     "description": "Error message when hotkey doesn't have a valid key"
+  },
+  "selectSourceLanguage": "Select Source Language",
+  "@selectSourceLanguage": {
+    "description": "Title for source language selection dialog"
+  },
+  "selectTargetLanguage": "Select Target Language",
+  "@selectTargetLanguage": {
+    "description": "Title for target language selection dialog"
+  },
+  "auto": "Auto",
+  "@auto": {
+    "description": "Auto-detect language option"
   }
 }
