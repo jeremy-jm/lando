@@ -433,6 +433,8 @@ class _QueryPageState extends State<QueryPage> {
                         platforms: [
                           TranslationServiceType.youdao,
                           TranslationServiceType.bing,
+                          if (Platform.isIOS || Platform.isMacOS)
+                            TranslationServiceType.apple,
                           // TranslationServiceType.google,
                         ],
                         onQueryTap: (queryText) {

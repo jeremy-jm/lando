@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lando/storage/preferences_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/test_helpers.dart';
 
 void main() {
@@ -47,7 +46,8 @@ void main() {
       test('should save and retrieve locale language code', () async {
         await PreferencesStorage.init();
         const languageCode = 'zh';
-        final saved = await PreferencesStorage.saveLocaleLanguageCode(languageCode);
+        final saved =
+            await PreferencesStorage.saveLocaleLanguageCode(languageCode);
         expect(saved, isTrue);
 
         final retrieved = PreferencesStorage.getLocaleLanguageCode();
@@ -98,7 +98,8 @@ void main() {
         expect(retrievedTo, isNull);
       });
 
-      test('should return null for non-existent translation languages', () async {
+      test('should return null for non-existent translation languages',
+          () async {
         await PreferencesStorage.init();
         final retrievedFrom = PreferencesStorage.getTranslationFromLanguage();
         final retrievedTo = PreferencesStorage.getTranslationToLanguage();
@@ -111,14 +112,16 @@ void main() {
       test('should save and retrieve pronunciation service type', () async {
         await PreferencesStorage.init();
         const serviceType = 'system';
-        final saved = await PreferencesStorage.savePronunciationServiceType(serviceType);
+        final saved =
+            await PreferencesStorage.savePronunciationServiceType(serviceType);
         expect(saved, isTrue);
 
         final retrieved = PreferencesStorage.getPronunciationServiceType();
         expect(retrieved, equals(serviceType));
       });
 
-      test('should return null for non-existent pronunciation service type', () async {
+      test('should return null for non-existent pronunciation service type',
+          () async {
         await PreferencesStorage.init();
         final retrieved = PreferencesStorage.getPronunciationServiceType();
         expect(retrieved, isNull);

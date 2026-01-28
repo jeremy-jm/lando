@@ -3,6 +3,7 @@ enum TranslationServiceType {
   youdao,
   google,
   bing,
+  apple,
 }
 
 /// Extension to get display names for translation service types.
@@ -15,6 +16,8 @@ extension TranslationServiceTypeExtension on TranslationServiceType {
         return 'Google';
       case TranslationServiceType.bing:
         return 'Bing';
+      case TranslationServiceType.apple:
+        return 'Apple';
     }
   }
 }

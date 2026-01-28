@@ -179,7 +179,7 @@ class BingTokenService {
         _tokenTimestamp = DateTime.now();
       } else {
         // Fallback: try to extract just token
-        final token = await _extractTokenFromHTML(html);
+        final token = _extractTokenFromHTML(html);
         if (token != null) {
           _cachedToken = token;
           _tokenTimestamp = DateTime.now();

@@ -102,6 +102,26 @@ void main() async {
 void _setupErrorHandlers() {
   // Handle Flutter framework errors
   FlutterError.onError = (FlutterErrorDetails details) {
+    // Filter out known harmless assertion errors from hotkey manager
+    // This occurs when global hotkeys intercept keyboard events,
+    // causing Flutter's keyboard state to become out of sync.
+    // It doesn't affect functionality, so we can safely ignore it.
+    final exception = details.exception;
+    if (exception is AssertionError) {
+      final message = exception.message?.toString() ?? '';
+      if (message.contains('A KeyDownEvent is dispatched') &&
+          message.contains('physical key is already pressed')) {
+        // This is a known issue with global hotkey interception on macOS/Windows
+        // It's harmless and doesn't affect app functionality
+        if (kDebugMode) {
+          debugPrint(
+            '[Ignored] Keyboard state sync issue from hotkey manager: ${exception.message}',
+          );
+        }
+        return;
+      }
+    }
+
     // Report Flutter errors to Umeng APM
     AnalyticsService.instance.reportError(
       details.exception,

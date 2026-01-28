@@ -1,4 +1,5 @@
 import 'package:lando/network/api_client.dart';
+import 'package:lando/services/translation/apple_translate_service.dart';
 import 'package:lando/services/translation/bing_translation_service.dart';
 import 'package:lando/services/translation/google_translation_service.dart';
 import 'package:lando/services/translation/translation_service.dart';
@@ -26,6 +27,8 @@ class TranslationServiceFactory {
         return GoogleTranslationService(_apiClient);
       case TranslationServiceType.bing:
         return BingTranslationService(_apiClient);
+      case TranslationServiceType.apple:
+        return AppleTranslateService();
     }
   }
 
@@ -35,6 +38,7 @@ class TranslationServiceFactory {
       create(TranslationServiceType.youdao),
       create(TranslationServiceType.google),
       create(TranslationServiceType.bing),
+      create(TranslationServiceType.apple),
     ];
   }
 }
