@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:lando/models/result_model.dart';
+import 'package:lando/services/translation/translation_language_resolver.dart';
 import 'package:lando/services/translation/translation_service.dart';
-import 'package:lando/storage/preferences_storage.dart';
 
 /// Apple Translate service (iOS/macOS only).
 ///
@@ -17,25 +17,6 @@ class AppleTranslateService implements TranslationService {
   String get name => 'Apple';
 
   bool get _isApplePlatform => Platform.isIOS || Platform.isMacOS;
-
-  String _mapLanguageCodeToApple(String? code) {
-    if (code == null || code == 'auto') return 'auto';
-    final c = code.trim();
-    if (c.isEmpty) return 'auto';
-
-    switch (c.toLowerCase()) {
-      case 'zh':
-      case 'zh-cn':
-      case 'zh-hans':
-        return 'zh-Hans';
-      case 'zh-tw':
-      case 'zh-hk':
-      case 'zh-hant':
-        return 'zh-Hant';
-      default:
-        return c;
-    }
-  }
 
   @override
   Future<String> translate(String query) async {
@@ -56,13 +37,17 @@ class AppleTranslateService implements TranslationService {
       return null;
     }
 
-    final rawFrom = PreferencesStorage.getTranslationFromLanguage();
-    final rawTo = PreferencesStorage.getTranslationToLanguage() ?? 'en';
-    final from = _mapLanguageCodeToApple(rawFrom);
-    final to = _mapLanguageCodeToApple(rawTo);
+    // Use language resolver to get proper language pair
+    final languagePair = await TranslationLanguageResolver.instance.resolveLanguages(text);
+    final from = languagePair.fromLanguage != null
+        ? TranslationLanguageResolver.instance.mapToAppleFormat(languagePair.fromLanguage)
+        : null;
+    final to = TranslationLanguageResolver.instance.mapToAppleFormat(languagePair.toLanguage);
+
     debugPrint(
-      '[AppleTranslate] from=$rawFrom->${from == "auto" ? "auto" : from}, '
-      'to=$rawTo->$to, '
+      '[AppleTranslate] resolved: from=${languagePair.fromLanguage ?? "auto"}->${from ?? "null"}, '
+      'to=${languagePair.toLanguage}->$to, '
+      'detected=${languagePair.detectedSourceLanguage}, '
       'text preview: "${text.length > 30 ? text.substring(0, 30) : text}..."',
     );
 
@@ -73,8 +58,8 @@ class AppleTranslateService implements TranslationService {
         <String, dynamic>{
           'text': text,
           // null means auto-detect on native side
-          'from': (from == 'auto') ? null : from,
-          'to': to,
+          'from': from,
+          'to': to, // Always provided (never null/auto)
         },
       );
       debugPrint('[AppleTranslate] channel returned: translated=${translated != null ? "length ${translated.length}" : "null"}');

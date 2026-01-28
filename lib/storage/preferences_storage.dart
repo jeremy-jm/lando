@@ -9,6 +9,9 @@ class StorageKeys {
   static const String pronunciationServiceType = 'pronunciation_service_type';
   static const String corsProxyUrl = 'cors_proxy_url';
   static const String showWindowHotkey = 'show_window_hotkey';
+  static const String proxyEnabled = 'proxy_enabled';
+  static const String proxyHost = 'proxy_host';
+  static const String proxyPort = 'proxy_port';
 }
 
 /// Storage service for managing user preferences
@@ -131,6 +134,38 @@ class PreferencesStorage {
   /// Returns null if not set
   static String? getShowWindowHotkey() {
     return prefs.getString(StorageKeys.showWindowHotkey);
+  }
+
+  // ==================== Proxy ====================
+
+  /// Save proxy enabled state
+  static Future<bool> saveProxyEnabled(bool enabled) async {
+    return await prefs.setBool(StorageKeys.proxyEnabled, enabled);
+  }
+
+  /// Get proxy enabled state
+  static bool getProxyEnabled() {
+    return prefs.getBool(StorageKeys.proxyEnabled) ?? false;
+  }
+
+  /// Save proxy host
+  static Future<bool> saveProxyHost(String host) async {
+    return await prefs.setString(StorageKeys.proxyHost, host);
+  }
+
+  /// Get proxy host (default: localhost)
+  static String getProxyHost() {
+    return prefs.getString(StorageKeys.proxyHost) ?? 'localhost';
+  }
+
+  /// Save proxy port
+  static Future<bool> saveProxyPort(int port) async {
+    return await prefs.setInt(StorageKeys.proxyPort, port);
+  }
+
+  /// Get proxy port (default: 9091)
+  static int getProxyPort() {
+    return prefs.getInt(StorageKeys.proxyPort) ?? 9091;
   }
 
   // ==================== Clear ====================

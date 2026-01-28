@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/network/api_client.dart';
+import 'package:lando/services/translation/translation_language_resolver.dart';
 import 'package:lando/services/translation/translation_service.dart';
+import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
 import 'package:lando/services/translation/youdao/models/youdao_query_model.dart';
 import 'package:lando/services/translation/youdao/models/youdao_response.dart';
 import 'package:lando/storage/preferences_storage.dart';
@@ -24,12 +26,18 @@ class YoudaoTranslationService implements TranslationService {
     }
 
     try {
-      // Get target language from preferences, default to 'auto' if not set
-      final toLanguage =
-          PreferencesStorage.getTranslationToLanguage() ?? 'auto';
-      final le = _mapLanguageCodeToYoudao(toLanguage);
+      // Use language resolver to get proper language pair
+      final languagePair =
+          await TranslationLanguageResolver.instance.resolveLanguages(query);
+      final le = TranslationLanguageResolver.instance
+          .mapToYoudaoFormat(languagePair.toLanguage);
 
-      final queryModel = _buildQueryModel(query: query, le: le);
+      final queryModel = _buildQueryModel(
+        query: query,
+        le: le,
+        fromLanguage: languagePair.fromLanguage,
+        toLanguage: languagePair.toLanguage,
+      );
       final response = await translateFullWithModel(queryModel);
 
       // Priority 0: Extract translation from Fanyi - highest priority
@@ -108,12 +116,18 @@ class YoudaoTranslationService implements TranslationService {
     }
 
     try {
-      // Get target language from preferences, default to 'auto' if not set
-      final toLanguage =
-          PreferencesStorage.getTranslationToLanguage() ?? 'auto';
-      final le = _mapLanguageCodeToYoudao(toLanguage);
+      // Use language resolver to get proper language pair
+      final languagePair =
+          await TranslationLanguageResolver.instance.resolveLanguages(query);
+      final le = TranslationLanguageResolver.instance
+          .mapToYoudaoFormat(languagePair.toLanguage);
 
-      final queryModel = _buildQueryModel(query: query, le: le);
+      final queryModel = _buildQueryModel(
+        query: query,
+        le: le,
+        fromLanguage: languagePair.fromLanguage,
+        toLanguage: languagePair.toLanguage,
+      );
       return await translateFullWithModel(queryModel);
     } on SocketException catch (e) {
       // Handle network connection errors
@@ -141,7 +155,28 @@ class YoudaoTranslationService implements TranslationService {
         'https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4';
 
     final body = queryModel.toMap();
-    final json = await _apiClient.postForm(endpoint, body: body);
+
+    // Headers for dict API (dict.youdao.com) - use dict origin/referer
+    final headers = <String, String>{
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': 'zh-CN,zh;q=0.9',
+      'Connection': 'keep-alive',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Origin': 'https://dict.youdao.com',
+      'Referer': 'https://dict.youdao.com/',
+      'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
+      'sec-ch-ua':
+          '"Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"macOS"',
+      'Sec-Fetch-Dest': 'empty',
+      'Sec-Fetch-Mode': 'cors',
+      'Sec-Fetch-Site': 'same-site',
+    };
+
+    final json =
+        await _apiClient.postForm(endpoint, body: body, headers: headers);
     return YoudaoResponse.fromJson(json);
   }
 
@@ -151,32 +186,37 @@ class YoudaoTranslationService implements TranslationService {
   /// The language code comes from PreferencesStorage.getTranslationToLanguage().
   /// All values will be URL-encoded by ApiClient.postForm() when sending the request.
   ///
-  /// Sign algorithm:
-  /// 1. ww = text + "webdict"
-  /// 2. time = ww.length % 10
+  /// Sign algorithm for dict API (dict.youdao.com/jsonapi_s) - webdict client:
+  /// 1. ww = query + "webdict"
+  /// 2. time = (ww.length % 10).toString()
   /// 3. salt = md5(ww)
   /// 4. key = "Mk6hqtUp33DGGtoS63tTJbMUYjRrG1Lu"
-  /// 5. sign = md5("web" + text + time + key + salt)
+  /// 5. sign = md5("web" + query + time + key + salt)
+  ///
+  /// Do not use client=webmain/webfanyi for this endpoint; the dict API expects
+  /// client=web, keyfrom=webdict and returns ec/ce in the response.
   YoudaoQueryModel _buildQueryModel({
     required String query,
-    required String le,
+    String? le,
+    String? fromLanguage,
+    String? toLanguage,
   }) {
+    // Dict API (jsonapi_s) expects webdict salt and "web" sign prefix
     final ww = '${query}webdict';
-
     final time = (ww.length % 10).toString();
 
     final wwBytes = utf8.encode(ww);
     final salt = md5.convert(wwBytes).toString();
 
     const key = 'Mk6hqtUp33DGGtoS63tTJbMUYjRrG1Lu';
-
     final signContent = 'web$query$time$key$salt';
     final signBytes = utf8.encode(signContent);
     final sign = md5.convert(signBytes).toString();
 
+    // Do not send dicts/needTranslate for dict API; server returns ec by default
     return YoudaoQueryModel(
-      q: query, // Query text
-      le: le, // Target language code (e.g., 'ja' for Japanese, 'zh' for Chinese)
+      q: query,
+      le: le ?? 'eng',
       t: time,
       client: 'web',
       sign: sign,
@@ -214,8 +254,7 @@ class YoudaoTranslationService implements TranslationService {
     String? languageCode,
   }) {
     // Get language code from preferences if not provided
-    final le =
-        languageCode ??
+    final le = languageCode ??
         _mapLanguageCodeToYoudao(PreferencesStorage.getTranslationToLanguage());
 
     if (speechParam == null || speechParam.isEmpty) {
@@ -400,44 +439,151 @@ class YoudaoTranslationService implements TranslationService {
 
   /// Converts YoudaoResponse to ResultModel.
   ResultModel _convertToResultModel(YoudaoResponse response, String query) {
+    // Get target language to determine which data source to prioritize
+    final targetLanguage = PreferencesStorage.getTranslationToLanguage();
+    final targetLanguageCode = _mapLanguageCodeToYoudao(targetLanguage);
+    final isTargetChinese =
+        targetLanguageCode == 'zh' || targetLanguageCode == 'zh-CHS';
+    final isTargetEnglish =
+        targetLanguageCode == 'eng' || targetLanguageCode == 'en';
+
     // Determine input language
     final guessLanguage = response.meta?.guessLanguage;
     final lang = response.meta?.lang;
     final isChineseInput =
         guessLanguage == 'zh' || lang == 'zh' || lang == 'zh-CHS';
-    final isEnglishInput =
-        guessLanguage == 'eng' || lang == 'eng' || lang == 'en';
 
     final ecWord = response.ec?.word;
     final ceWord = response.ce?.word;
+    final eeWord = response.ee?.word; // Extended dictionary
     final phrs = response.phrs;
     final webTrans = response.webTrans;
+    // Get word forms from multiple sources
+    // Priority: ec.word.wfs > individual.anagram.wfs > expandEc.word.wfs
+    final ecWordForms = response.ec?.word?.wfs;
+    final individualAnagramForms = response.individual?.anagram?.wfs;
+    // Check expandEc for word forms (expandEc.word is a list, each item may have wfs)
+    List<YoudaoWf>? expandEcWordForms;
+    final expandEcWord = response.expandEc?.word;
+    if (expandEcWord != null && expandEcWord.isNotEmpty) {
+      final tempList = <YoudaoWf>[];
+      for (final word in expandEcWord) {
+        final wfs = word.wfs;
+        if (wfs != null && wfs.isNotEmpty) {
+          tempList.addAll(wfs);
+        }
+      }
+      if (tempList.isNotEmpty) {
+        expandEcWordForms = tempList;
+      }
+    }
     final wordForms =
-        response.ec?.word?.wfs ?? response.individual?.anagram?.wfs;
+        ecWordForms ?? individualAnagramForms ?? expandEcWordForms;
 
     // Get simple explanation (main translation)
+    // Priority: ceWord (Chinese) > ecWord (English) > eeWord (Extended) > fanyi
     String? simpleExplanation;
     if (isChineseInput && ceWord != null && ceWord.trs?.isNotEmpty == true) {
       simpleExplanation = ceWord.trs!.first.text;
-    } else if (isEnglishInput &&
-        ecWord != null &&
-        ecWord.trs?.isNotEmpty == true) {
+    } else if (ecWord != null && ecWord.trs?.isNotEmpty == true) {
+      // For English input or when language detection is uncertain, use ecWord
       simpleExplanation = ecWord.trs!.first.tran;
+    } else if (eeWord != null && eeWord.trs != null && eeWord.trs!.isNotEmpty) {
+      // Fallback to extended dictionary
+      final firstTr = eeWord.trs!.first;
+      if (firstTr.tr != null && firstTr.tr!.isNotEmpty) {
+        simpleExplanation = firstTr.tr!.first.tran;
+      }
     } else if (response.fanyi?.tran != null &&
         response.fanyi!.tran!.isNotEmpty) {
       simpleExplanation = response.fanyi!.tran;
     }
 
     // Get translations by part of speech
+    // Priority based on target language:
+    // - If target is Chinese: prioritize ec.word.trs
+    // - If target is English: prioritize ee.word.trs
     List<Map<String, String>>? translationsByPosList;
-    if (ecWord != null && ecWord.trs != null && ecWord.trs!.isNotEmpty) {
-      translationsByPosList = ecWord.trs!
-          .where((tr) => tr.tran != null && tr.tran!.isNotEmpty)
-          .map((tr) => {'name': tr.pos ?? '', 'value': tr.tran!})
-          .toList();
+
+    if (isTargetChinese) {
+      // Target is Chinese: prioritize ec.word.trs (Chinese translations)
+      // Do NOT fallback to ee.word.trs (English translations) when target is Chinese
+      if (ecWord != null && ecWord.trs != null && ecWord.trs!.isNotEmpty) {
+        translationsByPosList = ecWord.trs!
+            .where((tr) => tr.tran != null && tr.tran!.isNotEmpty)
+            .map((tr) => {'name': tr.pos ?? '', 'value': tr.tran!})
+            .toList();
+      } else if (response.expandEc?.word != null &&
+          response.expandEc!.word!.isNotEmpty) {
+        // Try expandEc.word.transList (may contain Chinese translations)
+        translationsByPosList = <Map<String, String>>[];
+        for (final word in response.expandEc!.word!) {
+          if (word.transList != null && word.transList!.isNotEmpty) {
+            for (final transItem in word.transList!) {
+              if (transItem.trans != null && transItem.trans!.isNotEmpty) {
+                translationsByPosList.add({
+                  'name': word.pos ?? '',
+                  'value': transItem.trans!,
+                });
+              }
+            }
+          }
+        }
+      }
+    } else if (isTargetEnglish) {
+      // Target is English: prioritize ee.word.trs
+      if (eeWord != null && eeWord.trs != null && eeWord.trs!.isNotEmpty) {
+        translationsByPosList = <Map<String, String>>[];
+        for (final tr in eeWord.trs!) {
+          if (tr.tr != null && tr.tr!.isNotEmpty) {
+            for (final trItem in tr.tr!) {
+              if (trItem.tran != null && trItem.tran!.isNotEmpty) {
+                translationsByPosList.add({
+                  'name': tr.pos ?? '',
+                  'value': trItem.tran!,
+                });
+              }
+            }
+          }
+        }
+      } else if (ecWord != null &&
+          ecWord.trs != null &&
+          ecWord.trs!.isNotEmpty) {
+        // Fallback to basic dictionary
+        translationsByPosList = ecWord.trs!
+            .where((tr) => tr.tran != null && tr.tran!.isNotEmpty)
+            .map((tr) => {'name': tr.pos ?? '', 'value': tr.tran!})
+            .toList();
+      }
+    } else {
+      // Other target languages: use default priority (ecWord > eeWord)
+      if (ecWord != null && ecWord.trs != null && ecWord.trs!.isNotEmpty) {
+        translationsByPosList = ecWord.trs!
+            .where((tr) => tr.tran != null && tr.tran!.isNotEmpty)
+            .map((tr) => {'name': tr.pos ?? '', 'value': tr.tran!})
+            .toList();
+      } else if (eeWord != null &&
+          eeWord.trs != null &&
+          eeWord.trs!.isNotEmpty) {
+        // Fallback to extended dictionary
+        translationsByPosList = <Map<String, String>>[];
+        for (final tr in eeWord.trs!) {
+          if (tr.tr != null && tr.tr!.isNotEmpty) {
+            for (final trItem in tr.tr!) {
+              if (trItem.tran != null && trItem.tran!.isNotEmpty) {
+                translationsByPosList.add({
+                  'name': tr.pos ?? '',
+                  'value': trItem.tran!,
+                });
+              }
+            }
+          }
+        }
+      }
     }
 
     // Get pronunciation URLs and phonetics
+    // Priority: ecWord > eeWord > simple
     String? usPronunciationUrl;
     String? ukPronunciationUrl;
     String? usPhonetic;
@@ -458,10 +604,46 @@ class YoudaoTranslationService implements TranslationService {
       // Get phonetics
       usPhonetic = ecWord.usphone;
       ukPhonetic = ecWord.ukphone;
+    } else if (eeWord != null) {
+      // Fallback to extended dictionary
+      if (eeWord.speech != null) {
+        // EE only has general speech, not US/UK specific
+        usPronunciationUrl = buildPronunciationUrl(
+          eeWord.speech,
+          word: query,
+        );
+        ukPronunciationUrl = usPronunciationUrl; // Use same for both
+      }
+      usPhonetic = eeWord.phone;
+      ukPhonetic = eeWord.phone; // Use same for both
+    }
+
+    // Try simple dictionary as last fallback
+    if (usPronunciationUrl == null && response.simple != null) {
+      final simpleWord = response.simple!.word?.firstOrNull;
+      if (simpleWord?.usspeech != null) {
+        usPronunciationUrl = buildPronunciationUrl(
+          simpleWord!.usspeech!,
+          word: query,
+        );
+      }
+      if (ukPronunciationUrl == null && simpleWord?.ukspeech != null) {
+        ukPronunciationUrl = buildPronunciationUrl(
+          simpleWord!.ukspeech!,
+          word: query,
+        );
+      }
     }
 
     // Get exam types
+    // examType is at ec level, not ec.word level, so check even if ecWord is null
     List<String>? examTypes = response.ec?.examType;
+
+    // Also check expandEc for exam types
+    if ((examTypes == null || examTypes.isEmpty) && response.expandEc != null) {
+      // expandEc might have examType in its content
+      // Note: expandEc structure may vary, check if it has examType field
+    }
 
     // Get word forms
     List<Map<String, String>>? wordFormList;
@@ -473,12 +655,43 @@ class YoudaoTranslationService implements TranslationService {
     }
 
     // Get phrases
+    // Priority: phrs > individual.idiomatic (collocations)
     List<Map<String, String>>? phrasesList;
     if (phrs?.phrs != null && phrs!.phrs!.isNotEmpty) {
       phrasesList = phrs.phrs!
           .where((p) => p.headword != null && p.translation != null)
           .map((p) => {'name': p.headword!, 'value': p.translation!})
           .toList();
+    }
+
+    // Try to get phrases from individual.idiomatic (collocations)
+    if ((phrasesList == null || phrasesList.isEmpty) &&
+        response.individual?.idiomatic != null &&
+        response.individual!.idiomatic!.isNotEmpty) {
+      phrasesList = <Map<String, String>>[];
+      for (final idiomatic in response.individual!.idiomatic!) {
+        if (idiomatic.colloc != null) {
+          final en = idiomatic.colloc!.en;
+          final zh = idiomatic.colloc!.zh;
+          if (en != null && en.isNotEmpty && zh != null && zh.isNotEmpty) {
+            phrasesList.add({'name': en, 'value': zh});
+          }
+        }
+      }
+    }
+
+    // Try to get phrases from individual.sayings (sayings/proverbs)
+    if ((phrasesList == null || phrasesList.isEmpty) &&
+        response.individual?.sayings != null &&
+        response.individual!.sayings!.isNotEmpty) {
+      phrasesList = <Map<String, String>>[];
+      for (final saying in response.individual!.sayings!) {
+        final en = saying.en;
+        final zh = saying.zh;
+        if (en != null && en.isNotEmpty && zh != null && zh.isNotEmpty) {
+          phrasesList.add({'name': en, 'value': zh});
+        }
+      }
     }
 
     // Get web translations

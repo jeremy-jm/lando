@@ -102,23 +102,33 @@ void main() async {
 void _setupErrorHandlers() {
   // Handle Flutter framework errors
   FlutterError.onError = (FlutterErrorDetails details) {
-    // Filter out known harmless assertion errors from hotkey manager
-    // This occurs when global hotkeys intercept keyboard events,
-    // causing Flutter's keyboard state to become out of sync.
-    // It doesn't affect functionality, so we can safely ignore it.
     final exception = details.exception;
+    
+    // Filter out known harmless assertion errors from hotkey manager
+    // These occur when global hotkeys intercept keyboard events,
+    // causing Flutter's keyboard state to become out of sync.
+    // We only suppress the error reporting, but let Flutter handle the event normally.
     if (exception is AssertionError) {
       final message = exception.message?.toString() ?? '';
-      if (message.contains('A KeyDownEvent is dispatched') &&
-          message.contains('physical key is already pressed')) {
-        // This is a known issue with global hotkey interception on macOS/Windows
-        // It's harmless and doesn't affect app functionality
-        if (kDebugMode) {
-          debugPrint(
-            '[Ignored] Keyboard state sync issue from hotkey manager: ${exception.message}',
-          );
+      final library = details.library ?? '';
+      
+      // Check if this is a keyboard state sync issue from hardware_keyboard.dart
+      if (library.contains('hardware_keyboard.dart')) {
+        if ((message.contains('KeyDownEvent') &&
+                message.contains('physical key is already pressed')) ||
+            (message.contains('KeyUpEvent') &&
+                message.contains('physical key is not pressed'))) {
+          // This is a known harmless issue with global hotkey interception
+          // We suppress error reporting but don't interfere with Flutter's event handling
+          if (kDebugMode) {
+            debugPrint(
+              '[Suppressed] Keyboard state sync issue (harmless): ${exception.message}',
+            );
+          }
+          // Don't report to analytics, but still let Flutter handle it
+          // by not calling FlutterError.presentError
+          return;
         }
-        return;
       }
     }
 

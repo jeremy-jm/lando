@@ -385,5 +385,65 @@
   "localDataCleared": "Local data cleared",
   "@localDataCleared": {
     "description": "Message shown when local data is cleared"
+  },
+  "proxySettings": "Proxy Settings",
+  "@proxySettings": {
+    "description": "Proxy settings page title"
+  },
+  "proxySettingsDescription": "Configure HTTP proxy for network requests",
+  "@proxySettingsDescription": {
+    "description": "Description for proxy settings option"
+  },
+  "enableProxy": "Enable Proxy",
+  "@enableProxy": {
+    "description": "Enable proxy switch label"
+  },
+  "enableProxyDescription": "Enable HTTP proxy for all network requests",
+  "@enableProxyDescription": {
+    "description": "Description for enable proxy switch"
+  },
+  "proxyHost": "Proxy Host",
+  "@proxyHost": {
+    "description": "Proxy host input label"
+  },
+  "proxyHostHint": "e.g., localhost",
+  "@proxyHostHint": {
+    "description": "Placeholder for proxy host input"
+  },
+  "proxyPort": "Proxy Port",
+  "@proxyPort": {
+    "description": "Proxy port input label"
+  },
+  "proxyPortHint": "e.g., 9091",
+  "@proxyPortHint": {
+    "description": "Placeholder for proxy port input"
+  },
+  "validatingProxy": "Validating proxy connection...",
+  "@validatingProxy": {
+    "description": "Message shown when validating proxy"
+  },
+  "proxyValidationSuccess": "Proxy connection successful",
+  "@proxyValidationSuccess": {
+    "description": "Message shown when proxy validation succeeds"
+  },
+  "proxyValidationFailed": "Failed to connect to proxy server",
+  "@proxyValidationFailed": {
+    "description": "Message shown when proxy validation fails"
+  },
+  "validateProxy": "Validate Proxy",
+  "@validateProxy": {
+    "description": "Button label to validate proxy connection"
+  },
+  "proxyConfigured": "Proxy configured",
+  "@proxyConfigured": {
+    "description": "Message shown when proxy is configured"
+  },
+  "proxyInfo": "Proxy Information",
+  "@proxyInfo": {
+    "description": "Title for proxy information card"
+  },
+  "proxyInfoDescription": "Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.",
+  "@proxyInfoDescription": {
+    "description": "Description text for proxy information"
   }
 }

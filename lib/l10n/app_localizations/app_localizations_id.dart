@@ -308,4 +308,52 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get localDataCleared => 'Data lokal telah dihapus';
+
+  @override
+  String get proxySettings => 'Proxy Settings';
+
+  @override
+  String get proxySettingsDescription =>
+      'Configure HTTP proxy for network requests';
+
+  @override
+  String get enableProxy => 'Enable Proxy';
+
+  @override
+  String get enableProxyDescription =>
+      'Enable HTTP proxy for all network requests';
+
+  @override
+  String get proxyHost => 'Proxy Host';
+
+  @override
+  String get proxyHostHint => 'e.g., localhost';
+
+  @override
+  String get proxyPort => 'Proxy Port';
+
+  @override
+  String get proxyPortHint => 'e.g., 9091';
+
+  @override
+  String get validatingProxy => 'Validating proxy connection...';
+
+  @override
+  String get proxyValidationSuccess => 'Proxy connection successful';
+
+  @override
+  String get proxyValidationFailed => 'Failed to connect to proxy server';
+
+  @override
+  String get validateProxy => 'Validate Proxy';
+
+  @override
+  String get proxyConfigured => 'Proxy configured';
+
+  @override
+  String get proxyInfo => 'Proxy Information';
+
+  @override
+  String get proxyInfoDescription =>
+      'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.';
 }

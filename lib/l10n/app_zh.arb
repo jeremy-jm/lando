@@ -144,5 +144,65 @@
   "localDataCleared": "本地数据已清除",
   "@localDataCleared": {
     "description": "Message shown when local data is cleared"
+  },
+  "proxySettings": "代理设置",
+  "@proxySettings": {
+    "description": "Proxy settings page title"
+  },
+  "proxySettingsDescription": "配置网络请求的 HTTP 代理",
+  "@proxySettingsDescription": {
+    "description": "Description for proxy settings option"
+  },
+  "enableProxy": "启用代理",
+  "@enableProxy": {
+    "description": "Enable proxy switch label"
+  },
+  "enableProxyDescription": "为所有网络请求启用 HTTP 代理",
+  "@enableProxyDescription": {
+    "description": "Description for enable proxy switch"
+  },
+  "proxyHost": "代理地址",
+  "@proxyHost": {
+    "description": "Proxy host input label"
+  },
+  "proxyHostHint": "例如：localhost",
+  "@proxyHostHint": {
+    "description": "Placeholder for proxy host input"
+  },
+  "proxyPort": "代理端口",
+  "@proxyPort": {
+    "description": "Proxy port input label"
+  },
+  "proxyPortHint": "例如：9091",
+  "@proxyPortHint": {
+    "description": "Placeholder for proxy port input"
+  },
+  "validatingProxy": "正在验证代理连接...",
+  "@validatingProxy": {
+    "description": "Message shown when validating proxy"
+  },
+  "proxyValidationSuccess": "代理连接成功",
+  "@proxyValidationSuccess": {
+    "description": "Message shown when proxy validation succeeds"
+  },
+  "proxyValidationFailed": "无法连接到代理服务器",
+  "@proxyValidationFailed": {
+    "description": "Message shown when proxy validation fails"
+  },
+  "validateProxy": "验证代理",
+  "@validateProxy": {
+    "description": "Button label to validate proxy connection"
+  },
+  "proxyConfigured": "代理已配置",
+  "@proxyConfigured": {
+    "description": "Message shown when proxy is configured"
+  },
+  "proxyInfo": "代理信息",
+  "@proxyInfo": {
+    "description": "Title for proxy information card"
+  },
+  "proxyInfoDescription": "配置本地代理服务器（例如：localhost:9091）以将所有网络请求通过它路由。启用后，所有 API 调用都将使用此代理。",
+  "@proxyInfoDescription": {
+    "description": "Description text for proxy information"
   }
 }

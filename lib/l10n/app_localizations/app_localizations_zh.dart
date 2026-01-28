@@ -296,4 +296,50 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get localDataCleared => '本地数据已清除';
+
+  @override
+  String get proxySettings => '代理设置';
+
+  @override
+  String get proxySettingsDescription => '配置网络请求的 HTTP 代理';
+
+  @override
+  String get enableProxy => '启用代理';
+
+  @override
+  String get enableProxyDescription => '为所有网络请求启用 HTTP 代理';
+
+  @override
+  String get proxyHost => '代理地址';
+
+  @override
+  String get proxyHostHint => '例如：localhost';
+
+  @override
+  String get proxyPort => '代理端口';
+
+  @override
+  String get proxyPortHint => '例如：9091';
+
+  @override
+  String get validatingProxy => '正在验证代理连接...';
+
+  @override
+  String get proxyValidationSuccess => '代理连接成功';
+
+  @override
+  String get proxyValidationFailed => '无法连接到代理服务器';
+
+  @override
+  String get validateProxy => '验证代理';
+
+  @override
+  String get proxyConfigured => '代理已配置';
+
+  @override
+  String get proxyInfo => '代理信息';
+
+  @override
+  String get proxyInfoDescription =>
+      '配置本地代理服务器（例如：localhost:9091）以将所有网络请求通过它路由。启用后，所有 API 调用都将使用此代理。';
 }

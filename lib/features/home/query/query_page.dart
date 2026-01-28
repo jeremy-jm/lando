@@ -9,8 +9,8 @@ import 'package:lando/features/dictionary/widgets/dictionary_widget.dart';
 import 'package:lando/features/home/providers/query_history_provider.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/audio/pronunciation_service_manager.dart';
+import 'package:lando/services/translation/translation_language_resolver.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
-import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
 class QueryPage extends StatefulWidget {
@@ -42,14 +42,14 @@ class _QueryPageState extends State<QueryPage> {
       QueryRepository(serviceType: TranslationServiceType.youdao),
     );
     _controller = TextEditingController(text: widget.initialQuery ?? '');
-    _controller.addListener(_detectLanguage);
+    _controller.addListener(() => _detectLanguage());
     _detectLanguage();
 
     // Listen to window visibility changes (for desktop platforms)
     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      WindowVisibilityService.instance.windowShownNotifier.addListener(
-        _onWindowShown,
-      );
+      // WindowVisibilityService.instance.windowShownNotifier.addListener(
+      //     _onWindowShown,
+      //     );
     }
 
     // Auto focus and trigger search if initial query is provided
@@ -79,33 +79,33 @@ class _QueryPageState extends State<QueryPage> {
 
   /// Handle window shown/focused event
   /// Selects all text in the input field when window is shown via hotkey
-  void _onWindowShown() {
-    if (_isDisposed || !mounted) return;
+  // void _onWindowShown() {
+  //   if (_isDisposed || !mounted) return;
 
-    // Small delay to ensure focus is set
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_isDisposed || !mounted) return;
+  //   // Small delay to ensure focus is set
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     if (_isDisposed || !mounted) return;
 
-      // Check if the input field has focus
-      if (_focusNode.hasFocus) {
-        // Select all text in the input field
-        _controller.selection = TextSelection(
-          baseOffset: 0,
-          extentOffset: _controller.text.length,
-        );
-      } else {
-        // Request focus first, then select text
-        _focusNode.requestFocus();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_isDisposed || !mounted) return;
-          _controller.selection = TextSelection(
-            baseOffset: 0,
-            extentOffset: _controller.text.length,
-          );
-        });
-      }
-    });
-  }
+  //     // Check if the input field has focus
+  //     if (_focusNode.hasFocus) {
+  //       // Select all text in the input field
+  //       _controller.selection = TextSelection(
+  //         baseOffset: 0,
+  //         extentOffset: _controller.text.length,
+  //       );
+  //     } else {
+  //       // Request focus first, then select text
+  //       _focusNode.requestFocus();
+  //       WidgetsBinding.instance.addPostFrameCallback((_) {
+  //         if (_isDisposed || !mounted) return;
+  //         _controller.selection = TextSelection(
+  //           baseOffset: 0,
+  //           extentOffset: _controller.text.length,
+  //         );
+  //       });
+  //     }
+  //   });
+  // }
 
   void _handleNavigateBack() {
     final previousQuery = _historyProvider.goBack();
@@ -151,31 +151,25 @@ class _QueryPageState extends State<QueryPage> {
     }
   }
 
-  void _detectLanguage() {
+  void _detectLanguage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      setState(() {
-        _detectedLanguage = null;
-      });
+      if (mounted) {
+        setState(() {
+          _detectedLanguage = null;
+        });
+      }
       return;
     }
 
-    // Simple language detection (can be improved with ML or API)
-    final detected = _simpleLanguageDetection(text);
-    setState(() {
-      _detectedLanguage = detected;
-    });
-  }
-
-  String? _simpleLanguageDetection(String text) {
-    // Simple heuristic: check for Chinese, Japanese, etc.
-    // Returns language code (e.g., 'zh', 'ja', 'hi', 'en') for TTS compatibility
-    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return 'zh';
-    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return 'ja';
-    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return 'hi';
-    // Default to English for Latin scripts
-    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return 'en';
-    return 'en'; // Default fallback
+    // Use language resolver for consistent detection
+    final languagePair =
+        await TranslationLanguageResolver.instance.resolveLanguages(text);
+    if (mounted) {
+      setState(() {
+        _detectedLanguage = languagePair.detectedSourceLanguage;
+      });
+    }
   }
 
   /// Converts language code to display name for UI
@@ -212,9 +206,9 @@ class _QueryPageState extends State<QueryPage> {
 
     // Remove window visibility listener
     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      WindowVisibilityService.instance.windowShownNotifier.removeListener(
-        _onWindowShown,
-      );
+      // WindowVisibilityService.instance.windowShownNotifier.removeListener(
+      //   _onWindowShown,
+      // );
     }
 
     _bloc.dispose();
@@ -435,7 +429,7 @@ class _QueryPageState extends State<QueryPage> {
                           TranslationServiceType.bing,
                           if (Platform.isIOS || Platform.isMacOS)
                             TranslationServiceType.apple,
-                          // TranslationServiceType.google,
+                          // // TranslationServiceType.google,
                         ],
                         onQueryTap: (queryText) {
                           // Update TextField and trigger search

@@ -8,6 +8,7 @@ import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/theme/theme_controller.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/features/me/dictionary_settings_page.dart';
+import 'package:lando/features/me/proxy_settings_page.dart';
 import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/hotkey_settings_widget.dart';
 import 'package:lando/features/shared/widgets/confirm_dialog_widget.dart';
@@ -180,6 +181,25 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: (context) => const DictionarySettingsPage(),
                             settings: const RouteSettings(
                               name: AppRoutes.dictionarySettings,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.settings_ethernet, color: theme.colorScheme.primary),
+                    title: Text(l10n.proxySettings),
+                    subtitle: Text(l10n.proxySettingsDescription),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: AnalyticsService.instance.wrapTap(
+                      'tap_settings_proxy',
+                      () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ProxySettingsPage(),
+                            settings: const RouteSettings(
+                              name: AppRoutes.proxySettings,
                             ),
                           ),
                         );

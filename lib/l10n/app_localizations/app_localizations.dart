@@ -671,6 +671,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Local data cleared'**
   String get localDataCleared;
+
+  /// Proxy settings page title
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Settings'**
+  String get proxySettings;
+
+  /// Description for proxy settings option
+  ///
+  /// In en, this message translates to:
+  /// **'Configure HTTP proxy for network requests'**
+  String get proxySettingsDescription;
+
+  /// Enable proxy switch label
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Proxy'**
+  String get enableProxy;
+
+  /// Description for enable proxy switch
+  ///
+  /// In en, this message translates to:
+  /// **'Enable HTTP proxy for all network requests'**
+  String get enableProxyDescription;
+
+  /// Proxy host input label
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Host'**
+  String get proxyHost;
+
+  /// Placeholder for proxy host input
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., localhost'**
+  String get proxyHostHint;
+
+  /// Proxy port input label
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Port'**
+  String get proxyPort;
+
+  /// Placeholder for proxy port input
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 9091'**
+  String get proxyPortHint;
+
+  /// Message shown when validating proxy
+  ///
+  /// In en, this message translates to:
+  /// **'Validating proxy connection...'**
+  String get validatingProxy;
+
+  /// Message shown when proxy validation succeeds
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy connection successful'**
+  String get proxyValidationSuccess;
+
+  /// Message shown when proxy validation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to connect to proxy server'**
+  String get proxyValidationFailed;
+
+  /// Button label to validate proxy connection
+  ///
+  /// In en, this message translates to:
+  /// **'Validate Proxy'**
+  String get validateProxy;
+
+  /// Message shown when proxy is configured
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy configured'**
+  String get proxyConfigured;
+
+  /// Title for proxy information card
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Information'**
+  String get proxyInfo;
+
+  /// Description text for proxy information
+  ///
+  /// In en, this message translates to:
+  /// **'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.'**
+  String get proxyInfoDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
@@ -257,7 +258,8 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
           _loading = false;
           // If result is null, set error message
           if (result == null) {
-            _error = 'No translation result available from ${widget.platform.displayName}';
+            _error =
+                'No translation result available from ${widget.platform.displayName}';
           } else {
             _error = null;
           }
@@ -267,7 +269,8 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Failed to fetch translation from ${widget.platform.displayName}: ${e.toString()}';
+          _error =
+              'Failed to fetch translation from ${widget.platform.displayName}: ${e.toString()}';
           _loading = false;
           _result = null;
         });
@@ -567,11 +570,21 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
                     children: [
                       SizedBox(
                         width: 100,
-                        child: Text(
-                          wf['name'] ?? '',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface,
+                        child: InkWell(
+                          onTap: () {
+                            // Click on word form name (e.g., "过去式") to query the form value
+                            widget.onQueryTap?.call(wf['value'] ?? '');
+                          },
+                          borderRadius: BorderRadius.circular(4.0),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2.0),
+                            child: Text(
+                              wf['name'] ?? '',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -582,7 +595,8 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
                           theme,
                           wf['value'] ?? '',
                           onTap: () {
-                            widget.onQueryTap?.call(wf['name'] ?? '');
+                            // Click on word form value to query that form
+                            widget.onQueryTap?.call(wf['value'] ?? '');
                           },
                         ),
                       ),

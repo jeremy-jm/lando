@@ -1,6 +1,27 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:lando/storage/preferences_storage.dart';
+
+/// Helper to detect if user is in China region
+bool _isChinaRegion() {
+  try {
+    final locale = Platform.localeName;
+    final parts = locale.split('_');
+    if (parts.length > 1) {
+      final countryCode = parts[1].toUpperCase();
+      return countryCode == 'CN' || countryCode == 'HK' || countryCode == 'TW' || countryCode == 'MO';
+    }
+  } catch (e) {
+    debugPrint('[BingTokenService] Error detecting region: $e');
+  }
+  return false;
+}
+
+/// Gets the appropriate Bing domain based on user's region
+String _getBingDomain() {
+  return _isChinaRegion() ? 'cn.bing.com' : 'www.bing.com';
+}
 
 /// Service for fetching and caching Bing Translator token.
 ///
@@ -148,7 +169,7 @@ class BingTokenService {
       }
 
       final response = await _dio.get<String>(
-        'https://www.bing.com/translator',
+        'https://${_getBingDomain()}/translator',
         options: Options(
           headers: _getPageHeaders(),
           followRedirects: true,
@@ -209,7 +230,7 @@ class BingTokenService {
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
       'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
       'cache-control': 'max-age=0',
-      'referer': 'https://www.bing.com/',
+      'referer': 'https://${_getBingDomain()}/',
       'sec-ch-ua':
           '"Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"',
       'sec-ch-ua-arch': '"arm"',

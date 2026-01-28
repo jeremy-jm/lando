@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+import 'package:lando/storage/preferences_storage.dart';
 
 /// A simplified API client wrapper around Dio (similar to axios).
 ///
@@ -15,20 +17,25 @@ class ApiClient {
     Duration? connectTimeout,
     Duration? receiveTimeout,
     String? corsProxyUrl,
-  }) : _corsProxyUrl = corsProxyUrl,
-       _dio =
-           dio ??
-           Dio(
-             BaseOptions(
-               baseUrl: baseUrl ?? '',
-               connectTimeout: connectTimeout ?? const Duration(seconds: 30),
-               receiveTimeout: receiveTimeout ?? const Duration(seconds: 30),
-               headers: {
-                 'Accept': '*/*',
-                 'User-Agent': 'Lando/1.0.0 (Flutter)',
-               },
-             ),
-           ) {
+  })  : _corsProxyUrl = corsProxyUrl,
+        _dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: baseUrl ?? '',
+                connectTimeout: connectTimeout ?? const Duration(seconds: 30),
+                receiveTimeout: receiveTimeout ?? const Duration(seconds: 30),
+                headers: {
+                  'Accept': 'application/json, text/plain, */*',
+                  'User-Agent':
+                      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36  ',
+                },
+              ),
+            ) {
+    // Configure proxy if enabled (only for non-Web platforms)
+    if (!kIsWeb) {
+      _configureProxy();
+    }
+
     // Configure response interceptor for automatic JSON parsing
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -51,6 +58,37 @@ class ApiClient {
 
   final Dio _dio;
   final String? _corsProxyUrl;
+
+  /// Configures HTTP proxy for non-Web platforms.
+  void _configureProxy() {
+    final proxyEnabled = PreferencesStorage.getProxyEnabled();
+    if (!proxyEnabled) {
+      return;
+    }
+
+    final proxyHost = PreferencesStorage.getProxyHost();
+    final proxyPort = PreferencesStorage.getProxyPort();
+
+    try {
+      // Ensure we're using IOHttpClientAdapter for non-Web platforms
+      if (_dio.httpClientAdapter is! IOHttpClientAdapter) {
+        _dio.httpClientAdapter = IOHttpClientAdapter();
+      }
+
+      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+        client.findProxy = (uri) {
+          return 'PROXY $proxyHost:$proxyPort';
+        };
+        // Allow bad certificates if needed (for development)
+        client.badCertificateCallback = (cert, host, port) => false;
+        return client;
+      };
+      debugPrint('Proxy configured: $proxyHost:$proxyPort');
+    } catch (e) {
+      debugPrint('Failed to configure proxy: $e');
+    }
+  }
 
   /// Applies CORS proxy to URL if configured and on Web platform.
   String _applyCorsProxy(String uri) {
@@ -178,7 +216,8 @@ class ApiClient {
       return response.data;
     } on DioException catch (e) {
       if (e.response != null) {
-        debugPrint('postFormDynamic: DioException - Status ${e.response!.statusCode}, Data: ${e.response!.data}');
+        debugPrint(
+            'postFormDynamic: DioException - Status ${e.response!.statusCode}, Data: ${e.response!.data}');
       } else {
         debugPrint('postFormDynamic: DioException - ${e.type}: ${e.message}');
       }
@@ -280,7 +319,8 @@ class ApiClient {
   /// Handles DioException and converts it to a more user-friendly error.
   Exception _handleDioError(DioException error) {
     if (error.response != null) {
-      debugPrint('DioException: Status ${error.response!.statusCode} - ${error.message}');
+      debugPrint(
+          'DioException: Status ${error.response!.statusCode} - ${error.message}');
     } else {
       debugPrint('DioException: ${error.type} - ${error.message}');
     }
@@ -296,8 +336,7 @@ class ApiClient {
       case DioExceptionType.connectionError:
         // Provide a user-friendly message for connection errors
         final errorMessage = error.message ?? 'Unable to connect to the server';
-        final isWebError =
-            errorMessage.contains('XMLHttpRequest') ||
+        final isWebError = errorMessage.contains('XMLHttpRequest') ||
             errorMessage.contains('onError callback');
 
         // On Web, this is almost always a CORS issue

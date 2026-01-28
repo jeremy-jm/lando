@@ -4,8 +4,28 @@ import 'package:flutter/foundation.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/network/api_client.dart';
 import 'package:lando/services/translation/bing_token_service.dart';
+import 'package:lando/services/translation/translation_language_resolver.dart';
 import 'package:lando/services/translation/translation_service.dart';
-import 'package:lando/storage/preferences_storage.dart';
+
+/// Helper to detect if user is in China region
+bool _isChinaRegion() {
+  try {
+    final locale = Platform.localeName;
+    final parts = locale.split('_');
+    if (parts.length > 1) {
+      final countryCode = parts[1].toUpperCase();
+      return countryCode == 'CN' || countryCode == 'HK' || countryCode == 'TW' || countryCode == 'MO';
+    }
+  } catch (e) {
+    debugPrint('[BingTranslationService] Error detecting region: $e');
+  }
+  return false;
+}
+
+/// Gets the appropriate Bing domain based on user's region
+String _getBingDomain() {
+  return _isChinaRegion() ? 'cn.bing.com' : 'www.bing.com';
+}
 
 /// Bing translation service implementation.
 ///
@@ -101,13 +121,10 @@ class BingTranslationService implements TranslationService {
     }
 
     try {
-      // Get language preferences
-      final fromLanguage =
-          PreferencesStorage.getTranslationFromLanguage() ?? 'auto';
-      final toLanguage = PreferencesStorage.getTranslationToLanguage() ?? 'en';
-
-      final fromLang = _mapLanguageCodeToBing(fromLanguage);
-      final toLang = _mapLanguageCodeToBing(toLanguage);
+      // Use language resolver to get proper language pair
+      final languagePair = await TranslationLanguageResolver.instance.resolveLanguages(query);
+      final fromLang = _mapLanguageCodeToBing(languagePair.fromLanguage);
+      final toLang = _mapLanguageCodeToBing(languagePair.toLanguage);
 
       // Initialize session to get fresh token, cookies, and IG parameter
       final sessionInitialized = await BingTokenService.instance.initializeSession();
@@ -146,8 +163,10 @@ class BingTranslationService implements TranslationService {
       // Build Bing API URL with dynamic IG parameter
       // Use extracted IG or fallback to a default
       final igParam = ig ?? 'C64EF28C417741E6BD8B489FA56D7831';
+      final bingDomain = _getBingDomain();
       final url =
-          'https://www.bing.com/ttranslatev3?isVertical=1&&IG=$igParam&IID=translator.5025';
+          'https://$bingDomain/ttranslatev3?isVertical=1&&IG=$igParam&IID=translator.5025';
+      debugPrint('[BingTranslationService] Using domain: $bingDomain');
 
       // Prepare request body
       // Use the key from params_AbusePreventionHelper if available, otherwise use current timestamp
@@ -162,15 +181,15 @@ class BingTranslationService implements TranslationService {
         'key': keyParam,
       };
 
-      // Prepare headers
+      // Prepare headers (reuse bingDomain from above)
       final headers = <String, String>{
         'accept': '*/*',
         'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
         'content-type': 'application/x-www-form-urlencoded',
         'ect': '4g',
-        'origin': 'https://www.bing.com',
+        'origin': 'https://$bingDomain',
         'priority': 'u=1, i',
-        'referer': 'https://www.bing.com/translator',
+        'referer': 'https://$bingDomain/translator',
         'sec-ch-ua':
             '"Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"',
         'sec-ch-ua-arch': '"arm"',
