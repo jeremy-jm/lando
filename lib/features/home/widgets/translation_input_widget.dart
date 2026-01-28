@@ -90,17 +90,45 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   }
 
   void _onFocusChanged() {
-    // Close suggestions when TextField loses focus
-    // Delay to allow suggestion tap to complete first
-    if (!widget.focusNode.hasFocus && !_isSelectingSuggestion) {
-      _debounceTimer?.cancel();
+    if (widget.focusNode.hasFocus) {
+      // When TextField gains focus, show suggestions if there's text
       _focusDelayTimer?.cancel();
-      // Small delay to allow suggestion tap to complete
-      _focusDelayTimer = Timer(const Duration(milliseconds: 150), () {
-        if (mounted && !widget.focusNode.hasFocus && !_isSelectingSuggestion) {
-          _closeSuggestions();
+      final query = widget.controller.text.trim();
+      if (query.isNotEmpty &&
+          widget.enableSuggestions &&
+          !widget.readOnly &&
+          !_isSelectingSuggestion &&
+          !_isNavigating) {
+        // If we already have suggestions for this query, show them immediately
+        if (_suggestions.isNotEmpty && _lastQuery == query) {
+          // Suggestions already loaded, just ensure they're visible
+          return;
         }
-      });
+        // Otherwise, fetch suggestions with a small delay
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+          if (mounted &&
+              widget.focusNode.hasFocus &&
+              widget.controller.text.trim() == query) {
+            _fetchSuggestions(query);
+          }
+        });
+      }
+    } else {
+      // Close suggestions when TextField loses focus
+      // Delay to allow suggestion tap to complete first
+      if (!_isSelectingSuggestion) {
+        _debounceTimer?.cancel();
+        _focusDelayTimer?.cancel();
+        // Small delay to allow suggestion tap to complete
+        _focusDelayTimer = Timer(const Duration(milliseconds: 150), () {
+          if (mounted &&
+              !widget.focusNode.hasFocus &&
+              !_isSelectingSuggestion) {
+            _closeSuggestions();
+          }
+        });
+      }
     }
   }
 
