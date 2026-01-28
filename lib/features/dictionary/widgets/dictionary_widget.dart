@@ -255,14 +255,19 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
         setState(() {
           _result = result;
           _loading = false;
-          _error = null;
+          // If result is null, set error message
+          if (result == null) {
+            _error = 'No translation result available from ${widget.platform.displayName}';
+          } else {
+            _error = null;
+          }
           _isFavorite = isFav;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = 'Failed to fetch translation from ${widget.platform.displayName}: ${e.toString()}';
           _loading = false;
           _result = null;
         });

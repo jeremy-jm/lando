@@ -128,5 +128,21 @@
   "auto": "自动",
   "@auto": {
     "description": "Auto-detect language option"
+  },
+  "clearLocalData": "清除本地数据",
+  "@clearLocalData": {
+    "description": "Clear local data button title"
+  },
+  "clearLocalDataDescription": "清除所有本地存储的数据，包括设置、Cookie 和缓存",
+  "@clearLocalDataDescription": {
+    "description": "Description for clear local data option"
+  },
+  "confirmClearLocalData": "确定要清除所有本地数据吗？此操作不可撤销。",
+  "@confirmClearLocalData": {
+    "description": "Confirmation message before clearing local data"
+  },
+  "localDataCleared": "本地数据已清除",
+  "@localDataCleared": {
+    "description": "Message shown when local data is cleared"
   }
 }

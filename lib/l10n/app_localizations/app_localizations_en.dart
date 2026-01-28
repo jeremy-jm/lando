@@ -294,4 +294,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auto => 'Auto';
+
+  @override
+  String get clearLocalData => 'Clear Local Data';
+
+  @override
+  String get clearLocalDataDescription =>
+      'Clear all locally stored data, including settings, cookies, and cache';
+
+  @override
+  String get confirmClearLocalData =>
+      'Are you sure you want to clear all local data? This action cannot be undone.';
+
+  @override
+  String get localDataCleared => 'Local data cleared';
 }

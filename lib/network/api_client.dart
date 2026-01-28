@@ -147,6 +147,51 @@ class ApiClient {
     }
   }
 
+  /// Executes a POST request with form-encoded body and returns dynamic JSON.
+  ///
+  /// Some endpoints (e.g. Bing `ttranslatev3`) return a JSON array, not a map.
+  Future<dynamic> postFormDynamic(
+    String uri, {
+    required Map<String, String> body,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      final formData = body.entries
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
+          .join('&');
+
+      final finalUri = _applyCorsProxy(uri);
+      final response = await _dio.post<dynamic>(
+        finalUri,
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+            if (headers != null) ...headers,
+          },
+        ),
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        debugPrint('postFormDynamic: DioException - Status ${e.response!.statusCode}, Data: ${e.response!.data}');
+      } else {
+        debugPrint('postFormDynamic: DioException - ${e.type}: ${e.message}');
+      }
+      throw _handleDioError(e);
+    } catch (e) {
+      debugPrint('Unexpected error in postFormDynamic: $e');
+      throw HttpException(
+        'Unexpected error: ${e.toString()}',
+        uri: Uri.tryParse(uri),
+      );
+    }
+  }
+
   /// Executes a POST request with JSON body and returns JSON.
   ///
   /// [uri] can be a full URL or a path relative to baseUrl.
@@ -234,14 +279,11 @@ class ApiClient {
 
   /// Handles DioException and converts it to a more user-friendly error.
   Exception _handleDioError(DioException error) {
-    // Log detailed error information for debugging
-    debugPrint(
-      'Handling DioException: type=${error.type}, message=${error.message}',
-    );
-    if (error.error != null) {
-      debugPrint('Error object: ${error.error}');
+    if (error.response != null) {
+      debugPrint('DioException: Status ${error.response!.statusCode} - ${error.message}');
+    } else {
+      debugPrint('DioException: ${error.type} - ${error.message}');
     }
-    debugPrint('Stack trace: ${error.stackTrace}');
 
     switch (error.type) {
       case DioExceptionType.connectionTimeout:

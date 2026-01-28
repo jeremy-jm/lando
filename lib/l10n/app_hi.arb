@@ -128,5 +128,21 @@
   "auto": "स्वचालित",
   "@auto": {
     "description": "Auto-detect language option"
+  },
+  "clearLocalData": "स्थानीय डेटा साफ करें",
+  "@clearLocalData": {
+    "description": "Clear local data button title"
+  },
+  "clearLocalDataDescription": "सेटिंग्स, कुकीज़ और कैश सहित सभी स्थानीय रूप से संग्रहीत डेटा साफ करें",
+  "@clearLocalDataDescription": {
+    "description": "Description for clear local data option"
+  },
+  "confirmClearLocalData": "क्या आप वाकई सभी स्थानीय डेटा साफ करना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।",
+  "@confirmClearLocalData": {
+    "description": "Confirmation message before clearing local data"
+  },
+  "localDataCleared": "स्थानीय डेटा साफ कर दिया गया",
+  "@localDataCleared": {
+    "description": "Message shown when local data is cleared"
   }
 }

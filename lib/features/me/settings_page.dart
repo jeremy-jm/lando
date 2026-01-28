@@ -3,15 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
+import 'package:lando/services/translation/bing_token_service.dart';
+import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/theme/theme_controller.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/features/me/dictionary_settings_page.dart';
 import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/hotkey_settings_widget.dart';
+import 'package:lando/features/shared/widgets/confirm_dialog_widget.dart';
 
 /// Settings page organized into three sections: General, Dictionary, and About.
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
 
   String _getLanguageName(AppLocalizations l10n, String languageCode) {
     switch (languageCode) {
@@ -212,6 +221,21 @@ class SettingsPage extends StatelessWidget {
                       },
                     ),
                   ),
+                  const Divider(),
+                  // Clear Local Data
+                  ListTile(
+                    leading: Icon(
+                      Icons.delete_outline,
+                      color: theme.colorScheme.error,
+                    ),
+                    title: Text(l10n.clearLocalData),
+                    subtitle: Text(l10n.clearLocalDataDescription),
+                    onTap: AnalyticsService.instance.wrapTap(
+                      'tap_settings_clear_data',
+                      () => _showClearDataDialog(context),
+                    ),
+                  ),
+                  const Divider(height: 32),
                 ],
               );
             },
@@ -219,5 +243,60 @@ class SettingsPage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> _showClearDataDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    final confirmed = await ConfirmDialogWidget.show(
+      context,
+      title: l10n.clearLocalData,
+      content: l10n.confirmClearLocalData,
+      confirmText: l10n.confirm,
+      cancelText: l10n.cancel,
+      confirmButtonStyle: TextButton.styleFrom(
+        foregroundColor: theme.colorScheme.error,
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _clearLocalData(context);
+    }
+  }
+
+  Future<void> _clearLocalData(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      // Clear Bing token service cache (cookies and tokens)
+      await BingTokenService.instance.clearCache();
+
+      // Clear all preferences storage
+      await PreferencesStorage.clearAll();
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.localDataCleared),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+
+      AnalyticsService.instance.event('clear_local_data');
+    } catch (e) {
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${l10n.errorWithDetails(e.toString())}'),
+            duration: const Duration(seconds: 3),
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+          ),
+        );
+      }
+    }
   }
 }

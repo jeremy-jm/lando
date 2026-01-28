@@ -647,6 +647,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Auto'**
   String get auto;
+
+  /// Clear local data button title
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Local Data'**
+  String get clearLocalData;
+
+  /// Description for clear local data option
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all locally stored data, including settings, cookies, and cache'**
+  String get clearLocalDataDescription;
+
+  /// Confirmation message before clearing local data
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear all local data? This action cannot be undone.'**
+  String get confirmClearLocalData;
+
+  /// Message shown when local data is cleared
+  ///
+  /// In en, this message translates to:
+  /// **'Local data cleared'**
+  String get localDataCleared;
 }
 
 class _AppLocalizationsDelegate

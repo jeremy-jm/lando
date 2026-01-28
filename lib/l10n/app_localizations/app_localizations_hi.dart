@@ -294,4 +294,18 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get auto => 'स्वचालित';
+
+  @override
+  String get clearLocalData => 'स्थानीय डेटा साफ करें';
+
+  @override
+  String get clearLocalDataDescription =>
+      'सेटिंग्स, कुकीज़ और कैश सहित सभी स्थानीय रूप से संग्रहीत डेटा साफ करें';
+
+  @override
+  String get confirmClearLocalData =>
+      'क्या आप वाकई सभी स्थानीय डेटा साफ करना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।';
+
+  @override
+  String get localDataCleared => 'स्थानीय डेटा साफ कर दिया गया';
 }

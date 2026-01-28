@@ -128,5 +128,21 @@
   "auto": "Otomatis",
   "@auto": {
     "description": "Auto-detect language option"
+  },
+  "clearLocalData": "Hapus Data Lokal",
+  "@clearLocalData": {
+    "description": "Clear local data button title"
+  },
+  "clearLocalDataDescription": "Hapus semua data yang disimpan secara lokal, termasuk pengaturan, cookie, dan cache",
+  "@clearLocalDataDescription": {
+    "description": "Description for clear local data option"
+  },
+  "confirmClearLocalData": "Apakah Anda yakin ingin menghapus semua data lokal? Tindakan ini tidak dapat dibatalkan.",
+  "@confirmClearLocalData": {
+    "description": "Confirmation message before clearing local data"
+  },
+  "localDataCleared": "Data lokal telah dihapus",
+  "@localDataCleared": {
+    "description": "Message shown when local data is cleared"
   }
 }

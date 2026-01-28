@@ -128,5 +128,21 @@
   "auto": "Авто",
   "@auto": {
     "description": "Auto-detect language option"
+  },
+  "clearLocalData": "Очистить локальные данные",
+  "@clearLocalData": {
+    "description": "Clear local data button title"
+  },
+  "clearLocalDataDescription": "Очистить все локально сохраненные данные, включая настройки, cookie и кеш",
+  "@clearLocalDataDescription": {
+    "description": "Description for clear local data option"
+  },
+  "confirmClearLocalData": "Вы уверены, что хотите очистить все локальные данные? Это действие нельзя отменить.",
+  "@confirmClearLocalData": {
+    "description": "Confirmation message before clearing local data"
+  },
+  "localDataCleared": "Локальные данные очищены",
+  "@localDataCleared": {
+    "description": "Message shown when local data is cleared"
   }
 }

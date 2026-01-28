@@ -284,4 +284,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get auto => '自动';
+
+  @override
+  String get clearLocalData => '清除本地数据';
+
+  @override
+  String get clearLocalDataDescription => '清除所有本地存储的数据，包括设置、Cookie 和缓存';
+
+  @override
+  String get confirmClearLocalData => '确定要清除所有本地数据吗？此操作不可撤销。';
+
+  @override
+  String get localDataCleared => '本地数据已清除';
 }

@@ -423,8 +423,8 @@ class _QueryPageState extends State<QueryPage> {
                         query: state.query,
                         platforms: [
                           TranslationServiceType.youdao,
+                          TranslationServiceType.bing,
                           // TranslationServiceType.google,
-                          // TranslationServiceType.bing,
                         ],
                         onQueryTap: (queryText) {
                           // Update TextField and trigger search

@@ -284,4 +284,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get auto => '自動';
+
+  @override
+  String get clearLocalData => 'ローカルデータをクリア';
+
+  @override
+  String get clearLocalDataDescription =>
+      '設定、Cookie、キャッシュを含むすべてのローカルに保存されたデータをクリア';
+
+  @override
+  String get confirmClearLocalData => 'すべてのローカルデータをクリアしてもよろしいですか？この操作は元に戻せません。';
+
+  @override
+  String get localDataCleared => 'ローカルデータがクリアされました';
 }

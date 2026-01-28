@@ -296,4 +296,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get auto => 'Авто';
+
+  @override
+  String get clearLocalData => 'Очистить локальные данные';
+
+  @override
+  String get clearLocalDataDescription =>
+      'Очистить все локально сохраненные данные, включая настройки, cookie и кеш';
+
+  @override
+  String get confirmClearLocalData =>
+      'Вы уверены, что хотите очистить все локальные данные? Это действие нельзя отменить.';
+
+  @override
+  String get localDataCleared => 'Локальные данные очищены';
 }

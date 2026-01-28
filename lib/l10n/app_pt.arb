@@ -128,5 +128,21 @@
   "auto": "Automático",
   "@auto": {
     "description": "Auto-detect language option"
+  },
+  "clearLocalData": "Limpar Dados Locais",
+  "@clearLocalData": {
+    "description": "Clear local data button title"
+  },
+  "clearLocalDataDescription": "Limpar todos os dados armazenados localmente, incluindo configurações, cookies e cache",
+  "@clearLocalDataDescription": {
+    "description": "Description for clear local data option"
+  },
+  "confirmClearLocalData": "Tem certeza de que deseja limpar todos os dados locais? Esta ação não pode ser desfeita.",
+  "@confirmClearLocalData": {
+    "description": "Confirmation message before clearing local data"
+  },
+  "localDataCleared": "Dados locais limpos",
+  "@localDataCleared": {
+    "description": "Message shown when local data is cleared"
   }
 }

@@ -294,4 +294,18 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get auto => 'Otomatis';
+
+  @override
+  String get clearLocalData => 'Hapus Data Lokal';
+
+  @override
+  String get clearLocalDataDescription =>
+      'Hapus semua data yang disimpan secara lokal, termasuk pengaturan, cookie, dan cache';
+
+  @override
+  String get confirmClearLocalData =>
+      'Apakah Anda yakin ingin menghapus semua data lokal? Tindakan ini tidak dapat dibatalkan.';
+
+  @override
+  String get localDataCleared => 'Data lokal telah dihapus';
 }

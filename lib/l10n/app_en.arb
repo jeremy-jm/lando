@@ -369,5 +369,21 @@
   "auto": "Auto",
   "@auto": {
     "description": "Auto-detect language option"
+  },
+  "clearLocalData": "Clear Local Data",
+  "@clearLocalData": {
+    "description": "Clear local data button title"
+  },
+  "clearLocalDataDescription": "Clear all locally stored data, including settings, cookies, and cache",
+  "@clearLocalDataDescription": {
+    "description": "Description for clear local data option"
+  },
+  "confirmClearLocalData": "Are you sure you want to clear all local data? This action cannot be undone.",
+  "@confirmClearLocalData": {
+    "description": "Confirmation message before clearing local data"
+  },
+  "localDataCleared": "Local data cleared",
+  "@localDataCleared": {
+    "description": "Message shown when local data is cleared"
   }
 }

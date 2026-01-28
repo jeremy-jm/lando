@@ -297,4 +297,18 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get auto => 'Automático';
+
+  @override
+  String get clearLocalData => 'Limpar Dados Locais';
+
+  @override
+  String get clearLocalDataDescription =>
+      'Limpar todos os dados armazenados localmente, incluindo configurações, cookies e cache';
+
+  @override
+  String get confirmClearLocalData =>
+      'Tem certeza de que deseja limpar todos os dados locais? Esta ação não pode ser desfeita.';
+
+  @override
+  String get localDataCleared => 'Dados locais limpos';
 }

@@ -13,6 +13,7 @@ import 'package:lando/services/analytics/analytics_navigator_observer.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/services/analytics/analytics_tap_capture.dart';
 import 'package:lando/services/hotkey/hotkey_service.dart';
+import 'package:lando/services/translation/bing_token_service.dart';
 import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/theme/app_colors.dart';
@@ -50,6 +51,19 @@ void main() async {
       // Initialize controllers with saved preferences
       await ThemeController.instance.init();
       await LocaleController.instance.init();
+
+      // Initialize Bing token service (fetch token in background)
+      // This is done asynchronously to not block app startup
+      unawaited(
+        BingTokenService.instance.getToken().then((token) {
+          debugPrint('Bing token fetched on startup: ${token ?? '(null)'}');
+          return token;
+        }).catchError((e, stackTrace) {
+          debugPrint('Failed to fetch Bing token on startup: $e');
+          debugPrint('Stack trace: $stackTrace');
+          return null;
+        }),
+      );
 
       // Initialize analytics for mobile platforms (Android/iOS)
       await AnalyticsService.instance.initialize();
