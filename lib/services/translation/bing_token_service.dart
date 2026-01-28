@@ -23,7 +23,6 @@ class BingTokenService {
 
   static const String _storageKey = 'bing_translation_token';
   static const String _storageKeyTimestamp = 'bing_translation_token_timestamp';
-  static const String _storageKeyCookie = 'bing_translation_cookie_btstkn';
   static const String _storageKeyAllCookies = 'bing_translation_all_cookies';
   static const String _storageKeyIG = 'bing_translation_ig';
   static const String _storageKeyKey = 'bing_translation_key'; // Key from params_AbusePreventionHelper
@@ -32,7 +31,6 @@ class BingTokenService {
   static const int _tokenExpiryMs = 24 * 60 * 60 * 1000;
   
   String? _cachedToken;
-  String? _cachedCookie;
   String? _cachedAllCookies; // Full cookie string for API calls
   String? _cachedIG; // IG parameter for API URL
   String? _cachedKey; // Key parameter from params_AbusePreventionHelper
@@ -68,12 +66,9 @@ class BingTokenService {
 
     // Fetch new token from Bing Translator page
     try {
-      final token = await _fetchTokenFromPage();
-      if (token != null) {
-        _cachedToken = token;
-        _tokenTimestamp = DateTime.now();
-        await _saveToStorage();
-        return token;
+      final ok = await initializeSession(forceRefresh: forceRefresh);
+      if (ok && _cachedToken != null) {
+        return _cachedToken;
       }
     } catch (e) {
       debugPrint('BingTokenService: Failed to fetch token: $e');
@@ -82,33 +77,6 @@ class BingTokenService {
     // If fetching fails, try to use stored token even if expired
     if (_cachedToken != null) {
       return _cachedToken;
-    }
-
-    return null;
-  }
-
-  /// Gets the btstkn cookie value.
-  Future<String?> getCookie() async {
-    if (_cachedCookie != null) {
-      return _cachedCookie;
-    }
-
-    // Try to load from storage
-    await _loadFromStorage();
-    if (_cachedCookie != null) {
-      return _cachedCookie;
-    }
-
-    // Fetch cookie from page
-    try {
-      final cookie = await _fetchCookieFromPage();
-      if (cookie != null) {
-        _cachedCookie = cookie;
-        await _saveToStorage();
-        return cookie;
-      }
-    } catch (e) {
-      debugPrint('BingTokenService: Failed to fetch cookie: $e');
     }
 
     return null;
@@ -171,6 +139,14 @@ class BingTokenService {
   /// This extracts token, cookies, and IG parameter.
   Future<bool> initializeSession({bool forceRefresh = false}) async {
     try {
+      if (forceRefresh) {
+        _cachedToken = null;
+        _cachedAllCookies = null;
+        _cachedIG = null;
+        _cachedKey = null;
+        _tokenTimestamp = null;
+      }
+
       final response = await _dio.get<String>(
         'https://www.bing.com/translator',
         options: Options(
@@ -214,12 +190,6 @@ class BingTokenService {
       final ig = _extractIG(html, allCookies);
       if (ig != null) {
         _cachedIG = ig;
-      }
-
-      // Extract btstkn cookie
-      final btstkn = _extractBtstknCookie(allCookies);
-      if (btstkn != null) {
-        _cachedCookie = btstkn;
       }
 
       // Save to storage
@@ -304,19 +274,6 @@ class BingTokenService {
     }
 
     return cookies.join('; ');
-  }
-
-  /// Extracts btstkn cookie value from cookie string.
-  String? _extractBtstknCookie(String? allCookies) {
-    if (allCookies == null) return null;
-
-    final btstknPattern = RegExp(r'btstkn=([^;]+)');
-    final match = btstknPattern.firstMatch(allCookies);
-    if (match != null) {
-      final rawValue = match.group(1)!;
-      return Uri.decodeComponent(rawValue);
-    }
-    return null;
   }
 
   /// Extracts IG parameter from HTML or cookies.
@@ -417,7 +374,7 @@ class BingTokenService {
   }
 
   /// Extracts token from HTML using multiple patterns (fallback method).
-  Future<String?> _extractTokenFromHTML(String html) async {
+  String? _extractTokenFromHTML(String html) {
     // First try to get token and key together
     final tokenData = _extractTokenAndKeyFromHTML(html);
     if (tokenData != null && tokenData['token'] != null) {
@@ -440,27 +397,7 @@ class BingTokenService {
       }
     }
 
-    // Fallback to btstkn cookie
-    final btstkn = _cachedCookie ?? await getCookie();
-    if (btstkn != null && btstkn.isNotEmpty) {
-      return btstkn;
-    }
-
     return null;
-  }
-
-  /// Fetches token from Bing Translator page (legacy method, kept for compatibility).
-  Future<String?> _fetchTokenFromPage() async {
-    // Use the new session initialization
-    await initializeSession();
-    return _cachedToken;
-  }
-
-  /// Fetches btstkn cookie from Bing Translator page (legacy method).
-  Future<String?> _fetchCookieFromPage() async {
-    // Use the new session initialization
-    await initializeSession();
-    return _cachedCookie;
   }
 
   /// Loads token and cookie from storage.
@@ -468,7 +405,6 @@ class BingTokenService {
     try {
       final prefs = PreferencesStorage.prefs;
       _cachedToken = prefs.getString(_storageKey);
-      _cachedCookie = prefs.getString(_storageKeyCookie);
       _cachedAllCookies = prefs.getString(_storageKeyAllCookies);
       _cachedIG = prefs.getString(_storageKeyIG);
       _cachedKey = prefs.getString(_storageKeyKey);
@@ -488,9 +424,6 @@ class BingTokenService {
       final prefs = PreferencesStorage.prefs;
       if (_cachedToken != null) {
         await prefs.setString(_storageKey, _cachedToken!);
-      }
-      if (_cachedCookie != null) {
-        await prefs.setString(_storageKeyCookie, _cachedCookie!);
       }
       if (_cachedAllCookies != null) {
         await prefs.setString(_storageKeyAllCookies, _cachedAllCookies!);
@@ -513,7 +446,6 @@ class BingTokenService {
   /// Clears cached token and cookie.
   Future<void> clearCache() async {
     _cachedToken = null;
-    _cachedCookie = null;
     _cachedAllCookies = null;
     _cachedIG = null;
     _cachedKey = null;
@@ -522,7 +454,6 @@ class BingTokenService {
     try {
       final prefs = PreferencesStorage.prefs;
       await prefs.remove(_storageKey);
-      await prefs.remove(_storageKeyCookie);
       await prefs.remove(_storageKeyAllCookies);
       await prefs.remove(_storageKeyIG);
       await prefs.remove(_storageKeyKey);
