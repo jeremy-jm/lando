@@ -69,8 +69,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
   void initState() {
     super.initState();
     if (widget.enableSuggestions) {
-      _suggestionService =
-          widget.suggestionService ??
+      _suggestionService = widget.suggestionService ??
           YoudaoSuggestionService(
             ApiClient(corsProxyUrl: PreferencesStorage.getCorsProxyUrl()),
           );
@@ -234,13 +233,11 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final hasText = widget.controller.text.isNotEmpty;
-    final showSuggestions =
-        widget.enableSuggestions &&
+    final showSuggestions = widget.enableSuggestions &&
         !widget.readOnly &&
         _suggestions.isNotEmpty &&
         hasText;
-    final showNotFound =
-        widget.enableSuggestions &&
+    final showNotFound = widget.enableSuggestions &&
         !widget.readOnly &&
         _isNotFound &&
         hasText &&
@@ -260,8 +257,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
             focusNode: widget.focusNode,
             readOnly: widget.readOnly,
             decoration: InputDecoration(
-              hintText:
-                  widget.hintText ??
+              hintText: widget.hintText ??
                   (l10n?.enterTextToTranslate ?? 'Enter text to translate'),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
@@ -373,8 +369,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                                   _isNavigating = false;
                                                   // Update _lastQuery to prevent re-fetching
                                                   _lastQuery = widget
-                                                      .controller
-                                                      .text
+                                                      .controller.text
                                                       .trim();
                                                 });
                                               }
@@ -403,7 +398,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                       color: widget.canNavigateBack
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.onSurface
-                                                .withValues(alpha: 0.3),
+                                              .withValues(alpha: 0.3),
                                     ),
                                   ),
                                 ),
@@ -434,8 +429,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                                   _isNavigating = false;
                                                   // Update _lastQuery to prevent re-fetching
                                                   _lastQuery = widget
-                                                      .controller
-                                                      .text
+                                                      .controller.text
                                                       .trim();
                                                 });
                                               }
@@ -464,7 +458,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                       color: widget.canNavigateForward
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.onSurface
-                                                .withValues(alpha: 0.3),
+                                              .withValues(alpha: 0.3),
                                     ),
                                   ),
                                 ),
@@ -586,11 +580,11 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                     const SizedBox(height: 4),
                                     Text(
                                       suggestion.explain!,
-                                      style: theme.textTheme.bodySmall
-                                          ?.copyWith(
-                                            color: theme.colorScheme.onSurface
-                                                .withValues(alpha: 0.6),
-                                          ),
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(alpha: 0.6),
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
