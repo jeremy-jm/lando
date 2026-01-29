@@ -425,7 +425,7 @@ class _QueryPageState extends State<QueryPage> {
                       return DictionaryWidget(
                         query: state.query,
                         platforms: [
-                          TranslationServiceType.youdao,
+                          // TranslationServiceType.youdao,
                           TranslationServiceType.bing,
                           if (Platform.isIOS || Platform.isMacOS)
                             TranslationServiceType.apple,

@@ -77,6 +77,15 @@ void main() async {
       runApp(const MyApp());
     },
     (error, stackTrace) {
+      // Suppress known harmless keyboard state assertion (never report or show)
+      if (_isKeyboardStateSyncAssertion(error, stackTrace)) {
+        if (kDebugMode) {
+          debugPrint(
+            '[Suppressed] Keyboard state sync in zone (harmless): $error',
+          );
+        }
+        return;
+      }
       // Report uncaught errors to Umeng APM
       AnalyticsService.instance.reportError(
         error,
@@ -99,36 +108,42 @@ void main() async {
   );
 }
 
+bool _isKeyboardStateSyncAssertion(Object error, StackTrace? stackTrace) {
+  // Flutter HardwareKeyboard assertion: KeyDownEvent when key already pressed,
+  // or KeyUpEvent when key not pressed. Common with global hotkeys or key repeat.
+  if (error is! AssertionError) return false;
+  final message = error.message?.toString() ?? '';
+  final stack = stackTrace?.toString() ?? '';
+  final isFromHardwareKeyboard = stack.contains('hardware_keyboard.dart');
+  final isKeyStateSync = message.contains('physical key is already pressed') ||
+      message.contains('physical key is not pressed');
+  return isFromHardwareKeyboard && isKeyStateSync;
+}
+
 void _setupErrorHandlers() {
   // Handle Flutter framework errors
   FlutterError.onError = (FlutterErrorDetails details) {
     final exception = details.exception;
-    
-    // Filter out known harmless assertion errors from hotkey manager
-    // These occur when global hotkeys intercept keyboard events,
-    // causing Flutter's keyboard state to become out of sync.
-    // We only suppress the error reporting, but let Flutter handle the event normally.
+    final library = details.library ?? '';
+    final stack = details.stack?.toString() ?? '';
+
+    // Filter out known harmless keyboard state assertion (HardwareKeyboard).
+    // Occurs when global hotkeys or key repeat cause Flutter's key state to desync.
+    // Note: "Exception caught by services library" is printed by Flutter before
+    // this handler; we only suppress our reporting and dialog.
     if (exception is AssertionError) {
       final message = exception.message?.toString() ?? '';
-      final library = details.library ?? '';
-      
-      // Check if this is a keyboard state sync issue from hardware_keyboard.dart
-      if (library.contains('hardware_keyboard.dart')) {
-        if ((message.contains('KeyDownEvent') &&
-                message.contains('physical key is already pressed')) ||
-            (message.contains('KeyUpEvent') &&
-                message.contains('physical key is not pressed'))) {
-          // This is a known harmless issue with global hotkey interception
-          // We suppress error reporting but don't interfere with Flutter's event handling
-          if (kDebugMode) {
-            debugPrint(
-              '[Suppressed] Keyboard state sync issue (harmless): ${exception.message}',
-            );
-          }
-          // Don't report to analytics, but still let Flutter handle it
-          // by not calling FlutterError.presentError
-          return;
+      final fromKeyboard = library.contains('hardware_keyboard.dart') ||
+          stack.contains('hardware_keyboard.dart');
+      final keyStateSync = message.contains('physical key is already pressed') ||
+          message.contains('physical key is not pressed');
+      if (fromKeyboard && keyStateSync) {
+        if (kDebugMode) {
+          debugPrint(
+            '[Suppressed] Keyboard state sync (harmless): ${exception.message}',
+          );
         }
+        return;
       }
     }
 
