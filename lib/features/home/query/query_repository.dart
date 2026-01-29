@@ -1,13 +1,14 @@
+import 'package:lando/models/result_model.dart';
 import 'package:lando/services/translation/translation_service.dart';
 import 'package:lando/services/translation/translation_service_factory.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
 import 'package:lando/services/translation/youdao_translation_service.dart';
-import 'package:lando/services/translation/youdao/models/youdao_response.dart';
 
 /// Repository responsible for translation queries.
 ///
-/// This repository acts as a facade over different translation services,
-/// allowing the app to switch between Youdao, Google, Bing, etc.
+/// Acts as a facade over [TranslationService]; no service-specific types
+/// (e.g. YoudaoResponse) are exposed. All services return [ResultModel] for
+/// detailed results.
 class QueryRepository {
   QueryRepository({
     TranslationService? translationService,
@@ -24,41 +25,42 @@ class QueryRepository {
 
   TranslationService get translationService => _translationService;
 
-  /// Queries the translation service with the given [query] text and returns
+  /// Queries the translation service with the given [query] and returns
   /// a human-readable summary string.
   Future<String> lookup(String query) async {
     return await translationService.translate(query);
   }
 
-  /// Queries the translation service and returns translation with pronunciation URLs.
+  /// Queries the translation service and returns translation plus optional
+  /// pronunciation URLs and a generic [ResultModel] for detailed display.
   ///
-  /// Returns a map with 'translation', 'usPronunciationUrl', 'ukPronunciationUrl',
-  /// 'generalPronunciationUrl', 'inputPronunciationUrl', and 'youdaoResponse' keys.
+  /// Returns: 'translation', 'usPronunciationUrl', 'ukPronunciationUrl',
+  /// 'generalPronunciationUrl', 'inputPronunciationUrl', 'detailedResult'.
+  /// Pronunciation URLs are only set when the active service supports them
+  /// (e.g. Youdao). [detailedResult] is from the active service's
+  /// [TranslationService.getDetailedResult].
   Future<Map<String, dynamic>> lookupWithPronunciation(String query) async {
     final translation = await lookup(query);
+    final detailedResult =
+        await translationService.getDetailedResult(query);
 
-    // For Youdao service, get pronunciation URLs and full response
     String? usUrl;
     String? ukUrl;
     String? generalUrl;
     String? inputPronunciationUrl;
-    YoudaoResponse? youdaoResponse;
 
     if (translationService is YoudaoTranslationService) {
       final youdaoService = translationService as YoudaoTranslationService;
       try {
-        youdaoResponse = await youdaoService.translateFull(query);
-        final urls = youdaoService.getPronunciationUrls(youdaoResponse, query);
+        final fullResponse = await youdaoService.translateFull(query);
+        final urls = youdaoService.getPronunciationUrls(fullResponse, query);
         usUrl = urls['us'];
         ukUrl = urls['uk'];
         generalUrl = urls['general'];
-        // Get pronunciation URL for the input text
-        inputPronunciationUrl = youdaoService.getInputPronunciationUrl(
-          youdaoResponse,
-          query,
-        );
-      } catch (e) {
-        // If getting full response fails, still return translation
+        inputPronunciationUrl =
+            youdaoService.getInputPronunciationUrl(fullResponse, query);
+      } catch (_) {
+        // Keep translation and detailedResult even if pronunciation fails
       }
     }
 
@@ -68,7 +70,7 @@ class QueryRepository {
       'ukPronunciationUrl': ukUrl,
       'generalPronunciationUrl': generalUrl,
       'inputPronunciationUrl': inputPronunciationUrl,
-      'youdaoResponse': youdaoResponse,
+      'detailedResult': detailedResult,
     };
   }
 

@@ -188,33 +188,56 @@ class ApiClient {
   /// Executes a POST request with form-encoded body and returns dynamic JSON.
   ///
   /// Some endpoints (e.g. Bing `ttranslatev3`) return a JSON array, not a map.
+  /// On 301/302, follows the Location header and retries the POST once.
   Future<dynamic> postFormDynamic(
     String uri, {
     required Map<String, String> body,
     Map<String, String>? headers,
   }) async {
-    try {
-      final formData = body.entries
-          .map(
-            (e) =>
-                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
-          )
-          .join('&');
+    final formData = body.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
 
-      final finalUri = _applyCorsProxy(uri);
+    final baseHeaders = <String, String>{
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+      if (headers != null) ...headers,
+    };
+
+    Future<dynamic> doPost(String url) async {
+      final finalUri = _applyCorsProxy(url);
       final response = await _dio.post<dynamic>(
         finalUri,
         data: formData,
         options: Options(
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-            if (headers != null) ...headers,
-          },
+          headers: baseHeaders,
         ),
       );
-
       return response.data;
+    }
+
+    try {
+      return await doPost(uri);
     } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      if ((status == 301 || status == 302) && e.response != null) {
+        final location = e.response!.headers.value('location');
+        if (location != null && location.isNotEmpty) {
+          final redirectUrl = Uri.parse(uri).resolve(location).toString();
+          debugPrint('postFormDynamic: following redirect $status to $redirectUrl');
+          try {
+            return await doPost(redirectUrl);
+          } on DioException catch (e2) {
+            if (e2.response != null) {
+              debugPrint(
+                  'postFormDynamic: DioException - Status ${e2.response!.statusCode}, Data: ${e2.response!.data}');
+            }
+            throw _handleDioError(e2);
+          }
+        }
+      }
       if (e.response != null) {
         debugPrint(
             'postFormDynamic: DioException - Status ${e.response!.statusCode}, Data: ${e.response!.data}');
@@ -223,6 +246,7 @@ class ApiClient {
       }
       throw _handleDioError(e);
     } catch (e) {
+      if (e is HttpException) rethrow;
       debugPrint('Unexpected error in postFormDynamic: $e');
       throw HttpException(
         'Unexpected error: ${e.toString()}',

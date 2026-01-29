@@ -47,7 +47,7 @@ void main() {
       expect(result['translation'], '你好');
       expect(result['usPronunciationUrl'], isNotNull);
       expect(result['ukPronunciationUrl'], isNotNull);
-      expect(result['youdaoResponse'], isNotNull);
+      expect(result['detailedResult'], isNotNull);
     });
 
     test('should return translation only for non-Youdao service', () async {
@@ -57,7 +57,7 @@ void main() {
 
       expect(result['translation'], '你好');
       expect(result['usPronunciationUrl'], isNull);
-      expect(result['youdaoResponse'], isNull);
+      expect(result['detailedResult'], isNull);
     });
 
     test('should switch to different service', () {
@@ -118,7 +118,7 @@ class MockTranslationService implements TranslationService {
   }
 }
 
-// Mock Youdao translation service
+// Mock Youdao translation service (YoudaoQueryModel/YoudaoResponse stay internal)
 class MockYoudaoTranslationService extends MockTranslationService
     implements YoudaoTranslationService {
   @override
@@ -187,6 +187,6 @@ class MockYoudaoTranslationService extends MockTranslationService
 
   @override
   Future<ResultModel?> getDetailedResult(String query) async {
-    return null;
+    return ResultModel(query: query, simpleExplanation: '你好');
   }
 }

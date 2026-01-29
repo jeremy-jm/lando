@@ -20,12 +20,28 @@ class AppleTranslateService implements TranslationService {
 
   @override
   Future<String> translate(String query) async {
-    final result = await getDetailedResult(query);
-    return result?.simpleExplanation ?? '';
+    try {
+      final result = await getDetailedResult(query);
+      return result?.simpleExplanation ?? '';
+    } catch (e, st) {
+      debugPrint('[AppleTranslate] translate failed: $e');
+      if (kDebugMode) debugPrint('[AppleTranslate] $st');
+      return '';
+    }
   }
 
   @override
   Future<ResultModel?> getDetailedResult(String query) async {
+    try {
+      return await _getDetailedResultImpl(query);
+    } catch (e, st) {
+      debugPrint('[AppleTranslate] getDetailedResult error: $e');
+      if (kDebugMode) debugPrint('[AppleTranslate] $st');
+      return null;
+    }
+  }
+
+  Future<ResultModel?> _getDetailedResultImpl(String query) async {
     final text = query.trim();
     debugPrint('[AppleTranslate] getDetailedResult called, query length: ${text.length}');
     if (text.isEmpty) {
@@ -37,7 +53,6 @@ class AppleTranslateService implements TranslationService {
       return null;
     }
 
-    // Use language resolver to get proper language pair
     final languagePair = await TranslationLanguageResolver.instance.resolveLanguages(text);
     final from = languagePair.fromLanguage != null
         ? TranslationLanguageResolver.instance.mapToAppleFormat(languagePair.fromLanguage)
@@ -51,37 +66,43 @@ class AppleTranslateService implements TranslationService {
       'text preview: "${text.length > 30 ? text.substring(0, 30) : text}..."',
     );
 
+    String? translated;
     try {
       debugPrint('[AppleTranslate] invoking platform channel translate...');
-      final translated = await _channel.invokeMethod<String>(
+      const timeout = Duration(seconds: 25);
+      translated = await _channel.invokeMethod<String>(
         'translate',
         <String, dynamic>{
           'text': text,
-          // null means auto-detect on native side
           'from': from,
-          'to': to, // Always provided (never null/auto)
+          'to': to,
+        },
+      ).timeout(
+        timeout,
+        onTimeout: () {
+          debugPrint('[AppleTranslate] native did not respond within ${timeout.inSeconds}s');
+          return null;
         },
       );
-      debugPrint('[AppleTranslate] channel returned: translated=${translated != null ? "length ${translated.length}" : "null"}');
-
-      if (translated == null || translated.trim().isEmpty) {
-        debugPrint('[AppleTranslate] result empty or null, returning null');
-        return null;
-      }
-
-      debugPrint('[AppleTranslate] success, returning ResultModel');
-      return ResultModel(
-        query: text,
-        simpleExplanation: translated.trim(),
-      );
     } on PlatformException catch (e) {
-      debugPrint('[AppleTranslate] PlatformException code=${e.code} message=${e.message} details=${e.details}');
+      debugPrint('[AppleTranslate] PlatformException code=${e.code} message=${e.message}');
       return null;
-    } catch (e, st) {
-      debugPrint('[AppleTranslate] catch: $e');
-      debugPrint('[AppleTranslate] stack: $st');
+    } on Exception catch (e, st) {
+      debugPrint('[AppleTranslate] Exception: $e');
+      if (kDebugMode) debugPrint('[AppleTranslate] $st');
       return null;
     }
+
+    debugPrint('[AppleTranslate] channel returned: translated=${translated != null ? "length ${translated.length}" : "null"}');
+
+    if (translated == null || translated.trim().isEmpty) {
+      return null;
+    }
+
+    return ResultModel(
+      query: text,
+      simpleExplanation: translated.trim(),
+    );
   }
 }
 

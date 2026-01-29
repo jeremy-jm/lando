@@ -126,6 +126,7 @@ private final class AppleTranslateBridge {
 @available(macOS 15.0, *)
 private final class AppleTranslateWorker {
   private var hostController: NSHostingController<AppleTranslateWorkerView>?
+  private var translationPanel: NSPanel?
   private let model = AppleTranslateWorkerModel()
 
   func attach(to parent: NSViewController) {
@@ -137,16 +138,32 @@ private final class AppleTranslateWorker {
 
     let view = AppleTranslateWorkerView(model: model)
     let host = NSHostingController(rootView: view)
-    host.view.isHidden = true
     host.view.wantsLayer = true
     host.view.layer?.backgroundColor = NSColor.clear.cgColor
+    host.view.frame = NSRect(x: 0, y: 0, width: 10, height: 10)
 
-    parent.addChild(host)
-    parent.view.addSubview(host.view)
-    host.view.frame = .zero
-
+    // Host the SwiftUI view in a dedicated transparent window so .translationTask runs.
+    // When the view is hidden or in a zero-size container, the system may never run the task.
+    let panel = NSPanel(
+      contentRect: NSRect(x: 0, y: 0, width: 10, height: 10),
+      styleMask: [.borderless],
+      backing: .buffered,
+      defer: false
+    )
+    panel.isOpaque = false
+    panel.backgroundColor = .clear
+    panel.hasShadow = false
+    panel.level = .floating
+    panel.collectionBehavior = [.canJoinAllSpaces, .stationary]
+    panel.isReleasedWhenClosed = false
+    panel.hidesOnDeactivate = false
+    panel.contentViewController = host
+    // Position off-screen so the user never sees it
+    panel.setFrameOrigin(NSPoint(x: -10000, y: -10000))
+    panel.orderFront(nil)
+    translationPanel = panel
     hostController = host
-    print("[AppleTranslate macOS] worker: hosting controller added")
+    print("[AppleTranslate macOS] worker: hosting controller in transparent panel, panel ordered front")
   }
 
   func translate(
@@ -166,6 +183,7 @@ private final class AppleTranslateWorkerModel: ObservableObject {
   @Published var textToTranslate: String?
 
   private var completion: ((String?, Error?) -> Void)?
+  private var timeoutWorkItem: DispatchWorkItem?
 
   func start(
     text: String,
@@ -174,6 +192,20 @@ private final class AppleTranslateWorkerModel: ObservableObject {
     completion: @escaping (String?, Error?) -> Void
   ) {
     print("[AppleTranslate macOS] model.start() on main queue")
+    timeoutWorkItem?.cancel()
+    let timeoutItem = DispatchWorkItem { [weak self] in
+      guard let self = self else { return }
+      if let comp = self.completion {
+        print("[AppleTranslate macOS] timeout: translationTask did not complete in time")
+        comp(nil, NSError(domain: "AppleTranslate", code: 3, userInfo: [
+          NSLocalizedDescriptionKey: "Translation timed out (translationTask may not run when view is hidden)"
+        ]))
+        self.reset()
+      }
+    }
+    timeoutWorkItem = timeoutItem
+    DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: timeoutItem)
+
     DispatchQueue.main.async {
       self.completion = completion
       self.textToTranslate = text
@@ -201,18 +233,24 @@ private final class AppleTranslateWorkerModel: ObservableObject {
   }
 
   func finishSuccess(_ translated: String) {
+    timeoutWorkItem?.cancel()
+    timeoutWorkItem = nil
     print("[AppleTranslate macOS] model.finishSuccess length=\(translated.count)")
     completion?(translated, nil)
     reset()
   }
 
   func finishError(_ error: Error) {
+    timeoutWorkItem?.cancel()
+    timeoutWorkItem = nil
     print("[AppleTranslate macOS] model.finishError: \(error.localizedDescription)")
     completion?(nil, error)
     reset()
   }
 
   private func reset() {
+    timeoutWorkItem?.cancel()
+    timeoutWorkItem = nil
     completion = nil
     textToTranslate = nil
     configuration = nil

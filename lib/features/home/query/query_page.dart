@@ -413,26 +413,19 @@ class _QueryPageState extends State<QueryPage> {
                       );
                     }
 
-                    // Show detailed Youdao result if available (check this first)
-                    if (state.youdaoResponse != null) {
-                      // // Build fanyi pronunciation URL if available
-                      // final fanyi = state.youdaoResponse!.fanyi;
-                      // final fanyiPronunciationUrl =
-                      //     fanyi?.voice != null && fanyi!.voice!.isNotEmpty
-                      //     ? 'https://dict.youdao.com/dictvoice?audio=${fanyi.voice}'
-                      //     : null;
-
+                    // Show dictionary (multi-platform) when we have a query.
+                    // Each platform fetches via getDetailedResult(query); no
+                    // service-specific types (e.g. YoudaoResponse) in UI.
+                    if (state.query.isNotEmpty) {
                       return DictionaryWidget(
                         query: state.query,
                         platforms: [
-                          // TranslationServiceType.youdao,
+                          TranslationServiceType.youdao,
                           TranslationServiceType.bing,
                           if (Platform.isIOS || Platform.isMacOS)
                             TranslationServiceType.apple,
-                          // // TranslationServiceType.google,
                         ],
                         onQueryTap: (queryText) {
-                          // Update TextField and trigger search
                           _controller.text = queryText;
                           _bloc.add(QuerySearchSubmitted(queryText));
                         },

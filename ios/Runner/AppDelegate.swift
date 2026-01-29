@@ -86,12 +86,13 @@ private final class AppleTranslateBridge {
 
     let view = AppleTranslateWorkerView(model: model)
     let host = UIHostingController(rootView: view)
-    host.view.isHidden = true
     host.view.backgroundColor = .clear
+    // Non-zero frame so SwiftUI .translationTask runs (often skipped when frame is .zero)
+    host.view.frame = CGRect(x: 0, y: 0, width: 1, height: 1)
+    host.view.isHidden = true
 
     parent.addChild(host)
     parent.view.addSubview(host.view)
-    host.view.frame = .zero
     host.didMove(toParent: parent)
 
     hostController = host
@@ -126,6 +127,7 @@ private final class AppleTranslateWorkerModel: ObservableObject {
   @Published var textToTranslate: String?
 
   private var completion: ((String?, Error?) -> Void)?
+  private var timeoutWorkItem: DispatchWorkItem?
 
   func start(
     text: String,
@@ -134,6 +136,20 @@ private final class AppleTranslateWorkerModel: ObservableObject {
     completion: @escaping (String?, Error?) -> Void
   ) {
     print("[AppleTranslate iOS] model.start() on main queue")
+    timeoutWorkItem?.cancel()
+    let timeoutItem = DispatchWorkItem { [weak self] in
+      guard let self = self else { return }
+      if let comp = self.completion {
+        print("[AppleTranslate iOS] timeout: translationTask did not complete in time")
+        comp(nil, NSError(domain: "AppleTranslate", code: 3, userInfo: [
+          NSLocalizedDescriptionKey: "Translation timed out (translationTask may not run when view is hidden)"
+        ]))
+        self.reset()
+      }
+    }
+    timeoutWorkItem = timeoutItem
+    DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: timeoutItem)
+
     DispatchQueue.main.async {
       self.completion = completion
       self.textToTranslate = text
@@ -146,7 +162,6 @@ private final class AppleTranslateWorkerModel: ObservableObject {
         self.configuration = TranslationSession.Configuration(source: source, target: target)
         configSource = from
       } else {
-        // Auto-detect source using NaturalLanguage
         let detected = AppleTranslateWorkerModel.detectLanguageCode(for: text)
         if let detected = detected {
           let source = AppleTranslateWorkerModel.makeLanguage(identifier: detected)
@@ -162,18 +177,24 @@ private final class AppleTranslateWorkerModel: ObservableObject {
   }
 
   func finishSuccess(_ translated: String) {
+    timeoutWorkItem?.cancel()
+    timeoutWorkItem = nil
     print("[AppleTranslate iOS] model.finishSuccess length=\(translated.count)")
     completion?(translated, nil)
     reset()
   }
 
   func finishError(_ error: Error) {
+    timeoutWorkItem?.cancel()
+    timeoutWorkItem = nil
     print("[AppleTranslate iOS] model.finishError: \(error.localizedDescription)")
     completion?(nil, error)
     reset()
   }
 
   private func reset() {
+    timeoutWorkItem?.cancel()
+    timeoutWorkItem = nil
     completion = nil
     textToTranslate = nil
     configuration = nil

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:lando/features/home/query/query_repository.dart';
 import 'package:lando/models/query_history_item.dart';
-import 'package:lando/services/translation/youdao/models/youdao_response.dart';
+import 'package:lando/models/result_model.dart';
 import 'package:lando/storage/query_history_storage.dart';
 
 /// Events for [QueryBloc].
@@ -30,7 +30,7 @@ class QueryState {
     this.ukPronunciationUrl,
     this.generalPronunciationUrl,
     this.inputPronunciationUrl,
-    this.youdaoResponse,
+    this.detailedResult,
   });
 
   final String query;
@@ -41,7 +41,8 @@ class QueryState {
   final String? ukPronunciationUrl;
   final String? generalPronunciationUrl;
   final String? inputPronunciationUrl;
-  final YoudaoResponse? youdaoResponse;
+  /// Detailed result from the active translation service (generic [ResultModel]).
+  final ResultModel? detailedResult;
 
   QueryState copyWith({
     String? query,
@@ -52,7 +53,7 @@ class QueryState {
     String? ukPronunciationUrl,
     String? generalPronunciationUrl,
     String? inputPronunciationUrl,
-    YoudaoResponse? youdaoResponse,
+    ResultModel? detailedResult,
   }) {
     return QueryState(
       query: query ?? this.query,
@@ -63,7 +64,7 @@ class QueryState {
       ukPronunciationUrl: ukPronunciationUrl,
       generalPronunciationUrl: generalPronunciationUrl,
       inputPronunciationUrl: inputPronunciationUrl,
-      youdaoResponse: youdaoResponse,
+      detailedResult: detailedResult,
     );
   }
 }
@@ -111,13 +112,13 @@ class QueryBloc {
           ukPronunciationUrl: null,
           generalPronunciationUrl: null,
           inputPronunciationUrl: null,
-          youdaoResponse: null,
+          detailedResult: null,
         ),
       );
       try {
         final result = await _repository.lookupWithPronunciation(query);
         final translation = result['translation'] ?? '';
-        
+
         // Save to query history if translation is not empty
         if (translation.isNotEmpty && query.trim().isNotEmpty) {
           final historyItem = QueryHistoryItem(
@@ -125,10 +126,9 @@ class QueryBloc {
             meaning: translation,
             timestamp: DateTime.now().millisecondsSinceEpoch,
           );
-          // Save asynchronously without blocking the UI
           QueryHistoryStorage.saveHistoryItem(historyItem);
         }
-        
+
         _emit(
           _state.copyWith(
             isLoading: false,
@@ -138,7 +138,7 @@ class QueryBloc {
             generalPronunciationUrl:
                 result['generalPronunciationUrl'] as String?,
             inputPronunciationUrl: result['inputPronunciationUrl'] as String?,
-            youdaoResponse: result['youdaoResponse'] as YoudaoResponse?,
+            detailedResult: result['detailedResult'] as ResultModel?,
           ),
         );
       } catch (e) {

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/network/api_client.dart';
-import 'package:lando/services/translation/translation_language_resolver.dart';
 import 'package:lando/services/translation/translation_service.dart';
 import 'package:lando/services/translation/youdao/models/youdao_other_models.dart';
 import 'package:lando/services/translation/youdao/models/youdao_query_model.dart';
@@ -26,18 +25,7 @@ class YoudaoTranslationService implements TranslationService {
     }
 
     try {
-      // Use language resolver to get proper language pair
-      final languagePair =
-          await TranslationLanguageResolver.instance.resolveLanguages(query);
-      final le = TranslationLanguageResolver.instance
-          .mapToYoudaoFormat(languagePair.toLanguage);
-
-      final queryModel = _buildQueryModel(
-        query: query,
-        le: le,
-        fromLanguage: languagePair.fromLanguage,
-        toLanguage: languagePair.toLanguage,
-      );
+      final queryModel = _buildQueryModel(query: query);
       final response = await translateFullWithModel(queryModel);
 
       // Priority 0: Extract translation from Fanyi - highest priority
@@ -116,18 +104,7 @@ class YoudaoTranslationService implements TranslationService {
     }
 
     try {
-      // Use language resolver to get proper language pair
-      final languagePair =
-          await TranslationLanguageResolver.instance.resolveLanguages(query);
-      final le = TranslationLanguageResolver.instance
-          .mapToYoudaoFormat(languagePair.toLanguage);
-
-      final queryModel = _buildQueryModel(
-        query: query,
-        le: le,
-        fromLanguage: languagePair.fromLanguage,
-        toLanguage: languagePair.toLanguage,
-      );
+      final queryModel = _buildQueryModel(query: query);
       return await translateFullWithModel(queryModel);
     } on SocketException catch (e) {
       // Handle network connection errors
@@ -195,13 +172,7 @@ class YoudaoTranslationService implements TranslationService {
   ///
   /// Do not use client=webmain/webfanyi for this endpoint; the dict API expects
   /// client=web, keyfrom=webdict and returns ec/ce in the response.
-  YoudaoQueryModel _buildQueryModel({
-    required String query,
-    String? le,
-    String? fromLanguage,
-    String? toLanguage,
-  }) {
-    // Dict API (jsonapi_s) expects webdict salt and "web" sign prefix
+  YoudaoQueryModel _buildQueryModel({required String query}) {
     final ww = '${query}webdict';
     final time = (ww.length % 10).toString();
 
@@ -213,10 +184,8 @@ class YoudaoTranslationService implements TranslationService {
     final signBytes = utf8.encode(signContent);
     final sign = md5.convert(signBytes).toString();
 
-    // Do not send dicts/needTranslate for dict API; server returns ec by default
     return YoudaoQueryModel(
       q: query,
-      le: le ?? 'eng',
       t: time,
       client: 'web',
       sign: sign,

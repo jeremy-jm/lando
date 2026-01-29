@@ -1,10 +1,14 @@
 import 'dart:convert';
 
-/// Query model for Youdao API request.
+/// Request body model for the Youdao dict API (dict.youdao.com/jsonapi_s) only.
+///
+/// Used exclusively by [YoudaoTranslationService]. Do not use for other
+/// translation services (Bing, Apple, Google); they have their own request
+/// shapes. This model contains Youdao-specific fields (client, keyfrom,
+/// sign, dicts, etc.) and must not be passed to or shared with other services.
 class YoudaoQueryModel {
   const YoudaoQueryModel({
     required this.q,
-    required this.le,
     this.t,
     this.client = 'web',
     this.sign,
@@ -14,9 +18,6 @@ class YoudaoQueryModel {
 
   /// Query text
   final String q;
-
-  /// Target language code (e.g., 'ja' for Japanese, 'en' for English, 'zh' for Chinese)
-  final String le;
 
   /// Timestamp or other parameter
   final String? t;
@@ -34,13 +35,10 @@ class YoudaoQueryModel {
   final List<String>? dicts;
 
   /// Converts the model to a map for API request.
-  ///
-  /// Note: The values will be URL-encoded by ApiClient.postForm() when sending the request.
-  /// The language code (le) is passed directly as selected by the user.
+  /// Does not include [le]; passing [le] to the dict API leads to ec not found.
   Map<String, String> toMap() {
     final map = <String, String>{
-      'q': q, // Query text (will be URL-encoded)
-      // 'le': le, // Target language code (e.g., 'ja', 'zh', 'en') - will be URL-encoded, it will be lead to ec not found
+      'q': q,
       'client': client,
       'keyfrom': keyfrom,
     };
@@ -68,7 +66,6 @@ class YoudaoQueryModel {
   /// Creates a copy with updated fields
   YoudaoQueryModel copyWith({
     String? q,
-    String? le,
     String? t,
     String? client,
     String? sign,
@@ -77,7 +74,6 @@ class YoudaoQueryModel {
   }) {
     return YoudaoQueryModel(
       q: q ?? this.q,
-      le: le ?? this.le,
       t: t ?? this.t,
       client: client ?? this.client,
       sign: sign ?? this.sign,
