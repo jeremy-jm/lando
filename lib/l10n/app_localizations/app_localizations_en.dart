@@ -177,6 +177,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copy => 'Copy';
 
   @override
+  String get selectAll => 'Select All';
+
+  @override
   String get privacyPolicy => 'Privacy Policy';
 
   @override

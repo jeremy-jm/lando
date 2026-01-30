@@ -26,54 +26,16 @@ void main() async {
 
   runZonedGuarded(
     () async {
-      // Ensure Flutter bindings are initialized in the same zone
       WidgetsFlutterBinding.ensureInitialized();
 
-      // Initialize storage
-      await PreferencesStorage.init();
-
-      // Initialize window manager and hotkey manager for desktop platforms
-      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-        // Initialize window manager
-        await windowManager.ensureInitialized();
-
-        // Prevent window from closing (hide instead)
-        // This allows the app to stay running when window is hidden
-        await windowManager.setPreventClose(true);
-
-        // Initialize hotkey manager
-        await hotKeyManager.unregisterAll();
-
-        // Initialize hotkey service
-        await HotkeyService.instance.initialize();
+      // Required for iOS: do not await before runApp or the first frame stays white.
+      // Run minimal root (_IosDeferredApp) immediately; init runs after first frame.
+      if (Platform.isIOS) {
+        runApp(const _IosDeferredApp());
+        return;
       }
 
-      // Initialize controllers with saved preferences
-      await ThemeController.instance.init();
-      await LocaleController.instance.init();
-
-      // Initialize Bing token service (fetch token in background)
-      // This is done asynchronously to not block app startup
-      unawaited(
-        BingTokenService.instance.getToken().then((token) {
-          debugPrint('Bing token fetched on startup: ${token ?? '(null)'}');
-          return token;
-        }).catchError((e, stackTrace) {
-          debugPrint('Failed to fetch Bing token on startup: $e');
-          debugPrint('Stack trace: $stackTrace');
-          return null;
-        }),
-      );
-
-      // Initialize analytics for mobile platforms (Android/iOS)
-      await AnalyticsService.instance.initialize();
-
-      // Initialize APM for error tracking (after analytics is initialized)
-      if (Platform.isAndroid || Platform.isIOS) {
-        await AnalyticsService.instance.initializeApm();
-      }
-
-      // Run the app in the same zone
+      await _runAppInit();
       runApp(const MyApp());
     },
     (error, stackTrace) {
@@ -108,6 +70,44 @@ void main() async {
   );
 }
 
+/// All initialization that must complete before showing the full app.
+Future<void> _runAppInit() async {
+  await PreferencesStorage.init();
+
+  if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+    await windowManager.ensureInitialized();
+    await windowManager.setPreventClose(true);
+    await hotKeyManager.unregisterAll();
+    await HotkeyService.instance.initialize();
+  }
+
+  await ThemeController.instance.init();
+  await LocaleController.instance.init();
+
+  unawaited(
+    BingTokenService.instance.getToken().then((token) {
+      debugPrint('Bing token fetched on startup: ${token ?? '(null)'}');
+      return token;
+    }).catchError((e, stackTrace) {
+      debugPrint('Failed to fetch Bing token on startup: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return null;
+    }),
+  );
+
+  try {
+    await AnalyticsService.instance.initialize();
+    if (Platform.isAndroid || Platform.isIOS) {
+      await AnalyticsService.instance.initializeApm();
+    }
+  } catch (e, stackTrace) {
+    if (kDebugMode) {
+      debugPrint('Analytics init failed (app will still run): $e');
+      debugPrint('Stack: $stackTrace');
+    }
+  }
+}
+
 bool _isKeyboardStateSyncAssertion(Object error, StackTrace? stackTrace) {
   // Flutter HardwareKeyboard assertion: KeyDownEvent when key already pressed,
   // or KeyUpEvent when key not pressed. Common with global hotkeys or key repeat.
@@ -135,8 +135,9 @@ void _setupErrorHandlers() {
       final message = exception.message?.toString() ?? '';
       final fromKeyboard = library.contains('hardware_keyboard.dart') ||
           stack.contains('hardware_keyboard.dart');
-      final keyStateSync = message.contains('physical key is already pressed') ||
-          message.contains('physical key is not pressed');
+      final keyStateSync =
+          message.contains('physical key is already pressed') ||
+              message.contains('physical key is not pressed');
       if (fromKeyboard && keyStateSync) {
         if (kDebugMode) {
           debugPrint(
@@ -163,6 +164,56 @@ void _setupErrorHandlers() {
       FlutterError.presentError(details);
     }
   };
+}
+
+/// On iOS, show a minimal first frame then the full app to avoid white screen.
+class _IosDeferredApp extends StatefulWidget {
+  const _IosDeferredApp();
+
+  @override
+  State<_IosDeferredApp> createState() => _IosDeferredAppState();
+}
+
+class _IosDeferredAppState extends State<_IosDeferredApp> {
+  bool _ready = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // First frame: show "Hello" with no init (matches "only simple code works" case).
+    // After first frame, run full init then show MyApp (always switch even if init fails).
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _runAppInit().timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            if (kDebugMode)
+              debugPrint('iOS deferred init timeout, showing app anyway');
+          },
+        );
+      } catch (e, st) {
+        if (kDebugMode) {
+          debugPrint('iOS deferred init error: $e');
+          debugPrint('$st');
+        }
+      }
+      if (!mounted) return;
+      setState(() => _ready = true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_ready) {
+      return MaterialApp(
+        theme: ThemeData.light(useMaterial3: true),
+        home: const Scaffold(
+          body: Center(child: Text('Hello')),
+        ),
+      );
+    }
+    return const MyApp();
+  }
 }
 
 class MyApp extends StatefulWidget {

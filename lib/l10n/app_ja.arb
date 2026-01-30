@@ -54,6 +54,7 @@
   "versionInfo": "バージョン情報",
   "versionInfoCopied": "バージョン情報がクリップボードにコピーされました",
   "copy": "コピー",
+  "selectAll": "すべて選択",
   "privacyPolicy": "プライバシーポリシー",
   "privacyPolicyContent": "このアプリはあなたのプライバシーを尊重します。個人情報を収集、保存、共有することはありません。すべての翻訳クエリはサードパーティサービスを通じて処理されます。",
   "termsOfService": "利用規約",

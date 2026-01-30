@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -26,67 +27,81 @@ class _MainContainerPageState extends State<MainContainerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    // Null-safe: l10n can be null on first frame (e.g. iOS before locale is ready)
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final translationLabel = l10n?.translation ?? 'Translation';
+    final meLabel = l10n?.me ?? 'Me';
+
+    final barContent = SafeArea(
+      top: false,
+      child: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.colorScheme.onSurface.withValues(
+          alpha: 0.6,
+        ),
+        selectedLabelStyle:
+            theme.bottomNavigationBarTheme.selectedLabelStyle,
+        unselectedLabelStyle:
+            theme.bottomNavigationBarTheme.unselectedLabelStyle,
+        type: BottomNavigationBarType.fixed,
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.home),
+            label: translationLabel,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person),
+            label: meLabel,
+          ),
+        ],
+        onTap: (index) {
+          AnalyticsService.instance.event(
+            'tap_bottom_nav',
+            properties: {'index': index},
+          );
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+    );
+
+    // BackdropFilter can cause white/blank screen on iOS simulator; use solid bar on iOS
+    final bottomBar = Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: 0.98),
+        border: Border(
+          top: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Platform.isIOS
+          ? barContent
+          : ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface.withValues(alpha: 0.7),
+                  ),
+                  child: barContent,
+                ),
+              ),
+            ),
+    );
 
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,
       ),
-      // Bottom navigation bar with iOS liquid glass effect
-      bottomNavigationBar: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface.withValues(alpha: 0.7),
-              border: Border(
-                top: BorderSide(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                  width: 0.5,
-                ),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: BottomNavigationBar(
-                currentIndex: _currentIndex,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                selectedItemColor: theme.colorScheme.primary,
-                unselectedItemColor: theme.colorScheme.onSurface.withValues(
-                  alpha: 0.6,
-                ),
-                selectedLabelStyle:
-                    theme.bottomNavigationBarTheme.selectedLabelStyle,
-                unselectedLabelStyle:
-                    theme.bottomNavigationBarTheme.unselectedLabelStyle,
-                type: BottomNavigationBarType.fixed,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: const Icon(Icons.home),
-                    label: l10n.translation,
-                  ),
-                  BottomNavigationBarItem(
-                    icon: const Icon(Icons.person),
-                    label: l10n.me,
-                  ),
-                ],
-                onTap: (index) {
-                  AnalyticsService.instance.event(
-                    'tap_bottom_nav',
-                    properties: {'index': index},
-                  );
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-              ),
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: bottomBar,
     );
   }
 }

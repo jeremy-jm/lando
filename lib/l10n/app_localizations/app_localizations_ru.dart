@@ -179,6 +179,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get copy => 'Копировать';
 
   @override
+  String get selectAll => 'Выбрать всё';
+
+  @override
   String get privacyPolicy => 'Политика конфиденциальности';
 
   @override

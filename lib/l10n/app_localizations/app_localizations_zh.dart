@@ -171,6 +171,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get copy => '复制';
 
   @override
+  String get selectAll => '选择';
+
+  @override
   String get privacyPolicy => '隐私政策';
 
   @override

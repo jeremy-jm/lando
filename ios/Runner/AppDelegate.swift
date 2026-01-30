@@ -14,15 +14,21 @@ import Translation
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
 
+    // Must call super first so Flutter sets up window and rootViewController.
+    // Setting up the method channel before super can cause iOS white screen.
+    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+
     if let controller = window?.rootViewController as? FlutterViewController {
       let channel = FlutterMethodChannel(
         name: "lando/apple_translate",
         binaryMessenger: controller.binaryMessenger
       )
 
-      AppleTranslateBridge.shared.attach(to: controller)
-
-      channel.setMethodCallHandler { call, result in
+      channel.setMethodCallHandler { [weak controller] call, result in
+        guard let controller = controller else {
+          result(FlutterError(code: "unavailable", message: "Flutter controller deallocated", details: nil))
+          return
+        }
         print("[AppleTranslate iOS] method call: \(call.method)")
         guard call.method == "translate" else {
           print("[AppleTranslate iOS] unimplemented method")
@@ -41,34 +47,44 @@ import Translation
         let from = args["from"] as? String
         print("[AppleTranslate iOS] translate text length=\(text.count) from=\(from ?? "auto") to=\(to)")
 
-        AppleTranslateBridge.shared.translate(
-          text: text,
-          from: from,
-          to: to
-        ) { translation, error in
-          if let error = error {
-            print("[AppleTranslate iOS] completion error: \(error.localizedDescription)")
-            result(
-              FlutterError(
-                code: "translate_failed",
-                message: error.localizedDescription,
-                details: nil
+        if #available(iOS 18.0, *) {
+          AppleTranslateBridge.shared.attach(to: controller)
+          AppleTranslateBridge.shared.translate(
+            text: text,
+            from: from,
+            to: to
+          ) { translation, error in
+            if let error = error {
+              print("[AppleTranslate iOS] completion error: \(error.localizedDescription)")
+              result(
+                FlutterError(
+                  code: "translate_failed",
+                  message: error.localizedDescription,
+                  details: nil
+                )
               )
-            )
-            return
+              return
+            }
+            print("[AppleTranslate iOS] completion success, translation length=\(translation?.count ?? 0)")
+            result(translation)
           }
-          print("[AppleTranslate iOS] completion success, translation length=\(translation?.count ?? 0)")
-          result(translation)
+        } else {
+          result(FlutterError(
+            code: "unsupported",
+            message: "Apple Translate requires iOS 18 or newer",
+            details: nil
+          ))
         }
       }
     }
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    return result
   }
 }
 
-// MARK: - Apple Translate (iOS) Bridge
+// MARK: - Apple Translate (iOS) Bridge — requires iOS 18+
 
+@available(iOS 18.0, *)
 private final class AppleTranslateBridge {
   static let shared = AppleTranslateBridge()
 
@@ -84,7 +100,7 @@ private final class AppleTranslateBridge {
       return
     }
 
-    let view = AppleTranslateWorkerView(model: model)
+    let view = AppleTranslateWorkerView(model: self.model)
     let host = UIHostingController(rootView: view)
     host.view.backgroundColor = .clear
     // Non-zero frame so SwiftUI .translationTask runs (often skipped when frame is .zero)
@@ -108,7 +124,7 @@ private final class AppleTranslateBridge {
     print("[AppleTranslate iOS] translate() entered")
 #if canImport(Translation)
     if #available(iOS 18.0, *) {
-      model.start(text: text, from: from, to: to, completion: completion)
+      self.model.start(text: text, from: from, to: to, completion: completion)
     } else {
       completion(nil, NSError(domain: "AppleTranslate", code: 1, userInfo: [
         NSLocalizedDescriptionKey: "Apple Translate requires iOS 18+"
@@ -122,6 +138,7 @@ private final class AppleTranslateBridge {
   }
 }
 
+@available(iOS 18.0, *)
 private final class AppleTranslateWorkerModel: ObservableObject {
   @Published var configuration: TranslationSession.Configuration?
   @Published var textToTranslate: String?
@@ -227,6 +244,7 @@ private final class AppleTranslateWorkerModel: ObservableObject {
   }
 }
 
+@available(iOS 18.0, *)
 private struct AppleTranslateWorkerView: View {
   @StateObject var model: AppleTranslateWorkerModel
 

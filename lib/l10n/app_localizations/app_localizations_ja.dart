@@ -171,6 +171,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get copy => 'コピー';
 
   @override
+  String get selectAll => 'すべて選択';
+
+  @override
   String get privacyPolicy => 'プライバシーポリシー';
 
   @override

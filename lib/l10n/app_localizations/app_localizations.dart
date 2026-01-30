@@ -432,6 +432,12 @@ abstract class AppLocalizations {
   /// **'Copy'**
   String get copy;
 
+  /// Select All button label in text context menu
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
   /// Privacy policy title
   ///
   /// In en, this message translates to:

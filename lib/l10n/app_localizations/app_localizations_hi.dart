@@ -178,6 +178,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get copy => 'कॉपी करें';
 
   @override
+  String get selectAll => 'सभी चुनें';
+
+  @override
   String get privacyPolicy => 'गोपनीयता नीति';
 
   @override

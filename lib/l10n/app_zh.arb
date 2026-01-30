@@ -54,6 +54,7 @@
   "versionInfo": "版本信息",
   "versionInfoCopied": "版本信息已复制到剪贴板",
   "copy": "复制",
+  "selectAll": "选择",
   "privacyPolicy": "隐私政策",
   "privacyPolicyContent": "本应用尊重您的隐私。我们不收集、存储或分享任何个人信息。所有翻译查询均通过第三方服务处理。",
   "termsOfService": "服务条款",

@@ -216,6 +216,10 @@
   "@copy": {
     "description": "Copy button label"
   },
+  "selectAll": "Select All",
+  "@selectAll": {
+    "description": "Select All button label in text context menu"
+  },
   "privacyPolicy": "Privacy Policy",
   "@privacyPolicy": {
     "description": "Privacy policy title"

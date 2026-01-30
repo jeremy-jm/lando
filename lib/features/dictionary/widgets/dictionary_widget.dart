@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 import 'package:lando/models/result_model.dart';
@@ -455,7 +455,7 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
           ),
         ],
 
-        // Translations by part of speech
+        // Translations by part of speech (long-press on mobile to select and copy)
         if (result.translationsByPos != null &&
             result.translationsByPos!.isNotEmpty) ...[
           const SizedBox(height: 16.0),
@@ -464,44 +464,60 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
             height: 0.5,
           ),
           const SizedBox(height: 16.0),
-          Text(
+          SelectableText(
             l10n?.partOfSpeech ?? 'Part of Speech',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
             ),
+            contextMenuBuilder: (context, editableTextState) =>
+                _buildSelectableContextMenu(context, editableTextState, l10n),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: result.translationsByPos!.expand((translation) {
+              final name = translation['name'] ?? '';
+              final value = translation['value'] ?? '';
               return [
-                SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 34,
-                      child: _buildClickableText(
-                        context,
-                        theme,
-                        translation['name'] ?? '',
-                        onTap: () {
-                          widget.onQueryTap?.call(translation['name'] ?? '');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: Text(
-                        translation['value'] ?? '',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.colorScheme.onSurface,
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 34,
+                        child: SelectableText(
+                          name,
+                          style: TextStyle(
+                            fontSize: name.contains(':')
+                                ? 14
+                                : (name.length <= 4 ? 12 : 14),
+                            fontWeight: name.contains(':')
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: theme.colorScheme.primary,
+                          ),
+                          contextMenuBuilder: (context, editableTextState) =>
+                              _buildSelectableContextMenu(
+                                  context, editableTextState, l10n),
                         ),
-                        softWrap: true,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: SelectableText(
+                          value,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                          contextMenuBuilder: (context, editableTextState) =>
+                              _buildSelectableContextMenu(
+                                  context, editableTextState, l10n),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ];
             }).toList(),
@@ -813,6 +829,37 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
           ],
         ),
       ),
+    );
+  }
+
+  /// Builds context menu for selectable text: Copy and Select All (localized).
+  /// Shown on long-press at cursor/selection on mobile.
+  Widget _buildSelectableContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+    AppLocalizations? l10n,
+  ) {
+    final copyLabel = l10n?.copy ?? 'Copy';
+    final selectAllLabel = l10n?.selectAll ?? 'Select All';
+    final items = editableTextState.contextMenuButtonItems
+        .where((item) =>
+            item.type == ContextMenuButtonType.copy ||
+            item.type == ContextMenuButtonType.selectAll)
+        .map((item) {
+      if (item.type == ContextMenuButtonType.copy) {
+        return item.copyWith(label: copyLabel);
+      }
+      if (item.type == ContextMenuButtonType.selectAll) {
+        return item.copyWith(label: selectAllLabel);
+      }
+      return item;
+    }).toList();
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return AdaptiveTextSelectionToolbar.buttonItems(
+      anchors: editableTextState.contextMenuAnchors,
+      buttonItems: items,
     );
   }
 

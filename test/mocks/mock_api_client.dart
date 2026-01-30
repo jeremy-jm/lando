@@ -22,7 +22,7 @@ class MockApiClient extends ApiClient {
     Map<String, dynamic>? queryParameters,
   }) async {
     if (_mockError != null) {
-      throw _mockError!;
+      throw _mockError;
     }
     return _mockGetResponse ?? <String, dynamic>{};
   }
@@ -34,7 +34,7 @@ class MockApiClient extends ApiClient {
     Map<String, String>? headers,
   }) async {
     if (_mockError != null) {
-      throw _mockError!;
+      throw _mockError;
     }
     return _mockPostResponse ?? <String, dynamic>{};
   }
@@ -46,7 +46,7 @@ class MockApiClient extends ApiClient {
     Map<String, String>? headers,
   }) async {
     if (_mockError != null) {
-      throw _mockError!;
+      throw _mockError;
     }
     return _mockPostResponse ?? <String, dynamic>{};
   }

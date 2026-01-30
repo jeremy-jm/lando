@@ -178,6 +178,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get copy => 'Salin';
 
   @override
+  String get selectAll => 'Pilih Semua';
+
+  @override
   String get privacyPolicy => 'Kebijakan Privasi';
 
   @override
