@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     branches:
-      - master
+      - release
   workflow_dispatch: # Allow manual triggering
 
 permissions:
@@ -71,7 +71,7 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           cd build/linux/x64/release/bundle
-          tar -czf ../../../lando-linux-x64-linux-v${VERSION}-${COMMIT_ID}.tar.gz .
+          tar -czf ../../../lando-linux-${VERSION}-${COMMIT_ID}.tar.gz .
 
       - name: Create Linux DEB package
         run: |
@@ -109,15 +109,15 @@ jobs:
           EOF
           
           # Build DEB
-          fakeroot dpkg-deb --build deb-package build/linux/lando-linux-amd64-linux-v${VERSION}-${COMMIT_ID}.deb
+          fakeroot dpkg-deb --build deb-package build/linux/lando-linux-${VERSION}-${COMMIT_ID}.deb
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifacts
           path: |
-            build/linux/lando-linux-x64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz
-            build/linux/lando-linux-amd64-linux-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb
+            build/linux/lando-linux-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.tar.gz
+            build/linux/lando-linux-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.deb
           if-no-files-found: warn
 
   build-windows:
@@ -164,13 +164,13 @@ jobs:
         run: |
           $VERSION = "${{ steps.version.outputs.version }}"
           $COMMIT_ID = "${{ steps.commit.outputs.commit_id }}"
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\windows\lando-windows-x64-windows-v${VERSION}-${COMMIT_ID}.zip -Force
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\windows\lando-windows-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip -Force
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-artifacts
-          path: build/windows/lando-windows-x64-windows-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip
+          path: build/windows/lando-windows-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip
           if-no-files-found: warn
 
   build-macos:
@@ -225,7 +225,7 @@ jobs:
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           cd build/macos/Build/Products/Release
           # Create ZIP file with only lando.app
-          zip -r ../../../lando-macos-macos-v${VERSION}-${COMMIT_ID}.zip lando.app
+          zip -r ../../../lando-macos-${VERSION}-${COMMIT_ID}.zip lando.app
 
       - name: Install create-dmg
         run: brew install create-dmg
@@ -243,7 +243,7 @@ jobs:
             --icon "lando.app" 200 190 \
             --hide-extension "lando.app" \
             --app-drop-link 600 190 \
-            "../../../lando-macos-macos-v${VERSION}-${COMMIT_ID}.dmg" \
+            "../../../lando-macos-${VERSION}-${COMMIT_ID}.dmg" \
             "lando.app"
 
       - name: Upload macOS artifacts
@@ -251,8 +251,8 @@ jobs:
         with:
           name: macos-artifacts
           path: |
-            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip
-            build/macos/lando-macos-macos-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.dmg
+            build/macos/lando-macos-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.zip
+            build/macos/lando-macos-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.dmg
           if-no-files-found: warn
 
   build-android:
@@ -308,8 +308,8 @@ jobs:
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           APK_SRC="build/app/outputs/flutter-apk/app-release.apk"
           AAB_SRC="build/app/outputs/bundle/release/app-release.aab"
-          APK_DST="build/app/outputs/flutter-apk/app-release-android-v${VERSION}-${COMMIT_ID}.apk"
-          AAB_DST="build/app/outputs/bundle/release/app-release-android-v${VERSION}-${COMMIT_ID}.aab"
+          APK_DST="build/app/outputs/flutter-apk/lando-android-${VERSION}-${COMMIT_ID}.apk"
+          AAB_DST="build/app/outputs/bundle/release/lando-android-${VERSION}-${COMMIT_ID}.aab"
 
           echo "Checking Android outputs..."
           ls -la build/app/outputs/flutter-apk/ || true
@@ -345,8 +345,8 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           COMMIT_ID="${{ steps.commit.outputs.commit_id }}"
           mkdir -p dist/android
-          cp "build/app/outputs/flutter-apk/app-release-android-v${VERSION}-${COMMIT_ID}.apk" "dist/android/"
-          cp "build/app/outputs/bundle/release/app-release-android-v${VERSION}-${COMMIT_ID}.aab" "dist/android/"
+          cp "build/app/outputs/flutter-apk/lando-android-${VERSION}-${COMMIT_ID}.apk" "dist/android/"
+          cp "build/app/outputs/bundle/release/lando-android-${VERSION}-${COMMIT_ID}.aab" "dist/android/"
           ls -la dist/android/
 
       - name: Upload Android artifacts
@@ -354,8 +354,8 @@ jobs:
         with:
           name: android-artifacts
           path: |
-            dist/android/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk
-            dist/android/app-release-android-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab
+            dist/android/lando-android-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.apk
+            dist/android/lando-android-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.aab
           if-no-files-found: error
 
   build-ios:
@@ -419,20 +419,20 @@ jobs:
           mkdir -p build/ios/ipa/Payload
           cp -R "$APP_PATH" build/ios/ipa/Payload/
 
-          (cd build/ios/ipa && zip -r "lando-ios-ios-v${VERSION}-${COMMIT_ID}.ipa" Payload)
+          (cd build/ios/ipa && zip -r "lando-ios-${VERSION}-${COMMIT_ID}.ipa" Payload)
           ls -la build/ios/ipa || true
 
       - name: Upload iOS artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ios-artifacts
-          path: build/ios/ipa/lando-ios-ios-v${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa
+          path: build/ios/ipa/lando-ios-${{ steps.version.outputs.version }}-${{ steps.commit.outputs.commit_id }}.ipa
           if-no-files-found: warn
 
   release:
     needs: [build-linux, build-windows, build-macos, build-android, build-ios]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/release'
     
     steps:
       - name: Checkout code
@@ -507,7 +507,7 @@ jobs:
           # iOS OTA install requires an HTTPS-hosted manifest.plist that points to the IPA.
           # QR encodes: itms-services://?action=download-manifest&url=<https manifest url>
           mkdir -p artifacts/ios-manifest
-          IOS_MANIFEST_FILENAME="lando-ios-ios-v${VERSION}-${COMMIT_ID}.plist"
+          IOS_MANIFEST_FILENAME="lando-ios-${VERSION}-${COMMIT_ID}.plist"
           IOS_MANIFEST_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${IOS_MANIFEST_FILENAME}"
 
           cat > "artifacts/ios-manifest/${IOS_MANIFEST_FILENAME}" <<EOF
@@ -569,7 +569,7 @@ jobs:
           ANDROID_AAB_NAME="${{ steps.assets.outputs.android_aab_name }}"
           IOS_IPA_NAME="${{ steps.assets.outputs.ios_ipa_name }}"
 
-          IOS_MANIFEST_FILENAME="lando-ios-ios-v${VERSION}-${COMMIT_ID}.plist"
+          IOS_MANIFEST_FILENAME="lando-ios-${VERSION}-${COMMIT_ID}.plist"
           IOS_QR_NAME="ios-ipa-qr-v${VERSION}-${COMMIT_ID}.png"
           ANDROID_QR_NAME="android-apk-qr-v${VERSION}-${COMMIT_ID}.png"
 
@@ -578,9 +578,9 @@ jobs:
             echo
             echo "### Downloads"
             echo
-            echo "- **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-macos-macos-v${VERSION}-${COMMIT_ID}.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-macos-macos-v${VERSION}-${COMMIT_ID}.zip)"
-            echo "- **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-windows-x64-windows-v${VERSION}-${COMMIT_ID}.zip)"
-            echo "- **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-linux-amd64-linux-v${VERSION}-${COMMIT_ID}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-linux-x64-linux-v${VERSION}-${COMMIT_ID}.tar.gz)"
+            echo "- **macOS**: [DMG](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-macos-${VERSION}-${COMMIT_ID}.dmg) | [ZIP](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-macos-${VERSION}-${COMMIT_ID}.zip)"
+            echo "- **Windows**: [ZIP](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-windows-${VERSION}-${COMMIT_ID}.zip)"
+            echo "- **Linux**: [DEB](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-linux-${VERSION}-${COMMIT_ID}.deb) | [TAR.GZ](https://github.com/${{ github.repository }}/releases/download/${TAG}/lando-linux-${VERSION}-${COMMIT_ID}.tar.gz)"
 
             if [ -n "$ANDROID_APK_NAME" ] || [ -n "$ANDROID_AAB_NAME" ]; then
               echo -n "- **Android**: "
