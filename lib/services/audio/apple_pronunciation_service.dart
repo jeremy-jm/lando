@@ -1,13 +1,13 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-import 'package:lando/services/audio/abstract_pronunciation_service.dart';
+import 'package:lando/services/audio/pronunciation_service_interface.dart';
 
 /// Apple pronunciation service.
 ///
 /// Plays pronunciation audio from Apple's TTS API.
 /// Note: This is a placeholder implementation. You may need to integrate
 /// with Apple's actual TTS API and obtain audio URLs.
-class ApplePronunciationService implements AbstractPronunciationService {
+class ApplePronunciationService implements PronunciationServiceInterface {
   ApplePronunciationService() : _player = AudioPlayer();
 
   final AudioPlayer _player;

@@ -29,7 +29,7 @@
 #### Widget 测试 (Widget Tests)
 
 1. **页面测试 (Pages)**
-   - ✅ `MyHomePage` - 首页测试
+   - ✅ `HomePage` - 首页测试
    - ✅ `QueryPage` - 查询页面测试
 
 2. **组件测试 (Widgets)**

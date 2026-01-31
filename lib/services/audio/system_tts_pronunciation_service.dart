@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/foundation.dart';
-import 'package:lando/services/audio/abstract_pronunciation_service.dart';
+import 'package:lando/services/audio/pronunciation_service_interface.dart';
 
 /// System TTS pronunciation service.
 ///
 /// Uses the device's built-in text-to-speech engine to pronounce text.
-class SystemTtsPronunciationService implements AbstractPronunciationService {
+class SystemTtsPronunciationService implements PronunciationServiceInterface {
   SystemTtsPronunciationService() {
     _tts = FlutterTts();
     _init();

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:lando/services/audio/abstract_pronunciation_service.dart';
+import 'package:lando/services/audio/pronunciation_service_interface.dart';
 import 'package:lando/services/audio/pronunciation_service_type.dart';
 import 'package:lando/services/audio/system_tts_pronunciation_service.dart';
 import 'package:lando/services/audio/youdao_pronunciation_service.dart';
@@ -9,10 +9,7 @@ import 'package:lando/services/audio/google_pronunciation_service.dart';
 import 'package:lando/services/audio/apple_pronunciation_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
-/// Manager for pronunciation services.
-///
-/// This class manages the selection and usage of different pronunciation services
-/// based on user preferences stored in PreferencesStorage.
+/// Selects and caches the pronunciation service from user preferences.
 class PronunciationServiceManager {
   PronunciationServiceManager._();
 
@@ -22,14 +19,11 @@ class PronunciationServiceManager {
   /// Singleton instance
   factory PronunciationServiceManager() => _instance;
 
-  AbstractPronunciationService? _currentService;
+  PronunciationServiceInterface? _currentService;
   PronunciationServiceType? _currentServiceType;
 
-  /// Gets the current pronunciation service based on user preferences.
-  ///
-  /// If the service type hasn't changed, returns the cached service.
-  /// Otherwise, creates a new service instance.
-  AbstractPronunciationService getService() {
+  /// Returns the current pronunciation service from preferences (cached when unchanged).
+  PronunciationServiceInterface getService() {
     final serviceType = _getServiceTypeFromPreferences();
 
     // Return cached service if type hasn't changed
@@ -66,10 +60,7 @@ class PronunciationServiceManager {
     }
   }
 
-  /// Creates a pronunciation service instance based on the service type.
-  AbstractPronunciationService _createService(
-    PronunciationServiceType type,
-  ) {
+  PronunciationServiceInterface _createService(PronunciationServiceType type) {
     switch (type) {
       case PronunciationServiceType.system:
         return SystemTtsPronunciationService();

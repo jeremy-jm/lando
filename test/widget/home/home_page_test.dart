@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
-  group('MyHomePage Widget Tests', () {
+  group('HomePage Widget Tests', () {
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
       await PreferencesStorage.init();
@@ -33,7 +33,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const MyHomePage(title: 'Lando'),
+          const HomePage(title: 'Lando'),
         ),
       );
 
@@ -45,7 +45,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const MyHomePage(title: 'Lando', showAppBar: false),
+          const HomePage(title: 'Lando', showAppBar: false),
         ),
       );
 
@@ -55,7 +55,7 @@ void main() {
     testWidgets('should display logo image', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const MyHomePage(title: 'Lando'),
+          const HomePage(title: 'Lando'),
         ),
       );
 
@@ -66,7 +66,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const MyHomePage(title: 'Lando'),
+          const HomePage(title: 'Lando'),
         ),
       );
 
@@ -78,19 +78,19 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const MyHomePage(title: 'Lando'),
+          const HomePage(title: 'Lando'),
         ),
       );
 
       // Language selector should be present
-      expect(find.byType(MyHomePage), findsOneWidget);
+      expect(find.byType(HomePage), findsOneWidget);
     });
 
     testWidgets('should navigate to query page when text is submitted',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const MyHomePage(title: 'Lando'),
+          const HomePage(title: 'Lando'),
         ),
       );
 
@@ -113,7 +113,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const MyHomePage(title: 'Lando'),
+          const HomePage(title: 'Lando'),
         ),
       );
 

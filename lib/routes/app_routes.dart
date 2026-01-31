@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/features/home/home_page.dart';
-import 'package:lando/features/home/main_container_page.dart';
+import 'package:lando/features/home/root_page.dart';
 import 'package:lando/features/home/query/query_page.dart';
 import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/not_found_page.dart';
@@ -37,7 +37,7 @@ class AppRoutes {
     switch (routeSettings.name) {
       case home:
         return MaterialPageRoute(
-          builder: (context) => const MainContainerPage(),
+          builder: (context) => const RootPage(),
           settings: routeSettings,
         );
       case query:
@@ -99,7 +99,7 @@ class AppRoutes {
   /// Used for MaterialApp's routes parameter
   static Map<String, WidgetBuilder> getRoutes() {
     return {
-      home: (_) => const MainContainerPage(),
+      home: (_) => const RootPage(),
       settings: (_) => const SettingsPage(),
       profile: (_) => const ProfilePage(),
       about: (_) => const AboutPage(),
@@ -167,7 +167,7 @@ class AppNavigator {
       MaterialPageRoute(
         builder: (context) {
           final l10n = AppLocalizations.of(context);
-          return MyHomePage(title: l10n?.appTitle ?? 'Lando Dictionary');
+          return HomePage(title: l10n?.appTitle ?? 'Lando Dictionary');
         },
       ),
       (route) => false,

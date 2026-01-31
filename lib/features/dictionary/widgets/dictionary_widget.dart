@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 import 'package:lando/models/result_model.dart';

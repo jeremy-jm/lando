@@ -85,17 +85,20 @@ class QueryBloc {
   late final StreamSubscription<QueryEvent> _eventSubscription;
 
   QueryState _state = const QueryState();
+  bool _disposed = false;
 
   QueryState get state => _state;
 
   Stream<QueryState> get stream => _stateController.stream;
 
   void add(QueryEvent event) {
+    if (_disposed) return;
     _eventController.add(event);
   }
 
   void _emit(QueryState newState) {
     _state = newState;
+    if (_disposed) return;
     _stateController.add(newState);
   }
 
@@ -148,6 +151,8 @@ class QueryBloc {
   }
 
   void dispose() {
+    if (_disposed) return;
+    _disposed = true;
     _eventSubscription.cancel();
     _eventController.close();
     _stateController.close();

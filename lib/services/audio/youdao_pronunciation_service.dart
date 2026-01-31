@@ -1,11 +1,11 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-import 'package:lando/services/audio/abstract_pronunciation_service.dart';
+import 'package:lando/services/audio/pronunciation_service_interface.dart';
 
 /// Youdao pronunciation service.
 ///
 /// Plays pronunciation audio from Youdao's audio URLs.
-class YoudaoPronunciationService implements AbstractPronunciationService {
+class YoudaoPronunciationService implements PronunciationServiceInterface {
   YoudaoPronunciationService() : _player = AudioPlayer();
 
   final AudioPlayer _player;

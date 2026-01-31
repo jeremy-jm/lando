@@ -7,19 +7,18 @@ import 'package:lando/features/me/me_page.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
 
-/// 主容器页面，包含 BottomNavigationBar 和两个 Tab 页面
-/// 使用 IndexedStack 来保持页面状态，避免切换时重新构建
-class MainContainerPage extends StatefulWidget {
-  const MainContainerPage({super.key});
+/// Root page with bottom navigation (Translation tab + Me tab).
+/// Uses IndexedStack to keep tab state when switching.
+class RootPage extends StatefulWidget {
+  const RootPage({super.key});
 
   @override
-  State<MainContainerPage> createState() => _MainContainerPageState();
+  State<RootPage> createState() => _RootPageState();
 }
 
-class _MainContainerPageState extends State<MainContainerPage> {
+class _RootPageState extends State<RootPage> {
   int _currentIndex = 0;
 
-  // 保持页面实例，避免重新构建
   final List<Widget> _pages = [
     const _HomeTabWrapper(),
     const _MeTabWrapper(),
@@ -27,7 +26,6 @@ class _MainContainerPageState extends State<MainContainerPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Null-safe: l10n can be null on first frame (e.g. iOS before locale is ready)
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final translationLabel = l10n?.translation ?? 'Translation';
@@ -43,8 +41,7 @@ class _MainContainerPageState extends State<MainContainerPage> {
         unselectedItemColor: theme.colorScheme.onSurface.withValues(
           alpha: 0.6,
         ),
-        selectedLabelStyle:
-            theme.bottomNavigationBarTheme.selectedLabelStyle,
+        selectedLabelStyle: theme.bottomNavigationBarTheme.selectedLabelStyle,
         unselectedLabelStyle:
             theme.bottomNavigationBarTheme.unselectedLabelStyle,
         type: BottomNavigationBarType.fixed,
@@ -70,7 +67,6 @@ class _MainContainerPageState extends State<MainContainerPage> {
       ),
     );
 
-    // BackdropFilter can cause white/blank screen on iOS simulator; use solid bar on iOS
     final bottomBar = Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: 0.98),
@@ -106,21 +102,19 @@ class _MainContainerPageState extends State<MainContainerPage> {
   }
 }
 
-/// Home Tab 包装器，用于移除 HomePage 的 AppBar（因为现在在容器中）
 class _HomeTabWrapper extends StatelessWidget {
   const _HomeTabWrapper();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return MyHomePage(
+    return HomePage(
       title: l10n?.appTitle ?? 'Lando Dictionary',
-      showAppBar: false, // 不显示 AppBar，因为现在在容器中
+      showAppBar: false,
     );
   }
 }
 
-/// Me Tab 包装器，用于移除 MePage 的 AppBar（因为现在在容器中）
 class _MeTabWrapper extends StatelessWidget {
   const _MeTabWrapper();
 

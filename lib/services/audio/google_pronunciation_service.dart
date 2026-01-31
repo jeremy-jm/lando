@@ -1,13 +1,13 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-import 'package:lando/services/audio/abstract_pronunciation_service.dart';
+import 'package:lando/services/audio/pronunciation_service_interface.dart';
 
 /// Google pronunciation service.
 ///
 /// Plays pronunciation audio from Google's TTS API.
 /// Note: This is a placeholder implementation. You may need to integrate
 /// with Google's actual TTS API and obtain audio URLs.
-class GooglePronunciationService implements AbstractPronunciationService {
+class GooglePronunciationService implements PronunciationServiceInterface {
   GooglePronunciationService() : _player = AudioPlayer();
 
   final AudioPlayer _player;

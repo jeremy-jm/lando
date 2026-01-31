@@ -185,7 +185,7 @@ class _IosDeferredAppState extends State<_IosDeferredApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         await _runAppInit().timeout(
-          const Duration(seconds: 10),
+          const Duration(microseconds: 10),
           onTimeout: () {
             if (kDebugMode)
               debugPrint('iOS deferred init timeout, showing app anyway');
@@ -208,7 +208,7 @@ class _IosDeferredAppState extends State<_IosDeferredApp> {
       return MaterialApp(
         theme: ThemeData.light(useMaterial3: true),
         home: const Scaffold(
-          body: Center(child: Text('Hello')),
+          body: Center(child: CircularProgressIndicator()),
         ),
       );
     }

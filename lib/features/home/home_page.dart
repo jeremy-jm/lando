@@ -6,8 +6,9 @@ import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({
+/// Translation tab: input box and query result.
+class HomePage extends StatefulWidget {
+  const HomePage({
     super.key,
     required this.title,
     this.showAppBar = true,
@@ -17,10 +18,10 @@ class MyHomePage extends StatefulWidget {
   final bool showAppBar;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   int _languageSelectorKey = 0;

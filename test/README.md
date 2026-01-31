@@ -63,7 +63,7 @@ genhtml coverage/lcov.info -o coverage/html
 - ✅ 服务层（YoudaoSuggestionService, ApiClient）
 
 ### Widget 测试
-- ✅ 首页组件（MyHomePage）
+- ✅ 首页组件（HomePage）
 - ✅ 翻译输入组件（TranslationInputWidget）
 
 ## 测试最佳实践

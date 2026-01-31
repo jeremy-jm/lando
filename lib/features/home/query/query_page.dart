@@ -54,25 +54,18 @@ class _QueryPageState extends State<QueryPage> {
 
     // Auto focus and trigger search if initial query is provided
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isDisposed && mounted) {
-        if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
-          final trimmedQuery = widget.initialQuery!.trim();
-          // Close suggestions by unfocusing first, then trigger search after a short delay
-          // This ensures the suggestion list is closed before the query is triggered
-          _focusNode.unfocus();
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (!_isDisposed && mounted) {
-              _historyProvider.addQuery(trimmedQuery);
-              _bloc.add(QuerySearchSubmitted(trimmedQuery));
-              if (mounted) {
-                setState(() {}); // Update button states
-              }
-            }
-          });
-        } else {
-          // Only request focus if there's no initial query
-          _focusNode.requestFocus();
-        }
+      if (_isDisposed || !mounted) return;
+      if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+        final trimmedQuery = widget.initialQuery!.trim();
+        _focusNode.unfocus();
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (_isDisposed || !mounted) return;
+          _historyProvider.addQuery(trimmedQuery);
+          _bloc.add(QuerySearchSubmitted(trimmedQuery));
+          if (mounted) setState(() {});
+        });
+      } else {
+        _focusNode.requestFocus();
       }
     });
   }
