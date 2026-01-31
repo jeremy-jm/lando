@@ -7,15 +7,12 @@ import 'package:lando/storage/favorites_storage.dart';
 import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/services/translation/translation_service_factory.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
+import 'package:lando/features/dictionary/widgets/dictionary_platform_header.dart';
+import 'package:lando/features/dictionary/widgets/dictionary_error_banner.dart';
+import 'package:lando/features/dictionary/widgets/dictionary_result_content.dart';
 
-/// A generic dictionary widget that can display results from multiple translation platforms.
-///
-/// This widget displays results from the specified platforms, with each platform
-/// independently fetching and managing its own data. If one platform fails,
-/// it doesn't affect other platforms.
-///
-/// Note: This widget still contains data fetching logic. For better separation,
-/// consider using [DictionaryDataProvider] with presentation widgets.
+/// Dictionary widget that displays results from multiple platforms.
+/// Each platform fetches independently; one failure does not affect others.
 class DictionaryWidget extends StatelessWidget {
   const DictionaryWidget({
     super.key,
@@ -25,16 +22,9 @@ class DictionaryWidget extends StatelessWidget {
     this.onQueryTap,
   });
 
-  /// The query text to translate.
   final String query;
-
-  /// List of translation platforms to fetch results from.
   final List<TranslationServiceType> platforms;
-
-  /// Optional translation service factory. If not provided, a default one will be created.
   final TranslationServiceFactory? translationServiceFactory;
-
-  /// Callback when a word or phrase is tapped to query.
   final ValueChanged<String>? onQueryTap;
 
   @override
@@ -63,13 +53,7 @@ class DictionaryWidget extends StatelessWidget {
   }
 }
 
-/// Individual platform dictionary widget that independently fetches and displays data.
-///
-/// Each platform widget manages its own state (loading, error, result),
-/// so failures in one platform don't affect others.
-///
-/// Note: This widget still contains data fetching logic. For better separation,
-/// consider refactoring to use [DictionaryDataProvider] with presentation widgets.
+/// Single-platform dictionary card: fetches and displays one platform's result.
 class PlatformDictionaryWidget extends StatefulWidget {
   const PlatformDictionaryWidget({
     super.key,
@@ -106,8 +90,7 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
   @override
   void didUpdateWidget(PlatformDictionaryWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.query != widget.query ||
-        oldWidget.platform != widget.platform) {
+    if (oldWidget.query != widget.query || oldWidget.platform != widget.platform) {
       _fetchResult();
     }
   }
@@ -118,47 +101,31 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
     super.dispose();
   }
 
-  /// Extract meaning text from ResultModel.
-  String _extractMeaning(ResultModel result) {
-    // Priority 1: simpleExplanation
+  static String _extractMeaning(ResultModel result) {
     if (result.simpleExplanation != null &&
         result.simpleExplanation!.isNotEmpty) {
       return result.simpleExplanation!;
     }
-
-    // Priority 2: translationsByPos
     if (result.translationsByPos != null &&
         result.translationsByPos!.isNotEmpty) {
       final meanings = result.translationsByPos!
           .map((t) => '${t['name'] ?? ''} ${t['value'] ?? ''}')
           .where((s) => s.trim().isNotEmpty)
           .join('; ');
-      if (meanings.isNotEmpty) {
-        return meanings;
-      }
+      if (meanings.isNotEmpty) return meanings;
     }
-
-    // Priority 3: webTranslations
     if (result.webTranslations != null && result.webTranslations!.isNotEmpty) {
       final meanings = result.webTranslations!
           .map((t) => '${t['key'] ?? ''} ${t['value'] ?? ''}')
           .where((s) => s.trim().isNotEmpty)
           .join('; ');
-      if (meanings.isNotEmpty) {
-        return meanings;
-      }
+      if (meanings.isNotEmpty) return meanings;
     }
-
-    // Fallback: return empty string
     return '';
   }
 
-  /// Toggle favorite status for the current word.
   Future<void> _toggleFavorite(ResultModel result) async {
-    if (result.query.trim().isEmpty) {
-      return;
-    }
-
+    if (result.query.trim().isEmpty) return;
     final meaning = _extractMeaning(result);
     if (meaning.isEmpty) {
       if (mounted) {
@@ -166,8 +133,7 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n?.cannotFavorite ??
-                  'Cannot favorite: no translation available',
+              l10n?.cannotFavorite ?? 'Cannot favorite: no translation available',
             ),
             duration: const Duration(seconds: 2),
           ),
@@ -178,36 +144,28 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
 
     try {
       if (_isFavorite) {
-        // Remove from favorites
         final success = await FavoritesStorage.deleteFavorite(result.query);
         if (success && mounted) {
-          setState(() {
-            _isFavorite = false;
-          });
+          setState(() => _isFavorite = false);
           if (mounted) {
             final l10n = AppLocalizations.of(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  l10n?.removedFromFavorites ?? 'Removed from favorites',
-                ),
+                content: Text(l10n?.removedFromFavorites ?? 'Removed from favorites'),
                 duration: const Duration(seconds: 2),
               ),
             );
           }
         }
       } else {
-        // Add to favorites
-        final favoriteItem = QueryHistoryItem(
+        final item = QueryHistoryItem(
           word: result.query.trim(),
           meaning: meaning,
           timestamp: DateTime.now().millisecondsSinceEpoch,
         );
-        final success = await FavoritesStorage.saveFavorite(favoriteItem);
+        final success = await FavoritesStorage.saveFavorite(item);
         if (success && mounted) {
-          setState(() {
-            _isFavorite = true;
-          });
+          setState(() => _isFavorite = true);
           if (mounted) {
             final l10n = AppLocalizations.of(context);
             ScaffoldMessenger.of(context).showSnackBar(
@@ -233,9 +191,7 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
   }
 
   Future<void> _fetchResult() async {
-    if (widget.query.trim().isEmpty) {
-      return;
-    }
+    if (widget.query.trim().isEmpty) return;
 
     setState(() {
       _loading = true;
@@ -250,18 +206,13 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
       final result = await service.getDetailedResult(widget.query);
 
       if (mounted) {
-        // Check if word is favorited
         final isFav = await FavoritesStorage.isFavorite(widget.query);
         setState(() {
           _result = result;
           _loading = false;
-          // If result is null, set error message
-          if (result == null) {
-            _error =
-                'No translation result available from ${widget.platform.displayName}';
-          } else {
-            _error = null;
-          }
+          _error = result == null
+              ? 'No translation result available from ${widget.platform.displayName}'
+              : null;
           _isFavorite = isFav;
         });
       }
@@ -274,6 +225,116 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
           _result = null;
         });
       }
+    }
+  }
+
+  static String? _detectLanguageCode(String text) {
+    if (text.trim().isEmpty) return null;
+    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return 'zh';
+    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return 'ja';
+    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return 'hi';
+    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return 'en';
+    return 'en';
+  }
+
+  Future<void> _playUrlPronunciation(String? url) async {
+    if (!mounted) return;
+    try {
+      await _pronunciationManager.stop();
+      final serviceType = PreferencesStorage.getPronunciationServiceType();
+      final isSystemTts = serviceType == null || serviceType == 'system';
+      final success = await _pronunciationManager.speak(
+        text: widget.query,
+        languageCode: null,
+        url: isSystemTts ? null : url,
+      );
+      if (!mounted) return;
+      if (!success) {
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n?.errorPlayingPronunciation ?? 'Error playing pronunciation',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??
+                'Error playing pronunciation: $e',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _playPhrasePronunciation(String phrase) async {
+    if (!mounted) return;
+    try {
+      await _pronunciationManager.stop();
+
+      String? pronunciationUrl;
+      if (widget.platform == TranslationServiceType.youdao) {
+        final detectedLang = PreferencesStorage.getTranslationToLanguage();
+        String le;
+        if (detectedLang == null || detectedLang == 'auto') {
+          final phraseLang = _detectLanguageCode(phrase);
+          if (phraseLang != null) {
+            final code = phraseLang.toLowerCase();
+            le = code == 'en' ? 'eng' : code;
+          } else {
+            le = 'auto';
+          }
+        } else {
+          final code = detectedLang.toLowerCase();
+          le = code == 'en' ? 'eng' : code;
+        }
+        final encoded = Uri.encodeComponent(phrase);
+        pronunciationUrl = le == 'eng'
+            ? 'https://dict.youdao.com/dictvoice?audio=$encoded&le=$le&type=2'
+            : 'https://dict.youdao.com/dictvoice?audio=$encoded&le=$le';
+      }
+
+      final serviceType = PreferencesStorage.getPronunciationServiceType();
+      final isSystemTts = serviceType == null || serviceType == 'system';
+      final languageCode = _detectLanguageCode(phrase);
+      final success = await _pronunciationManager.speak(
+        text: phrase,
+        languageCode: languageCode,
+        url: isSystemTts ? null : pronunciationUrl,
+      );
+
+      if (!mounted) return;
+      if (!success) {
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n?.errorPlayingPronunciation ?? 'Error playing pronunciation',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??
+                'Error playing pronunciation: $e',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -290,29 +351,12 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Platform header
-          Row(
-            children: [
-              Text(
-                widget.platform.displayName,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              if (_loading) ...[
-                const SizedBox(width: 12.0),
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ],
-            ],
+          DictionaryPlatformHeader(
+            platformName: widget.platform.displayName,
+            loading: _loading,
           ),
           const SizedBox(height: 16.0),
 
-          // Loading state
           if (_loading)
             Center(
               child: Padding(
@@ -323,668 +367,22 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
               ),
             ),
 
-          // Error state
           if (_error != null && !_loading)
-            Container(
-              padding: const EdgeInsets.all(12.0),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    color: theme.colorScheme.onErrorContainer,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: Text(
-                      _error!,
-                      style: TextStyle(
-                        color: theme.colorScheme.onErrorContainer,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            DictionaryErrorBanner(message: _error!),
 
-          // Result content
           if (_result != null && !_loading)
-            _buildResultContent(context, theme, _result!),
+            DictionaryResultContent(
+              result: _result!,
+              isFavorite: _isFavorite,
+              onFavoriteTap: () => _toggleFavorite(_result!),
+              onUsPronunciationTap: () =>
+                  _playUrlPronunciation(_result!.usPronunciationUrl),
+              onUkPronunciationTap: () =>
+                  _playUrlPronunciation(_result!.ukPronunciationUrl),
+              onQueryTap: widget.onQueryTap,
+              onPhrasePronunciationTap: _playPhrasePronunciation,
+            ),
         ],
-      ),
-    );
-  }
-
-  /// Detects language code from the query text.
-  String? _detectLanguageCode(String text) {
-    if (text.trim().isEmpty) return null;
-    // Simple language detection (can be improved with ML or API)
-    // Returns language code (e.g., 'zh', 'ja', 'hi', 'en') for TTS compatibility
-    if (RegExp(r'[\u4e00-\u9fff]').hasMatch(text)) return 'zh';
-    if (RegExp(r'[\u3040-\u309f\u30a0-\u30ff]').hasMatch(text)) return 'ja';
-    if (RegExp(r'[\u0900-\u097f]').hasMatch(text)) return 'hi';
-    // Default to English for Latin scripts
-    if (RegExp(r'^[a-zA-Z\s]+$').hasMatch(text)) return 'en';
-    return 'en'; // Default fallback
-  }
-
-  Widget _buildResultContent(
-    BuildContext context,
-    ThemeData theme,
-    ResultModel result,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    // Detect language code from the query
-    final detectedLanguageCode = _detectLanguageCode(result.query);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Query word with favorite button
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                result.query,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: Icon(
-                _isFavorite ? Icons.star : Icons.star_border,
-                color: _isFavorite
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-              onPressed: () => _toggleFavorite(result),
-              tooltip: _isFavorite
-                  ? (l10n?.removedFromFavorites ?? 'Remove from favorites')
-                  : (l10n?.addedToFavorites ?? 'Add to favorites'),
-            ),
-          ],
-        ),
-
-        // Pronunciation
-        if (result.usPronunciationUrl != null ||
-            result.ukPronunciationUrl != null) ...[
-          const SizedBox(height: 16.0),
-          Row(
-            children: [
-              if (result.usPronunciationUrl != null)
-                _buildPronunciationButton(
-                  context,
-                  theme,
-                  'US',
-                  result.usPronunciationUrl!,
-                  result.usPhonetic,
-                ),
-              if (result.usPronunciationUrl != null &&
-                  result.ukPronunciationUrl != null)
-                const SizedBox(width: 16.0),
-              if (result.ukPronunciationUrl != null)
-                _buildPronunciationButton(
-                  context,
-                  theme,
-                  'UK',
-                  result.ukPronunciationUrl!,
-                  result.ukPhonetic,
-                ),
-            ],
-          ),
-        ],
-
-        // Simple explanation
-        if (result.simpleExplanation != null &&
-            result.translationsByPos == null) ...[
-          const SizedBox(height: 12.0),
-          Text(
-            result.simpleExplanation!,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ],
-
-        // Translations by part of speech (long-press on mobile to select and copy)
-        if (result.translationsByPos != null &&
-            result.translationsByPos!.isNotEmpty) ...[
-          const SizedBox(height: 16.0),
-          Divider(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            height: 0.5,
-          ),
-          const SizedBox(height: 16.0),
-          SelectableText(
-            l10n?.partOfSpeech ?? 'Part of Speech',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-            contextMenuBuilder: (context, editableTextState) =>
-                _buildSelectableContextMenu(context, editableTextState, l10n),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: result.translationsByPos!.expand((translation) {
-              final name = translation['name'] ?? '';
-              final value = translation['value'] ?? '';
-              return [
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 34,
-                        child: SelectableText(
-                          name,
-                          style: TextStyle(
-                            fontSize: name.contains(':')
-                                ? 14
-                                : (name.length <= 4 ? 12 : 14),
-                            fontWeight: name.contains(':')
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            color: theme.colorScheme.primary,
-                          ),
-                          contextMenuBuilder: (context, editableTextState) =>
-                              _buildSelectableContextMenu(
-                                  context, editableTextState, l10n),
-                        ),
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: SelectableText(
-                          value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                          contextMenuBuilder: (context, editableTextState) =>
-                              _buildSelectableContextMenu(
-                                  context, editableTextState, l10n),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ];
-            }).toList(),
-          ),
-        ],
-
-        // Exam types
-        if (result.examTypes != null && result.examTypes!.isNotEmpty) ...[
-          const SizedBox(height: 16.0),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: result.examTypes!.map((type) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withValues(
-                    alpha: 0.3,
-                  ),
-                  borderRadius: BorderRadius.circular(4.0),
-                  border: Border.all(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  type,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-
-        // Word forms
-        if (result.wordForm != null && result.wordForm!.isNotEmpty) ...[
-          const SizedBox(height: 16.0),
-          Divider(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            height: 0.5,
-          ),
-          const SizedBox(height: 16.0),
-          Text(
-            l10n?.tense ?? 'Tense',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12.0),
-          SizedBox(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: result.wordForm!.map((wf) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 100,
-                        child: InkWell(
-                          onTap: () {
-                            // Click on word form name (e.g., "过去式") to query the form value
-                            widget.onQueryTap?.call(wf['value'] ?? '');
-                          },
-                          borderRadius: BorderRadius.circular(4.0),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2.0),
-                            child: Text(
-                              wf['name'] ?? '',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: _buildClickableText(
-                          context,
-                          theme,
-                          wf['value'] ?? '',
-                          onTap: () {
-                            // Click on word form value to query that form
-                            widget.onQueryTap?.call(wf['value'] ?? '');
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-
-        // Phrases
-        if (result.phrases != null && result.phrases!.isNotEmpty) ...[
-          const SizedBox(height: 16.0),
-          Divider(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            height: 0.5,
-          ),
-          const SizedBox(height: 16.0),
-          Text(
-            l10n?.phrases ?? 'Phrases',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12.0),
-          SizedBox(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: result.phrases!.map((phrase) {
-                final phraseName = phrase['name'] ?? '';
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          _buildClickableText(
-                            context,
-                            theme,
-                            phraseName,
-                            onTap: () {
-                              widget.onQueryTap?.call(phraseName);
-                            },
-                          ),
-                          const SizedBox(width: 8.0),
-                          _buildPhrasePronunciationButton(
-                            context,
-                            theme,
-                            phraseName,
-                            languageCode: detectedLanguageCode,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4.0),
-                      Text(
-                        phrase['value'] ?? '',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.8,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-
-        // Web translations
-        if (result.webTranslations != null &&
-            result.webTranslations!.isNotEmpty) ...[
-          const SizedBox(height: 16.0),
-          Divider(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            height: 0.5,
-          ),
-          const SizedBox(height: 16.0),
-          Text(
-            l10n?.webTranslations ?? 'Web Translations',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12.0),
-          SizedBox(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: result.webTranslations!.map((webTrans) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildClickableText(
-                        context,
-                        theme,
-                        '${webTrans['name'] ?? ''}: ',
-                        onTap: () {
-                          widget.onQueryTap?.call(webTrans['name'] ?? '');
-                        },
-                      ),
-                      Expanded(
-                        child: Text(
-                          webTrans['value'] ?? '',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildPronunciationButton(
-    BuildContext context,
-    ThemeData theme,
-    String label,
-    String url,
-    String? phonetic,
-  ) {
-    return InkWell(
-      onTap: () async {
-        if (!mounted) return;
-
-        try {
-          await _pronunciationManager.stop();
-
-          // Get current service type to determine if we should use URL or text
-          final serviceType = PreferencesStorage.getPronunciationServiceType();
-          final isSystemTts = serviceType == null || serviceType == 'system';
-
-          // For system TTS, use text directly. For others, use URL.
-          final success = await _pronunciationManager.speak(
-            text: widget.query,
-            languageCode: null, // Could be extracted from result if needed
-            url: isSystemTts ? null : url,
-          );
-
-          if (!mounted) return;
-
-          if (!success) {
-            if (!mounted) return;
-            final l10n = AppLocalizations.of(context);
-            if (!mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  l10n?.errorPlayingPronunciation ??
-                      'Error playing pronunciation',
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-        } catch (e) {
-          if (!mounted) return;
-
-          final l10n = AppLocalizations.of(context);
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??
-                    'Error playing pronunciation: $e',
-              ),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      },
-      borderRadius: BorderRadius.circular(8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            if (phonetic != null && phonetic.isNotEmpty) ...[
-              Text(
-                '/$phonetic/',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: theme.colorScheme.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(width: 8.0),
-            ],
-            Icon(Icons.volume_up, size: 20, color: theme.colorScheme.primary),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds context menu for selectable text: Copy and Select All (localized).
-  /// Shown on long-press at cursor/selection on mobile.
-  Widget _buildSelectableContextMenu(
-    BuildContext context,
-    EditableTextState editableTextState,
-    AppLocalizations? l10n,
-  ) {
-    final copyLabel = l10n?.copy ?? 'Copy';
-    final selectAllLabel = l10n?.selectAll ?? 'Select All';
-    final items = editableTextState.contextMenuButtonItems
-        .where((item) =>
-            item.type == ContextMenuButtonType.copy ||
-            item.type == ContextMenuButtonType.selectAll)
-        .map((item) {
-      if (item.type == ContextMenuButtonType.copy) {
-        return item.copyWith(label: copyLabel);
-      }
-      if (item.type == ContextMenuButtonType.selectAll) {
-        return item.copyWith(label: selectAllLabel);
-      }
-      return item;
-    }).toList();
-    if (items.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return AdaptiveTextSelectionToolbar.buttonItems(
-      anchors: editableTextState.contextMenuAnchors,
-      buttonItems: items,
-    );
-  }
-
-  /// Builds a clickable text widget with primary color styling.
-  Widget _buildClickableText(
-    BuildContext context,
-    ThemeData theme,
-    String text, {
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(4.0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2.0),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: text.contains(':') ? 14 : (text.length <= 4 ? 12 : 14),
-            fontWeight: text.contains(':') ? FontWeight.w600 : FontWeight.w500,
-            color: theme.colorScheme.primary,
-            decoration: TextDecoration.underline,
-            decorationColor: theme.colorScheme.primary.withValues(alpha: 0.5),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds a pronunciation button for phrases.
-  Widget _buildPhrasePronunciationButton(
-    BuildContext context,
-    ThemeData theme,
-    String phrase, {
-    String? languageCode,
-  }) {
-    return InkWell(
-      onTap: () async {
-        if (!mounted) return;
-
-        try {
-          await _pronunciationManager.stop();
-
-          // Build pronunciation URL for the phrase
-          String? pronunciationUrl;
-          if (widget.platform == TranslationServiceType.youdao) {
-            // Use provided language code or fallback to preferences
-            final detectedLang =
-                languageCode ?? PreferencesStorage.getTranslationToLanguage();
-            String le;
-            if (detectedLang == null || detectedLang == 'auto') {
-              // Try to detect from phrase text if not provided
-              final phraseLang = _detectLanguageCode(phrase);
-              if (phraseLang != null) {
-                final code = phraseLang.toLowerCase();
-                le = code == 'en' ? 'eng' : code;
-              } else {
-                le = 'auto';
-              }
-            } else {
-              final code = detectedLang.toLowerCase();
-              le = code == 'en' ? 'eng' : code;
-            }
-
-            final encodedPhrase = Uri.encodeComponent(phrase);
-
-            // Build URL based on language
-            if (le == 'eng') {
-              pronunciationUrl =
-                  'https://dict.youdao.com/dictvoice?audio=$encodedPhrase&le=$le&type=2';
-            } else {
-              pronunciationUrl =
-                  'https://dict.youdao.com/dictvoice?audio=$encodedPhrase&le=$le';
-            }
-          }
-
-          // Get current service type to determine if we should use URL or text
-          final serviceType = PreferencesStorage.getPronunciationServiceType();
-          final isSystemTts = serviceType == null || serviceType == 'system';
-
-          // For system TTS, use text directly. For others, use URL.
-          // Use provided language code or detect from phrase
-          final finalLanguageCode = languageCode ?? _detectLanguageCode(phrase);
-          final success = await _pronunciationManager.speak(
-            text: phrase,
-            languageCode: finalLanguageCode,
-            url: isSystemTts ? null : pronunciationUrl,
-          );
-
-          if (!mounted) return;
-
-          if (!success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  AppLocalizations.of(context)?.errorPlayingPronunciation ??
-                      'Error playing pronunciation',
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-        } catch (e) {
-          if (!mounted) return;
-
-          final l10n = AppLocalizations.of(context);
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                l10n?.errorPlayingPronunciationWithDetails(e.toString()) ??
-                    'Error playing pronunciation: $e',
-              ),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      },
-      borderRadius: BorderRadius.circular(8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Icon(
-          Icons.volume_up,
-          size: 16,
-          color: theme.colorScheme.primary,
-        ),
       ),
     );
   }
