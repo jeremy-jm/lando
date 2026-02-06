@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 
@@ -39,45 +41,53 @@ class QueryHistoryItemTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
 
     Widget tile = Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppDesign.listItemMarginH,
+        vertical: AppDesign.listItemMarginV,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDesign.radiusL),
+      ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: AppDesign.paddingListTile,
         title: Text(
           item.word,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: AppDesign.fontSizeTitleS,
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.onSurface,
           ),
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: AppDesign.spaceS),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 item.meaning,
                 style: TextStyle(
-                  fontSize: 14,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontSize: AppDesign.fontSizeBody,
+                  color: theme.colorScheme.onSurface
+                      .withValues(alpha: AppDesign.alphaSecondary),
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppDesign.spaceXxs),
               Text(
                 formatTimestamp?.call(item.timestamp) ??
                     _defaultFormatTimestamp(context, item.timestamp),
                 style: TextStyle(
-                  fontSize: 12,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  fontSize: AppDesign.fontSizeCaption,
+                  color: theme.colorScheme.onSurface
+                      .withValues(alpha: AppDesign.alphaDisabled),
                 ),
               ),
             ],
           ),
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.delete_outline),
+          icon: const Icon(AppIcons.deleteOutline),
           onPressed: () => onDelete(item),
           tooltip: l10n?.delete ?? 'Delete',
         ),
@@ -92,13 +102,13 @@ class QueryHistoryItemTile extends StatelessWidget {
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
+          padding: const EdgeInsets.only(right: AppDesign.spaceXl),
           decoration: BoxDecoration(
             color: theme.colorScheme.error,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppDesign.radiusL),
           ),
           child: Icon(
-            Icons.delete,
+            AppIcons.delete,
             color: theme.colorScheme.onError,
           ),
         ),

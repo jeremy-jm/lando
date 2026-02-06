@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_page.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
 import 'package:lando/features/home/widgets/translation_input_widget.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
@@ -138,16 +139,19 @@ class _HomePageState extends State<HomePage> {
           : null,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: AppDesign.paddingPage,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40.0),
-              //Lando logo
-              Image.asset('assets/images/logo.png', width: 100, height: 100),
-
-              const SizedBox(height: 40.0),
+              const SizedBox(height: AppDesign.homeTopSpacing),
+              // Lando logo
+              Image.asset(
+                'assets/images/logo.png',
+                width: AppDesign.homeLogoSize,
+                height: AppDesign.homeLogoSize,
+              ),
+              const SizedBox(height: AppDesign.homeTopSpacing),
 
               // Translation input widget that navigates to query page when user presses enter
               TranslationInputWidget(
@@ -170,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 enableSuggestions: true,
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: AppDesign.homeInputLanguageSpacing),
               LanguageSelectorWidget(
                 key: ValueKey(_languageSelectorKey),
                 showBackground: false,

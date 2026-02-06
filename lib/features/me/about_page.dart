@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
@@ -82,7 +84,7 @@ class _AboutPageState extends State<AboutPage> {
       context: context,
       applicationName: AppLocalizations.of(context)!.appTitle,
       applicationVersion: _packageInfo?.version ?? '1.0.0',
-      applicationIcon: const Icon(Icons.book),
+      applicationIcon: const Icon(AppIcons.book),
     );
   }
 
@@ -115,18 +117,18 @@ class _AboutPageState extends State<AboutPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: AppDesign.paddingCard,
               children: [
-                // App Icon and Name
+                // App Icon and Name (use local logo)
                 Center(
                   child: Column(
                     children: [
-                      Icon(
-                        Icons.book,
-                        size: 80,
-                        color: theme.colorScheme.primary,
+                      Image.asset(
+                        'assets/images/logo.png',
+                        width: AppDesign.aboutLogoSize,
+                        height: AppDesign.aboutLogoSize,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppDesign.spaceL),
                       Text(
                         l10n.appTitle,
                         style: theme.textTheme.headlineMedium?.copyWith(
@@ -134,7 +136,7 @@ class _AboutPageState extends State<AboutPage> {
                         ),
                       ),
                       if (_packageInfo != null) ...[
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppDesign.spaceS),
                         Text(
                           '${l10n.version} ${_packageInfo!.version}',
                           style: theme.textTheme.bodyMedium?.copyWith(
@@ -147,58 +149,87 @@ class _AboutPageState extends State<AboutPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppDesign.aboutSectionSpacing),
                 // App Description
                 Text(
                   l10n.appDescription,
                   style: theme.textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
-                const Divider(),
+                const SizedBox(height: AppDesign.aboutSectionSpacing),
+                Divider(
+                  height: AppDesign.dividerHeight,
+                  color: theme.colorScheme.onSurface
+                      .withValues(alpha: AppDesign.alphaDivider),
+                ),
                 // Version Info
                 if (_packageInfo != null)
                   ListTile(
-                    leading: const Icon(Icons.info_outline),
+                    contentPadding: AppDesign.paddingListTile,
+                    leading: Icon(AppIcons.infoOutline,
+                        color: theme.colorScheme.primary),
                     title: Text(l10n.versionInfo),
                     subtitle: Text(
                       '${l10n.version}: ${_packageInfo!.version}\n'
                       '${l10n.buildNumber}: ${_packageInfo!.buildNumber}',
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.copy),
+                      icon: const Icon(AppIcons.copy),
                       onPressed: _copyVersionInfo,
                       tooltip: l10n.copy,
                     ),
                   ),
-                const Divider(),
-                // Privacy Policy
+                Divider(
+                  height: AppDesign.dividerHeight,
+                  color: theme.colorScheme.onSurface
+                      .withValues(alpha: AppDesign.alphaDivider),
+                ),
+                // Privacy Policy (ui_spec: leading primary)
                 ListTile(
-                  leading: const Icon(Icons.privacy_tip_outlined),
+                  contentPadding: AppDesign.paddingListTile,
+                  leading: Icon(AppIcons.privacyTip,
+                      color: theme.colorScheme.primary),
                   title: Text(l10n.privacyPolicy),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(AppIcons.chevronRight),
                   onTap: _showPrivacyPolicy,
                 ),
-                const Divider(),
+                Divider(
+                  height: AppDesign.dividerHeight,
+                  color: theme.colorScheme.onSurface
+                      .withValues(alpha: AppDesign.alphaDivider),
+                ),
                 // Terms of Service
                 ListTile(
-                  leading: const Icon(Icons.description_outlined),
+                  contentPadding: AppDesign.paddingListTile,
+                  leading: Icon(AppIcons.description,
+                      color: theme.colorScheme.primary),
                   title: Text(l10n.termsOfService),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(AppIcons.chevronRight),
                   onTap: _showTermsOfService,
                 ),
-                const Divider(),
+                Divider(
+                  height: AppDesign.dividerHeight,
+                  color: theme.colorScheme.onSurface
+                      .withValues(alpha: AppDesign.alphaDivider),
+                ),
                 // Open Source Licenses
                 ListTile(
-                  leading: const Icon(Icons.code_outlined),
+                  contentPadding: AppDesign.paddingListTile,
+                  leading:
+                      Icon(AppIcons.code, color: theme.colorScheme.primary),
                   title: Text(l10n.openSourceLicenses),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(AppIcons.chevronRight),
                   onTap: _showLicense,
                 ),
-                const Divider(),
+                Divider(
+                  height: AppDesign.dividerHeight,
+                  color: theme.colorScheme.onSurface
+                      .withValues(alpha: AppDesign.alphaDivider),
+                ),
                 // Copyright
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding:
+                      const EdgeInsets.all(AppDesign.aboutCopyrightPadding),
                   child: Text(
                     l10n.copyright,
                     style: theme.textTheme.bodySmall?.copyWith(

@@ -18,6 +18,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get profile => 'प्रोफ़ाइल';
 
   @override
+  String get user => 'उपयोगकर्ता';
+
+  @override
   String get about => 'के बारे में';
 
   @override
@@ -297,6 +300,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get auto => 'स्वचालित';
+
+  @override
+  String get data => 'डेटा';
 
   @override
   String get clearLocalData => 'स्थानीय डेटा साफ करें';

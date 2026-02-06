@@ -3,6 +3,7 @@
   "appTitle": "Lando शब्दकोश",
   "settings": "सेटिंग्स",
   "profile": "प्रोफ़ाइल",
+  "user": "उपयोगकर्ता",
   "about": "के बारे में",
   "notFound": "404",
   "pageNotFound": "पृष्ठ नहीं मिला",
@@ -130,6 +131,7 @@
   "@auto": {
     "description": "Auto-detect language option"
   },
+  "data": "डेटा",
   "clearLocalData": "स्थानीय डेटा साफ करें",
   "@clearLocalData": {
     "description": "Clear local data button title"

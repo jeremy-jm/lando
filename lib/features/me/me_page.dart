@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
@@ -24,42 +26,90 @@ class MePage extends StatelessWidget {
           : null,
       body: ListView(
         children: [
+          // Profile header: avatar + display name
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppDesign.spaceL,
+              AppDesign.spaceXl,
+              AppDesign.spaceL,
+              AppDesign.spaceXl,
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    child: Icon(
+                      AppIcons.person,
+                      size: 48,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(height: AppDesign.spaceMd),
+                  Text(
+                    l10n.user,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Divider(
+            height: AppDesign.dividerHeight,
+            color: theme.colorScheme.onSurface
+                .withValues(alpha: AppDesign.alphaDivider),
+          ),
           // 收藏
           ListTile(
+            contentPadding: AppDesign.paddingListTile,
             leading: Icon(
-              Icons.favorite,
+              AppIcons.favorite,
               color: theme.colorScheme.primary,
             ),
             title: Text(l10n.favorites),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(AppIcons.chevronRight),
             onTap: AnalyticsService.instance.wrapTap(
               'tap_me_favorites',
               () => AppNavigator.pushNamed(context, AppRoutes.favorites),
             ),
           ),
-          const Divider(),
+          Divider(
+            height: AppDesign.dividerHeight,
+            color: theme.colorScheme.onSurface
+                .withValues(alpha: AppDesign.alphaDivider),
+          ),
           // 查词记录
           ListTile(
+            contentPadding: AppDesign.paddingListTile,
             leading: Icon(
-              Icons.history,
+              AppIcons.history,
               color: theme.colorScheme.primary,
             ),
             title: Text(l10n.history),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(AppIcons.chevronRight),
             onTap: AnalyticsService.instance.wrapTap(
               'tap_me_history',
               () => AppNavigator.pushNamed(context, AppRoutes.history),
             ),
           ),
-          const Divider(),
+          Divider(
+            height: AppDesign.dividerHeight,
+            color: theme.colorScheme.onSurface
+                .withValues(alpha: AppDesign.alphaDivider),
+          ),
           // 设置
           ListTile(
+            contentPadding: AppDesign.paddingListTile,
             leading: Icon(
-              Icons.settings,
+              AppIcons.settings,
               color: theme.colorScheme.primary,
             ),
             title: Text(l10n.settings),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(AppIcons.chevronRight),
             onTap: AnalyticsService.instance.wrapTap(
               'tap_me_settings',
               () {

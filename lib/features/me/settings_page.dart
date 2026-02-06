@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/routes/app_routes.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
@@ -13,7 +15,12 @@ import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/hotkey_settings_widget.dart';
 import 'package:lando/features/shared/widgets/confirm_dialog_widget.dart';
 
-/// Settings page organized into three sections: General, Dictionary, and About.
+/// Settings page: General, Dictionary, About, and Data sections.
+///
+/// Layout aligned with Figma design:
+/// [Lando - Settings](https://www.figma.com/design/Uf6gt2qk5wgACZHJZBcfR4/Lando?node-id=5-239)
+/// - AppBar: back, title "设置" centered
+/// - Sections: 通用 (theme, language, shortcuts), 词典 (dictionary, proxy), 关于, 数据 (clear local data with red style)
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -22,7 +29,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-
   String _getLanguageName(AppLocalizations l10n, String languageCode) {
     switch (languageCode) {
       case 'zh':
@@ -52,7 +58,14 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),
+        centerTitle: true,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         backgroundColor: theme.colorScheme.inversePrimary,
+        leading: IconButton(
+          icon: const Icon(AppIcons.back, size: AppDesign.iconXs),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: AnimatedBuilder(
         animation: ThemeController.instance,
@@ -64,10 +77,11 @@ class _SettingsPageState extends State<SettingsPage> {
               final currentLocale = LocaleController.instance.locale;
 
               return ListView(
+                padding: AppDesign.paddingPage,
                 children: [
-                  // General Section
+                  // 通用 (General) Section — rounded card per Figma
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: AppDesign.paddingSectionTitle,
                     child: Text(
                       l10n.general,
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -76,90 +90,94 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  // Theme Mode
-                  ListTile(
-                    title: Text(l10n.themeMode),
-                    subtitle: Text(l10n.themeModeDescription),
-                  ),
-                  RadioGroup<ThemeMode>(
-                    groupValue: mode,
-                    onChanged: (ThemeMode? value) {
-                      if (value != null) {
-                        AnalyticsService.instance.event(
-                          'tap_settings_theme',
-                          properties: {'theme': value.toString()},
-                        );
-                        ThemeController.instance.setMode(value);
-                      }
-                    },
+                  Material(
+                    color: theme.colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        RadioListTile<ThemeMode>(
-                          title: Text(l10n.followSystem),
-                          value: ThemeMode.system,
+                        // Theme Mode (ui_spec: ListTile contentPadding 16,8)
+                        ListTile(
+                          contentPadding: AppDesign.paddingListTile,
+                          title: Text(l10n.themeMode),
+                          subtitle: Text(l10n.themeModeDescription),
                         ),
-                        RadioListTile<ThemeMode>(
-                          title: Text(l10n.light),
-                          value: ThemeMode.light,
+                        RadioGroup<ThemeMode>(
+                          groupValue: mode,
+                          onChanged: (ThemeMode? value) {
+                            if (value != null) {
+                              AnalyticsService.instance.event(
+                                'tap_settings_theme',
+                                properties: {'theme': value.toString()},
+                              );
+                              ThemeController.instance.setMode(value);
+                            }
+                          },
+                          child: Column(
+                            children: [
+                              RadioListTile<ThemeMode>(
+                                title: Text(l10n.followSystem),
+                                value: ThemeMode.system,
+                              ),
+                              RadioListTile<ThemeMode>(
+                                title: Text(l10n.light),
+                                value: ThemeMode.light,
+                              ),
+                              RadioListTile<ThemeMode>(
+                                title: Text(l10n.dark),
+                                value: ThemeMode.dark,
+                              ),
+                            ],
+                          ),
                         ),
-                        RadioListTile<ThemeMode>(
-                          title: Text(l10n.dark),
-                          value: ThemeMode.dark,
+                        Divider(
+                          height: AppDesign.dividerHeight,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: AppDesign.alphaDivider),
                         ),
+                        // Language Selection
+                        ListTile(
+                          contentPadding: AppDesign.paddingListTile,
+                          title: Text(l10n.language),
+                          subtitle: Text(l10n.selectLanguage),
+                        ),
+                        RadioGroup<Locale>(
+                          groupValue: currentLocale,
+                          onChanged: (Locale? value) {
+                            if (value != null) {
+                              AnalyticsService.instance.event(
+                                'tap_settings_language',
+                                properties: {'locale': value.languageCode},
+                              );
+                              LocaleController.instance.setLocale(value);
+                            }
+                          },
+                          child: Column(
+                            children:
+                                LocaleController.supportedLocales.map((locale) {
+                              return RadioListTile<Locale>(
+                                title: Text(
+                                  _getLanguageName(l10n, locale.languageCode),
+                                ),
+                                value: locale,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        // Hotkey Section (Desktop only) — inside General card
+                        if (Platform.isWindows ||
+                            Platform.isMacOS ||
+                            Platform.isLinux) ...[
+                          const HotkeySettingsWidget(),
+                        ],
                       ],
                     ),
                   ),
-                  const Divider(),
-                  // Language Selection
-                  ListTile(
-                    title: Text(l10n.language),
-                    subtitle: Text(l10n.selectLanguage),
-                  ),
-                  RadioGroup<Locale>(
-                    groupValue: currentLocale,
-                    onChanged: (Locale? value) {
-                      if (value != null) {
-                        AnalyticsService.instance.event(
-                          'tap_settings_language',
-                          properties: {'locale': value.languageCode},
-                        );
-                        LocaleController.instance.setLocale(value);
-                      }
-                    },
-                    child: Column(
-                      children: LocaleController.supportedLocales.map((locale) {
-                        return RadioListTile<Locale>(
-                          title: Text(
-                            _getLanguageName(l10n, locale.languageCode),
-                          ),
-                          value: locale,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const Divider(height: 32),
-
-                  // Hotkey Section (Desktop only)
-                  if (Platform.isWindows ||
-                      Platform.isMacOS ||
-                      Platform.isLinux) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
-                        l10n.shortcuts,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                    const HotkeySettingsWidget(),
-                    const Divider(height: 32),
-                  ],
+                  const SizedBox(height: AppDesign.spaceL),
 
                   // Dictionary Section
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: AppDesign.paddingSectionTitle,
                     child: Text(
                       l10n.dictionary,
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -168,49 +186,64 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  ListTile(
-                    leading: Icon(Icons.book, color: theme.colorScheme.primary),
-                    title: Text(l10n.dictionarySettings),
-                    subtitle: Text(l10n.dictionarySettingsDescription),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: AnalyticsService.instance.wrapTap(
-                      'tap_settings_dictionary',
-                      () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const DictionarySettingsPage(),
-                            settings: const RouteSettings(
-                              name: AppRoutes.dictionarySettings,
-                            ),
+                  Material(
+                    color: theme.colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          contentPadding: AppDesign.paddingListTile,
+                          leading: Icon(AppIcons.book,
+                              color: theme.colorScheme.primary),
+                          title: Text(l10n.dictionarySettings),
+                          subtitle: Text(l10n.dictionarySettingsDescription),
+                          trailing: const Icon(AppIcons.chevronRight),
+                          onTap: AnalyticsService.instance.wrapTap(
+                            'tap_settings_dictionary',
+                            () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DictionarySettingsPage(),
+                                  settings: const RouteSettings(
+                                    name: AppRoutes.dictionarySettings,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ),
+                        ListTile(
+                          contentPadding: AppDesign.paddingListTile,
+                          leading: Icon(AppIcons.settingsEthernet,
+                              color: theme.colorScheme.primary),
+                          title: Text(l10n.proxySettings),
+                          subtitle: Text(l10n.proxySettingsDescription),
+                          trailing: const Icon(AppIcons.chevronRight),
+                          onTap: AnalyticsService.instance.wrapTap(
+                            'tap_settings_proxy',
+                            () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ProxySettingsPage(),
+                                  settings: const RouteSettings(
+                                    name: AppRoutes.proxySettings,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  ListTile(
-                    leading: Icon(Icons.settings_ethernet, color: theme.colorScheme.primary),
-                    title: Text(l10n.proxySettings),
-                    subtitle: Text(l10n.proxySettingsDescription),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: AnalyticsService.instance.wrapTap(
-                      'tap_settings_proxy',
-                      () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ProxySettingsPage(),
-                            settings: const RouteSettings(
-                              name: AppRoutes.proxySettings,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const Divider(height: 32),
+                  const SizedBox(height: AppDesign.spaceL),
 
-                  // About Section
+                  // 关于 (About) Section — rounded card
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: AppDesign.paddingSectionTitle,
                     child: Text(
                       l10n.about,
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -219,43 +252,69 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.info_outline,
-                      color: theme.colorScheme.primary,
-                    ),
-                    title: Text(l10n.about),
-                    subtitle: Text(l10n.aboutDescription),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: AnalyticsService.instance.wrapTap(
-                      'tap_settings_about',
-                      () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const AboutPage(),
-                            settings: const RouteSettings(
-                              name: AppRoutes.about,
+                  Material(
+                    color: theme.colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                    child: ListTile(
+                      contentPadding: AppDesign.paddingListTile,
+                      leading: Icon(
+                        AppIcons.infoOutline,
+                        color: theme.colorScheme.primary,
+                      ),
+                      title: Text(l10n.about),
+                      subtitle: Text(l10n.aboutDescription),
+                      trailing: const Icon(AppIcons.chevronRight),
+                      onTap: AnalyticsService.instance.wrapTap(
+                        'tap_settings_about',
+                        () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const AboutPage(),
+                              settings: const RouteSettings(
+                                name: AppRoutes.about,
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                  const Divider(),
-                  // Clear Local Data
-                  ListTile(
-                    leading: Icon(
-                      Icons.delete_outline,
-                      color: theme.colorScheme.error,
-                    ),
-                    title: Text(l10n.clearLocalData),
-                    subtitle: Text(l10n.clearLocalDataDescription),
-                    onTap: AnalyticsService.instance.wrapTap(
-                      'tap_settings_clear_data',
-                      () => _showClearDataDialog(context),
+                  const SizedBox(height: AppDesign.spaceL),
+
+                  // 数据 (Data) Section — clear local data, red style per Figma
+                  Padding(
+                    padding: AppDesign.paddingSectionTitle,
+                    child: Text(
+                      l10n.data,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                   ),
-                  const Divider(height: 32),
+                  Material(
+                    color: theme.colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                    child: ListTile(
+                      contentPadding: AppDesign.paddingListTile,
+                      title: Text(
+                        l10n.clearLocalData,
+                        style: TextStyle(
+                          color: theme.colorScheme.error,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      subtitle: Text(l10n.clearLocalDataDescription),
+                      trailing: Icon(
+                        AppIcons.deleteOutline,
+                        color: theme.colorScheme.error,
+                      ),
+                      onTap: AnalyticsService.instance.wrapTap(
+                        'tap_settings_clear_data',
+                        () => _showClearDataDialog(context),
+                      ),
+                    ),
+                  ),
                 ],
               );
             },

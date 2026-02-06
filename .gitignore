@@ -46,3 +46,4 @@ app.*.map.json
 
 # Localization untranslated messages file
 untranslated_messages.txt
+.superdesign

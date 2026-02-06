@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
 
 /// A reusable empty state widget for displaying when lists are empty.
 class EmptyStateWidget extends StatelessWidget {
@@ -6,7 +7,7 @@ class EmptyStateWidget extends StatelessWidget {
     super.key,
     required this.icon,
     required this.message,
-    this.iconSize = 64,
+    this.iconSize = AppDesign.emptyStateIconSize,
   });
 
   /// Icon to display.
@@ -29,14 +30,16 @@ class EmptyStateWidget extends StatelessWidget {
           Icon(
             icon,
             size: iconSize,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+            color: theme.colorScheme.onSurface
+                .withValues(alpha: AppDesign.alphaEmptyIcon),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppDesign.spaceL),
           Text(
             message,
             style: TextStyle(
-              fontSize: 18,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: AppDesign.emptyStateFontSize,
+              color: theme.colorScheme.onSurface
+                  .withValues(alpha: AppDesign.alphaTertiary),
             ),
           ),
         ],

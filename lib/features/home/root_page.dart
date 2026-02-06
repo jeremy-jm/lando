@@ -2,6 +2,8 @@ import 'dart:io' show Platform;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/features/home/home_page.dart';
 import 'package:lando/features/me/me_page.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
@@ -47,11 +49,11 @@ class _RootPageState extends State<RootPage> {
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
+            icon: const Icon(AppIcons.home),
             label: translationLabel,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
+            icon: const Icon(AppIcons.person),
             label: meLabel,
           ),
         ],
@@ -69,11 +71,12 @@ class _RootPageState extends State<RootPage> {
 
     final bottomBar = Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.98),
+        color: theme.scaffoldBackgroundColor,
         border: Border(
           top: BorderSide(
-            color: theme.colorScheme.outline.withValues(alpha: 0.1),
-            width: 0.5,
+            color: theme.colorScheme.outline
+                .withValues(alpha: AppDesign.alphaDivider),
+            width: AppDesign.dividerHeight,
           ),
         ),
       ),
@@ -84,7 +87,8 @@ class _RootPageState extends State<RootPage> {
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surface.withValues(alpha: 0.7),
+                    color:
+                        theme.scaffoldBackgroundColor.withValues(alpha: 0.85),
                   ),
                   child: barContent,
                 ),

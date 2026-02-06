@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_selectable_toolbar.dart';
 
@@ -34,9 +35,9 @@ class DictionaryPartOfSpeechSection extends StatelessWidget {
           final name = translation['name'] ?? '';
           final value = translation['value'] ?? '';
           return [
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDesign.spaceMd),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: AppDesign.spaceS),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -44,10 +45,16 @@ class DictionaryPartOfSpeechSection extends StatelessWidget {
                     width: 34,
                     child: SelectableText(
                       name,
-                      style: TextStyle(
-                        fontSize: name.contains(':') ? 14 : (name.length <= 4 ? 12 : 14),
-                        fontWeight:
-                            name.contains(':') ? FontWeight.w600 : FontWeight.w500,
+                      style: (theme.textTheme.bodyMedium ?? const TextStyle())
+                          .copyWith(
+                        fontSize: name.contains(':')
+                            ? AppDesign.fontSizeBody
+                            : (name.length <= 4
+                                ? AppDesign.fontSizeCaption
+                                : AppDesign.fontSizeBody),
+                        fontWeight: name.contains(':')
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                         color: theme.colorScheme.primary,
                       ),
                       contextMenuBuilder: (context, editableTextState) =>
@@ -55,12 +62,12 @@ class DictionaryPartOfSpeechSection extends StatelessWidget {
                               context, editableTextState, l10n),
                     ),
                   ),
-                  const SizedBox(width: 16.0),
+                  const SizedBox(width: AppDesign.spaceL),
                   Expanded(
                     child: SelectableText(
                       value,
-                      style: TextStyle(
-                        fontSize: 14,
+                      style: (theme.textTheme.bodyMedium ?? const TextStyle())
+                          .copyWith(
                         color: theme.colorScheme.onSurface,
                       ),
                       contextMenuBuilder: (context, editableTextState) =>

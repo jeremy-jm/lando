@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 import 'package:lando/routes/app_routes.dart';
@@ -140,7 +142,7 @@ class _HistoryPageState extends State<HistoryPage> {
         actions: [
           if (_history.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(AppIcons.deleteOutline),
               tooltip: l10n.clearHistory,
               onPressed: AnalyticsService.instance.wrapTap(
                 'tap_history_clear_button',
@@ -152,36 +154,38 @@ class _HistoryPageState extends State<HistoryPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _history.isEmpty
-          ? EmptyStateWidget(icon: Icons.history, message: l10n.noHistory)
-          : RefreshIndicator(
-              onRefresh: _loadHistory,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: _history.length,
-                itemBuilder: (context, index) {
-                  final item = _history[index];
-                  return QueryHistoryItemTile(
-                    item: item,
-                    onTap: _navigateToQuery,
-                    onDelete: _deleteItem,
-                    confirmDismiss: (item) async {
-                      final confirmed = await ConfirmDialogWidget.show(
-                        context,
-                        title: l10n.delete,
-                        content: '${l10n.delete} "${item.word}"?',
-                        confirmText: l10n.confirm,
-                        cancelText: l10n.cancel,
-                        confirmButtonStyle: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.error,
-                        ),
+              ? EmptyStateWidget(
+                  icon: AppIcons.history, message: l10n.noHistory)
+              : RefreshIndicator(
+                  onRefresh: _loadHistory,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(AppDesign.spaceS),
+                    itemCount: _history.length,
+                    itemBuilder: (context, index) {
+                      final item = _history[index];
+                      return QueryHistoryItemTile(
+                        item: item,
+                        onTap: _navigateToQuery,
+                        onDelete: _deleteItem,
+                        confirmDismiss: (item) async {
+                          final confirmed = await ConfirmDialogWidget.show(
+                            context,
+                            title: l10n.delete,
+                            content: '${l10n.delete} "${item.word}"?',
+                            confirmText: l10n.confirm,
+                            cancelText: l10n.cancel,
+                            confirmButtonStyle: TextButton.styleFrom(
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.error,
+                            ),
+                          );
+                          return confirmed ?? false;
+                        },
+                        formatTimestamp: _formatTimestamp,
                       );
-                      return confirmed ?? false;
                     },
-                    formatTimestamp: _formatTimestamp,
-                  );
-                },
-              ),
-            ),
+                  ),
+                ),
     );
   }
 }

@@ -18,6 +18,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profile => 'Профиль';
 
   @override
+  String get user => 'Пользователь';
+
+  @override
   String get about => 'О программе';
 
   @override
@@ -299,6 +302,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get auto => 'Авто';
+
+  @override
+  String get data => 'Данные';
 
   @override
   String get clearLocalData => 'Очистить локальные данные';

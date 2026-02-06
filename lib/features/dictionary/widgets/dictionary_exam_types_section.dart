@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
 
 /// Exam type tags (e.g. CET4, IELTS).
 class DictionaryExamTypesSection extends StatelessWidget {
@@ -13,14 +14,14 @@ class DictionaryExamTypesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
+      spacing: AppDesign.spaceS,
+      runSpacing: AppDesign.spaceS,
       children: types.map((type) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          padding: AppDesign.paddingToolbar,
           decoration: BoxDecoration(
             color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(4.0),
+            borderRadius: BorderRadius.circular(AppDesign.radiusXs),
             border: Border.all(
               color: theme.colorScheme.primary.withValues(alpha: 0.3),
               width: 1,
@@ -28,8 +29,7 @@ class DictionaryExamTypesSection extends StatelessWidget {
           ),
           child: Text(
             type,
-            style: TextStyle(
-              fontSize: 12,
+            style: (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
               color: theme.colorScheme.primary,
             ),
           ),

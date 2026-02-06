@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_repository.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/features/home/query/query_bloc.dart';
 import 'package:lando/features/home/widgets/language_selector_widget.dart';
 import 'package:lando/features/home/widgets/translation_input_widget.dart';
@@ -13,6 +15,12 @@ import 'package:lando/services/translation/translation_language_resolver.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
+/// Query / translation result page.
+///
+/// Layout aligned with Figma design:
+/// [Lando - Query Page](https://www.figma.com/design/Uf6gt2qk5wgACZHJZBcfR4/Lando?node-id=1-135)
+/// - AppBar: back (left), language pair (center), settings (right)
+/// - Body: input + toolbar (speaker, copy, back/forward, detected lang, clear), then result cards
 class QueryPage extends StatefulWidget {
   const QueryPage({super.key, this.initialQuery});
 
@@ -290,18 +298,21 @@ class _QueryPageState extends State<QueryPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.inversePrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
         title: LanguageSelectorWidget(
           onLanguageChanged: (pair) {
             // Language pair changed, could trigger re-translation if needed
           },
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 16),
+          icon: const Icon(AppIcons.back, size: AppDesign.iconXs),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, size: 18),
+            icon: const Icon(AppIcons.settings, size: AppDesign.iconS),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => const SettingsPage()),
             ),
@@ -311,7 +322,7 @@ class _QueryPageState extends State<QueryPage> {
       body: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+          padding: AppDesign.paddingPageTop,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -360,7 +371,7 @@ class _QueryPageState extends State<QueryPage> {
                   );
                 },
               ),
-              const SizedBox(height: 24.0),
+              const SizedBox(height: AppDesign.queryInputResultSpacing),
               // Results area
               Expanded(
                 child: StreamBuilder<QueryState>(
@@ -379,20 +390,20 @@ class _QueryPageState extends State<QueryPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.error_outline,
-                              size: 64,
+                              AppIcons.errorOutline,
+                              size: AppDesign.emptyStateIconSize,
                               color: theme.colorScheme.error,
                             ),
-                            const SizedBox(height: 16.0),
+                            const SizedBox(height: AppDesign.spaceL),
                             Text(
                               state.errorMessage!,
                               style: TextStyle(
                                 color: theme.colorScheme.error,
-                                fontSize: 16,
+                                fontSize: AppDesign.fontSizeBodyL,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 16.0),
+                            const SizedBox(height: AppDesign.spaceL),
                             ElevatedButton(
                               onPressed: () {
                                 if (state.query.isNotEmpty) {
@@ -430,43 +441,44 @@ class _QueryPageState extends State<QueryPage> {
                       return SingleChildScrollView(
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(16.0),
+                          padding: AppDesign.paddingCard,
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12.0),
+                            borderRadius:
+                                BorderRadius.circular(AppDesign.radiusL),
                           ),
                           child: SelectableText(
                             state.result,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: AppDesign.fontSizeBodyL,
                               color: theme.colorScheme.onSurface,
-                              height: 1.5,
+                              height: AppDesign.lineHeightBody,
                             ),
                           ),
                         ),
                       );
                     }
 
-                    // Show empty state if no result
+                    // Show empty state if no result (ui_spec: icon 64, fontSize 18)
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.search,
-                            size: 64,
+                            AppIcons.search,
+                            size: AppDesign.emptyStateIconSize,
                             color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.3,
+                              alpha: AppDesign.alphaEmptyIcon,
                             ),
                           ),
-                          const SizedBox(height: 16.0),
+                          const SizedBox(height: AppDesign.spaceL),
                           Text(
                             l10n.translation,
                             style: TextStyle(
                               color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
+                                alpha: AppDesign.alphaTertiary,
                               ),
-                              fontSize: 16,
+                              fontSize: AppDesign.emptyStateFontSize,
                             ),
                           ),
                         ],

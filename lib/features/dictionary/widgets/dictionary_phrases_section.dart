@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_clickable_text.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_phrase_pronunciation_button.dart';
@@ -32,11 +33,11 @@ class DictionaryPhrasesSection extends StatelessWidget {
             color: theme.colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 12.0),
+        const SizedBox(height: AppDesign.spaceMd),
         ...phrases.map((phrase) {
           final phraseName = phrase['name'] ?? '';
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
+            padding: const EdgeInsets.only(bottom: AppDesign.spaceMd),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -46,19 +47,24 @@ class DictionaryPhrasesSection extends StatelessWidget {
                       text: phraseName,
                       onTap: () => onQueryTap?.call(phraseName),
                     ),
-                    const SizedBox(width: 8.0),
+                    const SizedBox(width: AppDesign.spaceS),
                     DictionaryPhrasePronunciationButton(
                       onTap: () => onPhrasePronunciationTap(phraseName),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4.0),
+                const SizedBox(height: AppDesign.spaceXxs),
                 Text(
                   phrase['value'] ?? '',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                      ) ??
+                      TextStyle(
+                        fontSize: AppDesign.fontSizeBodyS,
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
                 ),
               ],
             ),

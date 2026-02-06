@@ -10,9 +10,15 @@ class AppColors {
   /// Primary seed color - light blue
   static const Color primarySeedColor = Colors.lightBlue;
 
+  /// Primary blue for accent/buttons (synced from Figma export HomePage/QueryPage blue-500)
+  static const Color figmaPrimaryBlue = Color(0xFF03A9F4);
+
   // ==================== Light Mode Colors ====================
   /// Light mode - background color
   static const Color lightBackground = Colors.white;
+
+  /// Light mode - scaffold/canvas background (synced from Figma export theme.css --input-background)
+  static const Color lightScaffoldBackground = Color(0xFFF3F3F5);
 
   /// Light mode - bottom navigation bar background color
   static const Color lightBottomNavBackground = Colors.white;
@@ -46,8 +52,8 @@ class AppColors {
   /// Text color - dark mode
   static const Color darkText = Colors.white70;
 
-  /// Secondary text color - light mode
-  static const Color lightSecondaryText = Colors.black54;
+  /// Secondary text color - light mode (synced from Figma export --muted-foreground #717182)
+  static const Color lightSecondaryText = Color(0xFF717182);
 
   /// Secondary text color - dark mode
   static const Color darkSecondaryText = Colors.white54;
@@ -61,6 +67,9 @@ class AppColors {
   /// Error color
   static const Color error = Colors.red;
 
+  /// Destructive/danger color (synced from Figma export theme.css --destructive)
+  static const Color destructive = Color(0xFFD4183D);
+
   /// Success color
   static const Color success = Colors.green;
 
@@ -72,19 +81,21 @@ class AppColors {
 
   // ==================== Theme Data Generation Methods ====================
 
-  /// Get light theme ColorScheme
+  /// Get light theme ColorScheme (primary = Figma blue #03A9F4)
   static ColorScheme getLightColorScheme() {
     return ColorScheme.fromSeed(
       seedColor: primarySeedColor,
       brightness: Brightness.light,
+      primary: figmaPrimaryBlue,
     );
   }
 
-  /// Get dark theme ColorScheme
+  /// Get dark theme ColorScheme (primary = Figma blue, onPrimary adjusted)
   static ColorScheme getDarkColorScheme() {
     return ColorScheme.fromSeed(
       seedColor: primarySeedColor,
       brightness: Brightness.dark,
+      primary: figmaPrimaryBlue,
     );
   }
 

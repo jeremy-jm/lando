@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/services/audio/pronunciation_service_type.dart';
@@ -28,11 +29,11 @@ class _DictionarySettingsPageState extends State<DictionarySettingsPage> {
       _currentPronunciationService = PronunciationServiceType.system;
     } else {
       try {
-        _currentPronunciationService = PronunciationServiceType.values
-            .firstWhere(
-              (type) => type.name == serviceTypeString,
-              orElse: () => PronunciationServiceType.system,
-            );
+        _currentPronunciationService =
+            PronunciationServiceType.values.firstWhere(
+          (type) => type.name == serviceTypeString,
+          orElse: () => PronunciationServiceType.system,
+        );
       } catch (e) {
         _currentPronunciationService = PronunciationServiceType.system;
       }
@@ -92,11 +93,28 @@ class _DictionarySettingsPageState extends State<DictionarySettingsPage> {
         backgroundColor: theme.colorScheme.inversePrimary,
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: AppDesign.spaceXl),
         children: [
-          // Pronunciation Source Selection Section
+          // Pronunciation Source Selection Section (ui_spec: padding 16)
+          Padding(
+            padding: AppDesign.paddingSectionTitle,
+            child: Text(
+              l10n.pronunciationSource,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
           ListTile(
+            contentPadding: AppDesign.paddingListTile,
             title: Text(l10n.pronunciationSource),
             subtitle: Text(l10n.pronunciationSourceDescription),
+          ),
+          Divider(
+            height: AppDesign.dividerHeight,
+            color: theme.colorScheme.onSurface
+                .withValues(alpha: AppDesign.alphaDivider),
           ),
           RadioGroup<PronunciationServiceType>(
             groupValue: _currentPronunciationService,

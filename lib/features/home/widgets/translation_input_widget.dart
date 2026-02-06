@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/youdao_suggestion.dart';
 import 'package:lando/network/api_client.dart';
@@ -274,7 +276,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(AppDesign.radiusL),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,21 +290,18 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
               hintText: widget.hintText ??
                   (l10n?.enterTextToTranslate ?? 'Enter text to translate'),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(AppDesign.radiusL),
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10.0,
-                vertical: 7.0,
-              ),
+              contentPadding: AppDesign.paddingInput,
             ),
-            cursorHeight: 16,
+            cursorHeight: AppDesign.inputCursorHeight,
             textInputAction: TextInputAction.search,
             onTap: widget.onTap,
             onSubmitted: widget.onSubmitted,
-            minLines: 1,
-            maxLines: 6,
+            minLines: AppDesign.inputMinLines,
+            maxLines: AppDesign.inputMaxLines,
           ),
 
           // Language detection bar
@@ -310,27 +309,26 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
               widget.detectedLanguage!.isNotEmpty &&
               hasText) ...[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: AppDesign.spaceS),
               alignment: Alignment.center,
-              height: 30,
+              height: AppDesign.toolbarHeight,
               decoration: BoxDecoration(
-                // color: theme.colorScheme.error,
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(AppDesign.radiusM),
               ),
               child: Row(
                 children: [
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppDesign.spaceMd),
                   // Audio and copy icons
                   IconButton(
-                    icon: const Icon(Icons.volume_up, size: 16),
+                    icon: const Icon(AppIcons.volumeUp, size: AppDesign.iconXs),
                     onPressed: widget.onPronunciationTap,
                     tooltip: l10n?.playAudio ?? 'Play audio',
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppDesign.spaceMd),
                   IconButton(
-                    icon: const Icon(Icons.content_copy, size: 16),
+                    icon: const Icon(AppIcons.copy, size: AppDesign.iconXs),
                     onPressed: () {
                       if (widget.controller.text.isNotEmpty) {
                         Clipboard.setData(
@@ -357,19 +355,16 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                       (widget.onNavigateBack != null ||
                           widget.onNavigateForward != null))
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 4.0,
-                      ),
-                      height: 30,
+                      padding: AppDesign.paddingToolbar,
+                      height: AppDesign.toolbarHeight,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         border: Border(
                           bottom: BorderSide(
                             color: theme.colorScheme.outline.withValues(
-                              alpha: 0.1,
+                              alpha: AppDesign.alphaDivider,
                             ),
-                            width: 0.5,
+                            width: AppDesign.dividerHeight,
                           ),
                         ),
                       ),
@@ -405,10 +400,11 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                           );
                                         }
                                       : null,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius:
+                                      BorderRadius.circular(AppDesign.radiusXl),
                                   splashColor: widget.canNavigateBack
                                       ? theme.colorScheme.primary.withValues(
-                                          alpha: 0.1,
+                                          alpha: AppDesign.alphaDivider,
                                         )
                                       : null,
                                   highlightColor: widget.canNavigateBack
@@ -421,8 +417,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                     height: 36,
                                     alignment: Alignment.center,
                                     child: Icon(
-                                      Icons.arrow_back,
-                                      size: 20,
+                                      AppIcons.backAlt,
+                                      size: AppDesign.iconM,
                                       color: widget.canNavigateBack
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.onSurface
@@ -465,10 +461,11 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                           );
                                         }
                                       : null,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius:
+                                      BorderRadius.circular(AppDesign.radiusXl),
                                   splashColor: widget.canNavigateForward
                                       ? theme.colorScheme.primary.withValues(
-                                          alpha: 0.1,
+                                          alpha: AppDesign.alphaDivider,
                                         )
                                       : null,
                                   highlightColor: widget.canNavigateForward
@@ -481,8 +478,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                     height: 36,
                                     alignment: Alignment.center,
                                     child: Icon(
-                                      Icons.arrow_forward,
-                                      size: 20,
+                                      AppIcons.forward,
+                                      size: AppDesign.iconM,
                                       color: widget.canNavigateForward
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.onSurface
@@ -506,7 +503,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                         color: theme.colorScheme.primaryContainer.withValues(
                           alpha: 0.3,
                         ),
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(AppDesign.radiusS),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -514,16 +511,16 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                           Text(
                             '${l10n?.detectedAs ?? 'Detected as'}: ',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: AppDesign.fontSizeCaption,
                               color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.7,
+                                alpha: AppDesign.alphaSecondary,
                               ),
                             ),
                           ),
                           Text(
                             widget.detectedLanguage!,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: AppDesign.fontSizeCaption,
                               fontWeight: FontWeight.w600,
                               color: theme.colorScheme.primary,
                             ),
@@ -534,7 +531,7 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.clear, size: 18),
+                    icon: const Icon(AppIcons.clear, size: AppDesign.iconS),
                     onPressed: () {
                       widget.controller.clear();
                       if (widget.focusNode.canRequestFocus) {
@@ -557,8 +554,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(12.0),
-                    bottomRight: Radius.circular(12.0),
+                    bottomLeft: Radius.circular(AppDesign.radiusL),
+                    bottomRight: Radius.circular(AppDesign.radiusL),
                   ),
                   border: Border.all(
                     color: theme.colorScheme.outline.withValues(alpha: 0.2),
@@ -567,12 +564,14 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppDesign.spaceXxs),
                   itemCount: _suggestions.length,
                   separatorBuilder: (context, index) => Divider(
                     height: 1,
                     thickness: 1,
-                    color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                    color: theme.colorScheme.outline
+                        .withValues(alpha: AppDesign.alphaDivider),
                   ),
                   itemBuilder: (context, index) {
                     final suggestion = _suggestions[index];
@@ -580,19 +579,18 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                       onTap: () => _onSuggestionTap(suggestion),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                          horizontal: AppDesign.spaceL,
+                          vertical: AppDesign.spaceMd,
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              Icons.search,
-                              size: 18,
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
-                              ),
+                              AppIcons.search,
+                              size: AppDesign.iconS,
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: AppDesign.alphaTertiary),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppDesign.spaceMd),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,13 +603,14 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                                   ),
                                   if (suggestion.explain != null &&
                                       suggestion.explain!.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: AppDesign.spaceXxs),
                                     Text(
                                       suggestion.explain!,
                                       style:
                                           theme.textTheme.bodySmall?.copyWith(
                                         color: theme.colorScheme.onSurface
-                                            .withValues(alpha: 0.6),
+                                            .withValues(
+                                                alpha: AppDesign.alphaTertiary),
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -632,13 +631,13 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
 
           // Loading indicator for suggestions
           if (_isLoadingSuggestions && hasText && !widget.readOnly) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppDesign.spaceS),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppDesign.spaceMd),
               alignment: Alignment.center,
               child: SizedBox(
-                width: 16,
-                height: 16,
+                width: AppDesign.iconXs,
+                height: AppDesign.iconXs,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -651,12 +650,15 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
 
           // Not found message
           if (showNotFound) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppDesign.spaceS),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDesign.spaceL,
+                vertical: AppDesign.spaceMd,
+              ),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(AppDesign.radiusL),
                 border: Border.all(
                   color: theme.colorScheme.outline.withValues(alpha: 0.2),
                 ),
@@ -664,19 +666,19 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
               child: Row(
                 children: [
                   Icon(
-                    Icons.info_outline,
-                    size: 18,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    AppIcons.infoOutline,
+                    size: AppDesign.iconS,
+                    color: theme.colorScheme.onSurface
+                        .withValues(alpha: AppDesign.alphaTertiary),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppDesign.spaceMd),
                   Expanded(
                     child: Text(
                       l10n?.noSuggestionsFound ??
                           'No suggestions found for your query',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.7,
-                        ),
+                        color: theme.colorScheme.onSurface
+                            .withValues(alpha: AppDesign.alphaSecondary),
                       ),
                     ),
                   ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 
 /// Small volume icon button for phrase pronunciation.
 class DictionaryPhrasePronunciationButton extends StatelessWidget {
@@ -14,12 +16,12 @@ class DictionaryPhrasePronunciationButton extends StatelessWidget {
     final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8.0),
+      borderRadius: BorderRadius.circular(AppDesign.radiusM),
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(AppDesign.spaceXxs),
         child: Icon(
-          Icons.volume_up,
-          size: 16,
+          AppIcons.volumeUp,
+          size: AppDesign.iconXs,
           color: theme.colorScheme.primary,
         ),
       ),

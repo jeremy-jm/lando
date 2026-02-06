@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_pronunciation_button.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_part_of_speech_section.dart';
@@ -53,7 +54,7 @@ class DictionaryResultContent extends StatelessWidget {
             const SizedBox(width: 8),
             IconButton(
               icon: Icon(
-                isFavorite ? Icons.star : Icons.star_border,
+                isFavorite ? AppIcons.star : AppIcons.starBorder,
                 color: isFavorite
                     ? theme.colorScheme.primary
                     : theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -67,7 +68,8 @@ class DictionaryResultContent extends StatelessWidget {
         ),
 
         // US/UK pronunciation
-        if (result.usPronunciationUrl != null || result.ukPronunciationUrl != null) ...[
+        if (result.usPronunciationUrl != null ||
+            result.ukPronunciationUrl != null) ...[
           const SizedBox(height: 16.0),
           Row(
             children: [
@@ -77,7 +79,8 @@ class DictionaryResultContent extends StatelessWidget {
                   phonetic: result.usPhonetic,
                   onTap: onUsPronunciationTap,
                 ),
-              if (result.usPronunciationUrl != null && result.ukPronunciationUrl != null)
+              if (result.usPronunciationUrl != null &&
+                  result.ukPronunciationUrl != null)
                 const SizedBox(width: 16.0),
               if (result.ukPronunciationUrl != null)
                 DictionaryPronunciationButton(
@@ -90,7 +93,8 @@ class DictionaryResultContent extends StatelessWidget {
         ],
 
         // Simple explanation (when no POS)
-        if (result.simpleExplanation != null && result.translationsByPos == null) ...[
+        if (result.simpleExplanation != null &&
+            result.translationsByPos == null) ...[
           const SizedBox(height: 12.0),
           Text(
             result.simpleExplanation!,
@@ -101,9 +105,12 @@ class DictionaryResultContent extends StatelessWidget {
         ],
 
         // Part of speech
-        if (result.translationsByPos != null && result.translationsByPos!.isNotEmpty) ...[
+        if (result.translationsByPos != null &&
+            result.translationsByPos!.isNotEmpty) ...[
           const SizedBox(height: 16.0),
-          Divider(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), height: 0.5),
+          Divider(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+              height: 0.5),
           const SizedBox(height: 16.0),
           DictionaryPartOfSpeechSection(
             translationsByPos: result.translationsByPos!,
@@ -120,7 +127,9 @@ class DictionaryResultContent extends StatelessWidget {
         // Word form
         if (result.wordForm != null && result.wordForm!.isNotEmpty) ...[
           const SizedBox(height: 16.0),
-          Divider(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), height: 0.5),
+          Divider(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+              height: 0.5),
           const SizedBox(height: 16.0),
           DictionaryWordFormSection(
             wordForm: result.wordForm!,
@@ -132,7 +141,9 @@ class DictionaryResultContent extends StatelessWidget {
         // Phrases
         if (result.phrases != null && result.phrases!.isNotEmpty) ...[
           const SizedBox(height: 16.0),
-          Divider(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), height: 0.5),
+          Divider(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+              height: 0.5),
           const SizedBox(height: 16.0),
           DictionaryPhrasesSection(
             phrases: result.phrases!,
@@ -143,9 +154,12 @@ class DictionaryResultContent extends StatelessWidget {
         ],
 
         // Web translations
-        if (result.webTranslations != null && result.webTranslations!.isNotEmpty) ...[
+        if (result.webTranslations != null &&
+            result.webTranslations!.isNotEmpty) ...[
           const SizedBox(height: 16.0),
-          Divider(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), height: 0.5),
+          Divider(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+              height: 0.5),
           const SizedBox(height: 16.0),
           DictionaryWebTranslationsSection(
             webTranslations: result.webTranslations!,

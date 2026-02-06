@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/models/query_history_item.dart';
 import 'package:lando/models/result_model.dart';
@@ -38,7 +39,7 @@ class DictionaryWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: platforms.map((platform) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
+            padding: const EdgeInsets.only(bottom: AppDesign.spaceXl),
             child: PlatformDictionaryWidget(
               key: ValueKey('$platform-$query'),
               query: query,
@@ -90,7 +91,8 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
   @override
   void didUpdateWidget(PlatformDictionaryWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.query != widget.query || oldWidget.platform != widget.platform) {
+    if (oldWidget.query != widget.query ||
+        oldWidget.platform != widget.platform) {
       _fetchResult();
     }
   }
@@ -133,7 +135,8 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n?.cannotFavorite ?? 'Cannot favorite: no translation available',
+              l10n?.cannotFavorite ??
+                  'Cannot favorite: no translation available',
             ),
             duration: const Duration(seconds: 2),
           ),
@@ -151,7 +154,8 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
             final l10n = AppLocalizations.of(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(l10n?.removedFromFavorites ?? 'Removed from favorites'),
+                content: Text(
+                    l10n?.removedFromFavorites ?? 'Removed from favorites'),
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -343,10 +347,10 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: AppDesign.paddingCard,
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(AppDesign.radiusL),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,21 +359,18 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
             platformName: widget.platform.displayName,
             loading: _loading,
           ),
-          const SizedBox(height: 16.0),
-
+          const SizedBox(height: AppDesign.spaceL),
           if (_loading)
             Center(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(AppDesign.spaceXl),
                 child: CircularProgressIndicator(
                   color: theme.colorScheme.primary,
                 ),
               ),
             ),
-
           if (_error != null && !_loading)
             DictionaryErrorBanner(message: _error!),
-
           if (_result != null && !_loading)
             DictionaryResultContent(
               result: _result!,

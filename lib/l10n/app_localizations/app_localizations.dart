@@ -126,6 +126,12 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get profile;
 
+  /// Default display name in Me profile header
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get user;
+
   /// About page title
   ///
   /// In en, this message translates to:
@@ -653,6 +659,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Auto'**
   String get auto;
+
+  /// Settings section title for data management
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get data;
 
   /// Clear local data button title
   ///

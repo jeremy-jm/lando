@@ -17,6 +17,7 @@ import 'package:lando/services/translation/bing_token_service.dart';
 import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/theme/app_colors.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/theme/theme_controller.dart';
 
 void main() async {
@@ -118,6 +119,41 @@ bool _isKeyboardStateSyncAssertion(Object error, StackTrace? stackTrace) {
   final isKeyStateSync = message.contains('physical key is already pressed') ||
       message.contains('physical key is not pressed');
   return isFromHardwareKeyboard && isKeyStateSync;
+}
+
+/// TextTheme aligned with ui_spec and AppDesign typography tokens.
+TextTheme _buildTextTheme(Brightness brightness) {
+  final base = brightness == Brightness.dark
+      ? Typography.material2021(platform: TargetPlatform.android).black
+      : Typography.material2021(platform: TargetPlatform.android).white;
+  return base.copyWith(
+    headlineMedium: base.headlineMedium?.copyWith(
+      fontSize: AppDesign.fontSizeTitleS,
+      fontWeight: FontWeight.bold,
+    ),
+    titleLarge: base.titleLarge?.copyWith(
+      fontSize: AppDesign.fontSizeTitleS,
+      fontWeight: FontWeight.bold,
+    ),
+    titleMedium: base.titleMedium?.copyWith(
+      fontSize: AppDesign.fontSizeBody,
+      fontWeight: FontWeight.w500,
+    ),
+    bodyLarge: base.bodyLarge?.copyWith(
+      fontSize: AppDesign.fontSizeBodyL,
+      height: AppDesign.lineHeightBody,
+    ),
+    bodyMedium: base.bodyMedium?.copyWith(
+      fontSize: AppDesign.fontSizeBody,
+      height: AppDesign.lineHeightBody,
+    ),
+    bodySmall: base.bodySmall?.copyWith(
+      fontSize: AppDesign.fontSizeBodyS,
+    ),
+    labelSmall: base.labelSmall?.copyWith(
+      fontSize: AppDesign.fontSizeCaption,
+    ),
+  );
 }
 
 void _setupErrorHandlers() {
@@ -290,11 +326,53 @@ class _MyAppState extends State<MyApp> with WindowListener {
               theme: ThemeData(
                 colorScheme: AppColors.getLightColorScheme(),
                 useMaterial3: true,
+                scaffoldBackgroundColor: AppColors.lightScaffoldBackground,
                 bottomNavigationBarTheme: AppColors.getLightBottomNavTheme(),
+                appBarTheme: const AppBarTheme(
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                ),
+                textTheme: _buildTextTheme(Brightness.light),
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: AppDesign.paddingInput,
+                ),
               ),
               darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
                 colorScheme: AppColors.getDarkColorScheme(),
+                scaffoldBackgroundColor: AppColors.darkBackground,
                 bottomNavigationBarTheme: AppColors.getDarkBottomNavTheme(),
+                appBarTheme: const AppBarTheme(
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                ),
+                textTheme: _buildTextTheme(Brightness.dark),
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: AppDesign.paddingInput,
+                ),
               ),
               // Routing configuration
               initialRoute: AppRoutes.home,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
@@ -82,12 +84,15 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDesign.spaceMd,
+          vertical: AppDesign.spaceXs,
+        ),
         decoration: BoxDecoration(
           color: widget.showBackground
               ? theme.colorScheme.surface
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(6.0),
+          borderRadius: BorderRadius.circular(AppDesign.radiusS),
           border: widget.showBackground
               ? Border.all(
                   color: theme.colorScheme.outline.withValues(alpha: 0.3),
@@ -100,15 +105,16 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
             Text(
               languageName,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: AppDesign.fontSizeBodyS,
                 color: theme.colorScheme.onSurface,
               ),
             ),
-            const SizedBox(width: 4.0),
+            const SizedBox(width: AppDesign.spaceXxs),
             Icon(
-              Icons.arrow_drop_down,
-              size: 18,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              AppIcons.arrowDropDown,
+              size: AppDesign.iconS,
+              color: theme.colorScheme.onSurface
+                  .withValues(alpha: AppDesign.alphaTertiary),
             ),
           ],
         ),
@@ -238,29 +244,29 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
     );
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: AppDesign.spaceS),
       decoration: BoxDecoration(
         color: widget.showBackground
             ? theme.colorScheme.surfaceContainerHighest
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(AppDesign.radiusM),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // From language selector with animation
           fromLanguageWidget,
-          const SizedBox(width: 12.0),
+          const SizedBox(width: AppDesign.spaceMd),
           // Swap languages button
           GestureDetector(
             onTap: _swapLanguages,
             child: Container(
-              padding: const EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(AppDesign.spaceXs),
               decoration: BoxDecoration(
                 color: widget.showBackground
                     ? theme.colorScheme.surface
                     : Colors.transparent,
-                borderRadius: BorderRadius.circular(6.0),
+                borderRadius: BorderRadius.circular(AppDesign.radiusS),
                 border: widget.showBackground
                     ? Border.all(
                         color: theme.colorScheme.outline.withValues(alpha: 0.3),
@@ -268,13 +274,14 @@ class _LanguageSelectorWidgetState extends State<LanguageSelectorWidget>
                     : null,
               ),
               child: Icon(
-                Icons.swap_horiz,
-                size: 18,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                AppIcons.swapHoriz,
+                size: AppDesign.iconS,
+                color: theme.colorScheme.onSurface
+                    .withValues(alpha: AppDesign.alphaSecondary),
               ),
             ),
           ),
-          const SizedBox(width: 12.0),
+          const SizedBox(width: AppDesign.spaceMd),
           // To language selector with animation
           toLanguageWidget,
         ],
@@ -303,6 +310,7 @@ class _LanguageDialog extends StatelessWidget {
     final supportedLanguages = LocaleController.supportedLocales;
     final l10n = AppLocalizations.of(context);
 
+    final theme = Theme.of(context);
     return AlertDialog(
       title: Text(title),
       content: SingleChildScrollView(
@@ -316,7 +324,11 @@ class _LanguageDialog extends StatelessWidget {
               isSelected: currentSelection == null,
               onTap: () => Navigator.of(context).pop('auto'),
             ),
-            const Divider(),
+            Divider(
+              height: AppDesign.dividerHeight,
+              color: theme.colorScheme.onSurface
+                  .withValues(alpha: AppDesign.alphaDivider),
+            ),
             // Language options
             ...supportedLanguages.map(
               (locale) => _LanguageOption(
@@ -375,10 +387,12 @@ class _LanguageOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
+      contentPadding: AppDesign.paddingListTile,
       title: Text(name),
       trailing: isSelected
-          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+          ? Icon(AppIcons.check, color: theme.colorScheme.primary)
           : null,
       selected: isSelected,
       onTap: onTap,

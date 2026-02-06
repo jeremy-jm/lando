@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_clickable_text.dart';
 
@@ -29,12 +30,12 @@ class DictionaryWordFormSection extends StatelessWidget {
             color: theme.colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 12.0),
+        const SizedBox(height: AppDesign.spaceMd),
         ...wordForm.map((wf) {
           final name = wf['name'] ?? '';
           final value = wf['value'] ?? '';
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.only(bottom: AppDesign.spaceS),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -42,20 +43,20 @@ class DictionaryWordFormSection extends StatelessWidget {
                   width: 100,
                   child: InkWell(
                     onTap: () => onQueryTap?.call(value),
-                    borderRadius: BorderRadius.circular(4.0),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusXs),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: AppDesign.spaceXxxs),
                       child: Text(
                         name,
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16.0),
+                const SizedBox(width: AppDesign.spaceL),
                 Expanded(
                   child: DictionaryClickableText(
                     text: value,

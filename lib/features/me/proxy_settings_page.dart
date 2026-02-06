@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
@@ -127,7 +129,9 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)?.proxyValidationSuccess ?? 'Proxy connection successful'),
+            content: Text(
+                AppLocalizations.of(context)?.proxyValidationSuccess ??
+                    'Proxy connection successful'),
             duration: const Duration(seconds: 2),
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
@@ -138,7 +142,9 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
     } catch (e) {
       setState(() {
         _isValidating = false;
-        _validationError = AppLocalizations.of(context)?.proxyValidationFailed ?? 'Failed to connect to proxy server';
+        _validationError =
+            AppLocalizations.of(context)?.proxyValidationFailed ??
+                'Failed to connect to proxy server';
       });
 
       AnalyticsService.instance.event(
@@ -159,27 +165,33 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
         backgroundColor: theme.colorScheme.inversePrimary,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: AppDesign.paddingCard,
         children: [
-          // Proxy Enabled Switch
+          // Proxy Enabled Switch (ui_spec: card radius 12)
           Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDesign.radiusL),
+            ),
             child: SwitchListTile(
               title: Text(l10n.enableProxy),
               subtitle: Text(l10n.enableProxyDescription),
               value: _proxyEnabled,
               onChanged: _onProxyEnabledChanged,
               secondary: Icon(
-                Icons.settings_ethernet,
+                AppIcons.settingsEthernet,
                 color: theme.colorScheme.primary,
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: AppDesign.spaceL),
 
           // Proxy Host Input
           Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDesign.radiusL),
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: AppDesign.paddingCard,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -189,14 +201,18 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: AppDesign.spaceS),
                   TextField(
                     controller: _hostController,
                     enabled: _proxyEnabled,
                     decoration: InputDecoration(
                       hintText: l10n.proxyHostHint,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.dns),
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(AppIcons.dns),
                     ),
                     onChanged: _onHostChanged,
                   ),
@@ -204,12 +220,15 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: AppDesign.spaceL),
 
           // Proxy Port Input
           Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDesign.radiusL),
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: AppDesign.paddingCard,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -219,14 +238,18 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: AppDesign.spaceS),
                   TextField(
                     controller: _portController,
                     enabled: _proxyEnabled,
                     decoration: InputDecoration(
                       hintText: l10n.proxyPortHint,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.numbers),
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusL),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(AppIcons.numbers),
                     ),
                     keyboardType: TextInputType.number,
                     onChanged: _onPortChanged,
@@ -235,14 +258,17 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: AppDesign.spaceL),
 
           // Validation Status
           if (_isValidating)
             Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppDesign.radiusL),
+              ),
               color: theme.colorScheme.surfaceContainerHighest,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: AppDesign.paddingCard,
                 child: Row(
                   children: [
                     SizedBox(
@@ -255,7 +281,7 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: AppDesign.spaceL),
                     Text(l10n.validatingProxy),
                   ],
                 ),
@@ -263,16 +289,19 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
             )
           else if (_validationError != null)
             Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppDesign.radiusL),
+              ),
               color: theme.colorScheme.errorContainer,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: AppDesign.paddingCard,
                 child: Row(
                   children: [
                     Icon(
-                      Icons.error_outline,
+                      AppIcons.errorOutline,
                       color: theme.colorScheme.onErrorContainer,
                     ),
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: AppDesign.spaceL),
                     Expanded(
                       child: Text(
                         _validationError!,
@@ -287,16 +316,19 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
             )
           else if (_proxyEnabled)
             Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppDesign.radiusL),
+              ),
               color: theme.colorScheme.primaryContainer,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: AppDesign.paddingCard,
                 child: Row(
                   children: [
                     Icon(
-                      Icons.check_circle_outline,
+                      AppIcons.checkCircleOutline,
                       color: theme.colorScheme.onPrimaryContainer,
                     ),
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: AppDesign.spaceL),
                     Expanded(
                       child: Text(
                         l10n.proxyConfigured,
@@ -310,36 +342,39 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
               ),
             ),
 
-          const SizedBox(height: 24.0),
+          const SizedBox(height: AppDesign.spaceXl),
 
           // Validate Button
           if (_proxyEnabled)
             ElevatedButton.icon(
               onPressed: _isValidating ? null : _validateProxy,
-              icon: const Icon(Icons.check_circle),
+              icon: const Icon(AppIcons.checkCircle),
               label: Text(l10n.validateProxy),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: AppDesign.spaceL),
               ),
             ),
 
-          const SizedBox(height: 16.0),
+          const SizedBox(height: AppDesign.spaceL),
 
           // Info Card
           Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDesign.radiusL),
+            ),
             color: theme.colorScheme.surfaceContainerHighest,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: AppDesign.paddingCard,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Icon(
-                        Icons.info_outline,
+                        AppIcons.infoOutline,
                         color: theme.colorScheme.primary,
                       ),
-                      const SizedBox(width: 8.0),
+                      const SizedBox(width: AppDesign.spaceS),
                       Text(
                         l10n.proxyInfo,
                         style: theme.textTheme.titleSmall?.copyWith(
@@ -348,7 +383,7 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: AppDesign.spaceS),
                   Text(
                     l10n.proxyInfoDescription,
                     style: theme.textTheme.bodySmall,

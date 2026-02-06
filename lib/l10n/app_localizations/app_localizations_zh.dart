@@ -18,6 +18,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get profile => '个人资料';
 
   @override
+  String get user => '用户';
+
+  @override
   String get about => '关于';
 
   @override
@@ -287,6 +290,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get auto => '自动';
+
+  @override
+  String get data => '数据';
 
   @override
   String get clearLocalData => '清除本地数据';

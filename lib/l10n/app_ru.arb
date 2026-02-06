@@ -3,6 +3,7 @@
   "appTitle": "Lando Словарь",
   "settings": "Настройки",
   "profile": "Профиль",
+  "user": "Пользователь",
   "about": "О программе",
   "notFound": "404",
   "pageNotFound": "Страница не найдена",
@@ -130,6 +131,7 @@
   "@auto": {
     "description": "Auto-detect language option"
   },
+  "data": "Данные",
   "clearLocalData": "Очистить локальные данные",
   "@clearLocalData": {
     "description": "Clear local data button title"

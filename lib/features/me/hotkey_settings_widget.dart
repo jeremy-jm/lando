@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 import 'package:lando/services/hotkey/hotkey_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
 
@@ -413,8 +415,7 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
 
     // Check if the key itself is a modifier key by name
     final keyName = physicalKey.debugName ?? '';
-    final isModifierKey =
-        keyName.contains('Control') ||
+    final isModifierKey = keyName.contains('Control') ||
         keyName.contains('Alt') ||
         keyName.contains('Shift') ||
         keyName.contains('Meta') ||
@@ -527,15 +528,15 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: AppDesign.paddingPage,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(16.0),
+                padding: AppDesign.paddingCard,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(AppDesign.radiusM),
                   border: Border.all(
                     color: _isRecording
                         ? theme.colorScheme.primary
@@ -558,7 +559,7 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
                                         .withValues(alpha: 0.6),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: AppDesign.spaceXxs),
                                 Text(
                                   _formatHotkey(_currentHotKey),
                                   style: theme.textTheme.bodyLarge?.copyWith(
@@ -569,22 +570,22 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: AppDesign.spaceL),
                           ElevatedButton.icon(
                             onPressed: _startRecording,
-                            icon: const Icon(Icons.edit),
+                            icon: const Icon(AppIcons.edit),
                             label: Text(l10n?.recordHotkey ?? 'Record'),
                           ),
                         ],
                       ),
               ),
               if (_errorMessage != null) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: AppDesign.spaceS),
                 Text(
                   _errorMessage!,
-                  style: TextStyle(
+                  style: (theme.textTheme.labelSmall ?? const TextStyle())
+                      .copyWith(
                     color: theme.colorScheme.error,
-                    fontSize: 12,
                   ),
                 ),
               ],

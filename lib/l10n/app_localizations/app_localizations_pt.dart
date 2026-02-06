@@ -18,6 +18,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get profile => 'Perfil';
 
   @override
+  String get user => 'Usuário';
+
+  @override
   String get about => 'Sobre';
 
   @override
@@ -300,6 +303,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get auto => 'Automático';
+
+  @override
+  String get data => 'Dados';
 
   @override
   String get clearLocalData => 'Limpar Dados Locais';

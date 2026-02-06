@@ -18,6 +18,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get profile => 'プロフィール';
 
   @override
+  String get user => 'ユーザー';
+
+  @override
   String get about => 'について';
 
   @override
@@ -287,6 +290,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get auto => '自動';
+
+  @override
+  String get data => 'データ';
 
   @override
   String get clearLocalData => 'ローカルデータをクリア';

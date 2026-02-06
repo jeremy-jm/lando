@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lando/theme/app_design.dart';
+import 'package:lando/theme/app_icons.dart';
 
 /// US/UK pronunciation button (label + optional phonetic + volume icon).
 class DictionaryPronunciationButton extends StatelessWidget {
@@ -18,32 +20,33 @@ class DictionaryPronunciationButton extends StatelessWidget {
     final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8.0),
+      borderRadius: BorderRadius.circular(AppDesign.radiusM),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(AppDesign.spaceS),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              style: (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
+                color: theme.colorScheme.onSurface
+                    .withValues(alpha: AppDesign.alphaTertiary),
               ),
             ),
-            const SizedBox(width: 8.0),
+            const SizedBox(width: AppDesign.spaceS),
             if (phonetic != null && phonetic!.isNotEmpty) ...[
               Text(
                 '/$phonetic/',
-                style: TextStyle(
-                  fontSize: 14,
+                style:
+                    (theme.textTheme.bodyMedium ?? const TextStyle()).copyWith(
                   color: theme.colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(width: 8.0),
+              const SizedBox(width: AppDesign.spaceS),
             ],
-            Icon(Icons.volume_up, size: 20, color: theme.colorScheme.primary),
+            Icon(AppIcons.volumeUp,
+                size: AppDesign.iconM, color: theme.colorScheme.primary),
           ],
         ),
       ),

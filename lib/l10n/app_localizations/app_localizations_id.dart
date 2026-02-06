@@ -18,6 +18,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get profile => 'Profil';
 
   @override
+  String get user => 'Pengguna';
+
+  @override
   String get about => 'Tentang';
 
   @override
@@ -297,6 +300,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get auto => 'Otomatis';
+
+  @override
+  String get data => 'Data';
 
   @override
   String get clearLocalData => 'Hapus Data Lokal';
