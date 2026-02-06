@@ -258,6 +258,388 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     }
   }
 
+  void _handleNavigate(VoidCallback? callback) {
+    if (callback == null) {
+      return;
+    }
+
+    _isNavigating = true;
+    _closeSuggestions();
+    callback();
+    // Reset navigation flag after a delay to allow text change to complete
+    _navigationResetTimer?.cancel();
+    _navigationResetTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+          // Update _lastQuery to prevent re-fetching
+          _lastQuery = widget.controller.text.trim();
+        });
+      }
+    });
+  }
+
+  Widget _buildInputField(ThemeData theme, AppLocalizations? l10n) {
+    return TextField(
+      controller: widget.controller,
+      focusNode: widget.focusNode,
+      readOnly: widget.readOnly,
+      decoration: InputDecoration(
+        hintText: widget.hintText ??
+            (l10n?.enterTextToTranslate ?? 'Enter text to translate'),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusL),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        contentPadding: AppDesign.paddingInput,
+      ),
+      cursorHeight: AppDesign.inputCursorHeight,
+      textInputAction: TextInputAction.search,
+      onTap: widget.onTap,
+      onSubmitted: widget.onSubmitted,
+      minLines: AppDesign.inputMinLines,
+      maxLines: AppDesign.inputMaxLines,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        fontSize: AppDesign.fontSizeBody,
+        color: theme.colorScheme.onSurface,
+      ),
+    );
+  }
+
+  Widget _buildNavigationBar(ThemeData theme, AppLocalizations? l10n) {
+    return Container(
+      padding: AppDesign.paddingToolbar,
+      height: AppDesign.toolbarHeight,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withValues(
+              alpha: AppDesign.alphaDivider,
+            ),
+            width: AppDesign.dividerHeight,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          if (widget.onNavigateBack != null)
+            Tooltip(
+              message: l10n?.navigateBack ?? 'Navigate back',
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: widget.canNavigateBack
+                      ? () => _handleNavigate(widget.onNavigateBack)
+                      : null,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusXl),
+                  splashColor: widget.canNavigateBack
+                      ? theme.colorScheme.primary.withValues(
+                          alpha: AppDesign.alphaDivider,
+                        )
+                      : null,
+                  highlightColor: widget.canNavigateBack
+                      ? theme.colorScheme.primary.withValues(
+                          alpha: 0.05,
+                        )
+                      : null,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      AppIcons.backAlt,
+                      size: AppDesign.iconM,
+                      color: widget.canNavigateBack
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (widget.onNavigateForward != null) ...[
+            if (widget.onNavigateBack != null) const SizedBox(width: 4),
+            Tooltip(
+              message: l10n?.navigateForward ?? 'Navigate forward',
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: widget.canNavigateForward
+                      ? () => _handleNavigate(widget.onNavigateForward)
+                      : null,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusXl),
+                  splashColor: widget.canNavigateForward
+                      ? theme.colorScheme.primary.withValues(
+                          alpha: AppDesign.alphaDivider,
+                        )
+                      : null,
+                  highlightColor: widget.canNavigateForward
+                      ? theme.colorScheme.primary.withValues(
+                          alpha: 0.05,
+                        )
+                      : null,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      AppIcons.forward,
+                      size: AppDesign.iconM,
+                      color: widget.canNavigateForward
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetectionBar(
+    ThemeData theme,
+    AppLocalizations? l10n,
+    bool hasText,
+  ) {
+    if (widget.detectedLanguage == null ||
+        widget.detectedLanguage!.isEmpty ||
+        !hasText) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppDesign.spaceS),
+      alignment: Alignment.center,
+      height: AppDesign.toolbarHeight,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppDesign.radiusM),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: AppDesign.spaceMd),
+          IconButton(
+            icon: const Icon(AppIcons.volumeUp, size: AppDesign.iconXs),
+            onPressed: widget.onPronunciationTap,
+            tooltip: l10n?.playAudio ?? 'Play audio',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+          const SizedBox(width: AppDesign.spaceMd),
+          IconButton(
+            icon: const Icon(AppIcons.copy, size: AppDesign.iconXs),
+            onPressed: () {
+              if (widget.controller.text.isNotEmpty) {
+                Clipboard.setData(
+                  ClipboardData(text: widget.controller.text),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      l10n?.copiedToClipboard ?? 'Copied to clipboard',
+                    ),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              }
+            },
+            tooltip: l10n?.copy ?? 'Copy',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+          const Spacer(),
+          if (!widget.readOnly &&
+              (widget.onNavigateBack != null ||
+                  widget.onNavigateForward != null))
+            _buildNavigationBar(theme, l10n),
+          GestureDetector(
+            onTap: () {
+              // Language selection can be triggered here
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer.withValues(
+                  alpha: 0.3,
+                ),
+                borderRadius: BorderRadius.circular(AppDesign.radiusS),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${l10n?.detectedAs ?? 'Detected as'}: ',
+                    style: TextStyle(
+                      fontSize: AppDesign.fontSizeCaption,
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: AppDesign.alphaSecondary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    widget.detectedLanguage!,
+                    style: TextStyle(
+                      fontSize: AppDesign.fontSizeCaption,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(AppIcons.clear, size: AppDesign.iconS),
+            onPressed: () {
+              widget.controller.clear();
+              if (widget.focusNode.canRequestFocus) {
+                widget.focusNode.requestFocus();
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestionsList(BuildContext context, ThemeData theme) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.4,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(AppDesign.radiusL),
+            bottomRight: Radius.circular(AppDesign.radiusL),
+          ),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: AppDesign.spaceXxs),
+          itemCount: _suggestions.length,
+          separatorBuilder: (context, index) => Divider(
+            height: 1,
+            thickness: 1,
+            color: theme.colorScheme.outline
+                .withValues(alpha: AppDesign.alphaDivider),
+          ),
+          itemBuilder: (context, index) {
+            final suggestion = _suggestions[index];
+            return InkWell(
+              onTap: () => _onSuggestionTap(suggestion),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDesign.spaceL,
+                  vertical: AppDesign.spaceMd,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      AppIcons.search,
+                      size: AppDesign.iconS,
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: AppDesign.alphaTertiary),
+                    ),
+                    const SizedBox(width: AppDesign.spaceMd),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            suggestion.word,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (suggestion.explain != null &&
+                              suggestion.explain!.isNotEmpty) ...[
+                            const SizedBox(height: AppDesign.spaceXxs),
+                            Text(
+                              suggestion.explain!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: AppDesign.alphaTertiary),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(AppDesign.spaceMd),
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: AppDesign.iconXs,
+        height: AppDesign.iconXs,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            theme.colorScheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotFound(ThemeData theme, AppLocalizations? l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDesign.spaceL,
+        vertical: AppDesign.spaceMd,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppDesign.radiusL),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            AppIcons.infoOutline,
+            size: AppDesign.iconS,
+            color: theme.colorScheme.onSurface
+                .withValues(alpha: AppDesign.alphaTertiary),
+          ),
+          const SizedBox(width: AppDesign.spaceMd),
+          Expanded(
+            child: Text(
+              l10n?.noSuggestionsFound ?? 'No suggestions found for your query',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface
+                    .withValues(alpha: AppDesign.alphaSecondary),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -282,409 +664,26 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Input field
-          TextField(
-            controller: widget.controller,
-            focusNode: widget.focusNode,
-            readOnly: widget.readOnly,
-            decoration: InputDecoration(
-              hintText: widget.hintText ??
-                  (l10n?.enterTextToTranslate ?? 'Enter text to translate'),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppDesign.radiusL),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              contentPadding: AppDesign.paddingInput,
-            ),
-            cursorHeight: AppDesign.inputCursorHeight,
-            textInputAction: TextInputAction.search,
-            onTap: widget.onTap,
-            onSubmitted: widget.onSubmitted,
-            minLines: AppDesign.inputMinLines,
-            maxLines: AppDesign.inputMaxLines,
-          ),
+          _buildInputField(theme, l10n),
 
           // Language detection bar
-          if (widget.detectedLanguage != null &&
-              widget.detectedLanguage!.isNotEmpty &&
-              hasText) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppDesign.spaceS),
-              alignment: Alignment.center,
-              height: AppDesign.toolbarHeight,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppDesign.radiusM),
-              ),
-              child: Row(
-                children: [
-                  const SizedBox(width: AppDesign.spaceMd),
-                  // Audio and copy icons
-                  IconButton(
-                    icon: const Icon(AppIcons.volumeUp, size: AppDesign.iconXs),
-                    onPressed: widget.onPronunciationTap,
-                    tooltip: l10n?.playAudio ?? 'Play audio',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: AppDesign.spaceMd),
-                  IconButton(
-                    icon: const Icon(AppIcons.copy, size: AppDesign.iconXs),
-                    onPressed: () {
-                      if (widget.controller.text.isNotEmpty) {
-                        Clipboard.setData(
-                          ClipboardData(text: widget.controller.text),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              l10n?.copiedToClipboard ?? 'Copied to clipboard',
-                            ),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
-                      }
-                    },
-                    tooltip: l10n?.copy ?? 'Copy',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const Spacer(),
-                  // Navigation bar (back/forward buttons)
-                  // Always show navigation bar in query page (when callbacks are provided)
-                  if (!widget.readOnly &&
-                      (widget.onNavigateBack != null ||
-                          widget.onNavigateForward != null))
-                    Container(
-                      padding: AppDesign.paddingToolbar,
-                      height: AppDesign.toolbarHeight,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: theme.colorScheme.outline.withValues(
-                              alpha: AppDesign.alphaDivider,
-                            ),
-                            width: AppDesign.dividerHeight,
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          // Back button
-                          if (widget.onNavigateBack != null)
-                            Tooltip(
-                              message: l10n?.navigateBack ?? 'Navigate back',
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: widget.canNavigateBack
-                                      ? () {
-                                          _isNavigating = true;
-                                          _closeSuggestions();
-                                          widget.onNavigateBack?.call();
-                                          // Reset navigation flag after a delay to allow text change to complete
-                                          _navigationResetTimer?.cancel();
-                                          _navigationResetTimer = Timer(
-                                            const Duration(milliseconds: 300),
-                                            () {
-                                              if (mounted) {
-                                                setState(() {
-                                                  _isNavigating = false;
-                                                  // Update _lastQuery to prevent re-fetching
-                                                  _lastQuery = widget
-                                                      .controller.text
-                                                      .trim();
-                                                });
-                                              }
-                                            },
-                                          );
-                                        }
-                                      : null,
-                                  borderRadius:
-                                      BorderRadius.circular(AppDesign.radiusXl),
-                                  splashColor: widget.canNavigateBack
-                                      ? theme.colorScheme.primary.withValues(
-                                          alpha: AppDesign.alphaDivider,
-                                        )
-                                      : null,
-                                  highlightColor: widget.canNavigateBack
-                                      ? theme.colorScheme.primary.withValues(
-                                          alpha: 0.05,
-                                        )
-                                      : null,
-                                  child: Container(
-                                    width: 36,
-                                    height: 36,
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      AppIcons.backAlt,
-                                      size: AppDesign.iconM,
-                                      color: widget.canNavigateBack
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.onSurface
-                                              .withValues(alpha: 0.3),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          // Forward button
-                          if (widget.onNavigateForward != null) ...[
-                            if (widget.onNavigateBack != null)
-                              const SizedBox(width: 4),
-                            Tooltip(
-                              message:
-                                  l10n?.navigateForward ?? 'Navigate forward',
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: widget.canNavigateForward
-                                      ? () {
-                                          _isNavigating = true;
-                                          _closeSuggestions();
-                                          widget.onNavigateForward?.call();
-                                          // Reset navigation flag after a delay to allow text change to complete
-                                          _navigationResetTimer?.cancel();
-                                          _navigationResetTimer = Timer(
-                                            const Duration(milliseconds: 300),
-                                            () {
-                                              if (mounted) {
-                                                setState(() {
-                                                  _isNavigating = false;
-                                                  // Update _lastQuery to prevent re-fetching
-                                                  _lastQuery = widget
-                                                      .controller.text
-                                                      .trim();
-                                                });
-                                              }
-                                            },
-                                          );
-                                        }
-                                      : null,
-                                  borderRadius:
-                                      BorderRadius.circular(AppDesign.radiusXl),
-                                  splashColor: widget.canNavigateForward
-                                      ? theme.colorScheme.primary.withValues(
-                                          alpha: AppDesign.alphaDivider,
-                                        )
-                                      : null,
-                                  highlightColor: widget.canNavigateForward
-                                      ? theme.colorScheme.primary.withValues(
-                                          alpha: 0.05,
-                                        )
-                                      : null,
-                                  child: Container(
-                                    width: 36,
-                                    height: 36,
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      AppIcons.forward,
-                                      size: AppDesign.iconM,
-                                      color: widget.canNavigateForward
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.onSurface
-                                              .withValues(alpha: 0.3),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  // Language detection label
-                  GestureDetector(
-                    onTap: () {
-                      // Language selection can be triggered here
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withValues(
-                          alpha: 0.3,
-                        ),
-                        borderRadius: BorderRadius.circular(AppDesign.radiusS),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${l10n?.detectedAs ?? 'Detected as'}: ',
-                            style: TextStyle(
-                              fontSize: AppDesign.fontSizeCaption,
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: AppDesign.alphaSecondary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            widget.detectedLanguage!,
-                            style: TextStyle(
-                              fontSize: AppDesign.fontSizeCaption,
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(AppIcons.clear, size: AppDesign.iconS),
-                    onPressed: () {
-                      widget.controller.clear();
-                      if (widget.focusNode.canRequestFocus) {
-                        widget.focusNode.requestFocus();
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+          _buildDetectionBar(theme, l10n, hasText),
 
           // Suggestions list
           if (showSuggestions) ...[
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.4,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(AppDesign.radiusL),
-                    bottomRight: Radius.circular(AppDesign.radiusL),
-                  ),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppDesign.spaceXxs),
-                  itemCount: _suggestions.length,
-                  separatorBuilder: (context, index) => Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: theme.colorScheme.outline
-                        .withValues(alpha: AppDesign.alphaDivider),
-                  ),
-                  itemBuilder: (context, index) {
-                    final suggestion = _suggestions[index];
-                    return InkWell(
-                      onTap: () => _onSuggestionTap(suggestion),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppDesign.spaceL,
-                          vertical: AppDesign.spaceMd,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              AppIcons.search,
-                              size: AppDesign.iconS,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: AppDesign.alphaTertiary),
-                            ),
-                            const SizedBox(width: AppDesign.spaceMd),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    suggestion.word,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  if (suggestion.explain != null &&
-                                      suggestion.explain!.isNotEmpty) ...[
-                                    const SizedBox(height: AppDesign.spaceXxs),
-                                    Text(
-                                      suggestion.explain!,
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.onSurface
-                                            .withValues(
-                                                alpha: AppDesign.alphaTertiary),
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
+            _buildSuggestionsList(context, theme),
           ],
 
           // Loading indicator for suggestions
           if (_isLoadingSuggestions && hasText && !widget.readOnly) ...[
             const SizedBox(height: AppDesign.spaceS),
-            Container(
-              padding: const EdgeInsets.all(AppDesign.spaceMd),
-              alignment: Alignment.center,
-              child: SizedBox(
-                width: AppDesign.iconXs,
-                height: AppDesign.iconXs,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    theme.colorScheme.primary,
-                  ),
-                ),
-              ),
-            ),
+            _buildLoadingIndicator(theme),
           ],
 
           // Not found message
           if (showNotFound) ...[
             const SizedBox(height: AppDesign.spaceS),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDesign.spaceL,
-                vertical: AppDesign.spaceMd,
-              ),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(AppDesign.radiusL),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    AppIcons.infoOutline,
-                    size: AppDesign.iconS,
-                    color: theme.colorScheme.onSurface
-                        .withValues(alpha: AppDesign.alphaTertiary),
-                  ),
-                  const SizedBox(width: AppDesign.spaceMd),
-                  Expanded(
-                    child: Text(
-                      l10n?.noSuggestionsFound ??
-                          'No suggestions found for your query',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface
-                            .withValues(alpha: AppDesign.alphaSecondary),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildNotFound(theme, l10n),
           ],
         ],
       ),

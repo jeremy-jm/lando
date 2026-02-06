@@ -152,6 +152,20 @@ class _QueryPageState extends State<QueryPage> {
     }
   }
 
+  void _handleSuggestionTap(String word) {
+    if (word.trim().isEmpty) {
+      return;
+    }
+    final trimmedWord = word.trim();
+    if (!_historyProvider.isCurrentQuery(trimmedWord)) {
+      _historyProvider.addQuery(trimmedWord);
+    }
+    _bloc.add(QuerySearchSubmitted(trimmedWord));
+    if (mounted) {
+      setState(() {}); // Update button states
+    }
+  }
+
   void _detectLanguage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) {
@@ -290,35 +304,199 @@ class _QueryPageState extends State<QueryPage> {
     }
   }
 
+  PreferredSizeWidget _buildAppBar(ThemeData theme, AppLocalizations l10n) {
+    return AppBar(
+      backgroundColor: theme.colorScheme.inversePrimary,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: true,
+      title: LanguageSelectorWidget(
+        onLanguageChanged: (pair) {
+          // Language pair changed, could trigger re-translation if needed
+        },
+      ),
+      leading: IconButton(
+        icon: const Icon(AppIcons.back, size: AppDesign.iconXs),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(AppIcons.settings, size: AppDesign.iconS),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const SettingsPage()),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInputSection(AppLocalizations l10n) {
+    return StreamBuilder<QueryState>(
+      stream: _bloc.stream,
+      initialData: _bloc.state,
+      builder: (context, snapshot) {
+        final state = snapshot.data ?? _bloc.state;
+        return TranslationInputWidget(
+          controller: _controller,
+          focusNode: _focusNode,
+          hintText: l10n.enterTextToTranslate,
+          detectedLanguage: _getLanguageDisplayName(_detectedLanguage),
+          pronunciationUrl: state.inputPronunciationUrl,
+          onPronunciationTap: () => _playPronunciation(
+            text: state.query.isNotEmpty ? state.query : _controller.text,
+            url: state.inputPronunciationUrl,
+            languageCode: _detectedLanguage,
+          ),
+          onSubmitted: _handleQuerySubmitted,
+          onSuggestionTap: _handleSuggestionTap,
+          onNavigateBack: _handleNavigateBack,
+          onNavigateForward: _handleNavigateForward,
+          canNavigateBack: _historyProvider.canGoBack,
+          canNavigateForward: _historyProvider.canGoForward,
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  Widget _buildErrorState(
+    ThemeData theme,
+    AppLocalizations l10n,
+    QueryState state,
+  ) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            AppIcons.errorOutline,
+            size: AppDesign.emptyStateIconSize,
+            color: theme.colorScheme.error,
+          ),
+          const SizedBox(height: AppDesign.spaceL),
+          Text(
+            state.errorMessage!,
+            style: TextStyle(
+              color: theme.colorScheme.error,
+              fontSize: AppDesign.fontSizeBodyL,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppDesign.spaceL),
+          ElevatedButton(
+            onPressed: () {
+              if (state.query.isNotEmpty) {
+                _bloc.add(QuerySearchSubmitted(state.query));
+              }
+            },
+            child: Text(l10n.translation),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDictionaryState(QueryState state) {
+    return DictionaryWidget(
+      query: state.query,
+      platforms: [
+        TranslationServiceType.youdao,
+        TranslationServiceType.bing,
+        if (Platform.isIOS || Platform.isMacOS) TranslationServiceType.apple,
+      ],
+      onQueryTap: (queryText) {
+        _controller.text = queryText;
+        _bloc.add(QuerySearchSubmitted(queryText));
+      },
+    );
+  }
+
+  Widget _buildResultText(ThemeData theme, QueryState state) {
+    return SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        padding: AppDesign.paddingCard,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(AppDesign.radiusL),
+        ),
+        child: SelectableText(
+          state.result,
+          style: TextStyle(
+            fontSize: AppDesign.fontSizeBodyL,
+            color: theme.colorScheme.onSurface,
+            height: AppDesign.lineHeightBody,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ThemeData theme, AppLocalizations l10n) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            AppIcons.search,
+            size: AppDesign.emptyStateIconSize,
+            color: theme.colorScheme.onSurface.withValues(
+              alpha: AppDesign.alphaEmptyIcon,
+            ),
+          ),
+          const SizedBox(height: AppDesign.spaceL),
+          Text(
+            l10n.translation,
+            style: TextStyle(
+              color: theme.colorScheme.onSurface.withValues(
+                alpha: AppDesign.alphaTertiary,
+              ),
+              fontSize: AppDesign.emptyStateFontSize,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultsArea(ThemeData theme, AppLocalizations l10n) {
+    return StreamBuilder<QueryState>(
+      stream: _bloc.stream,
+      initialData: _bloc.state,
+      builder: (context, snapshot) {
+        final state = snapshot.data ?? _bloc.state;
+
+        if (state.isLoading) {
+          return _buildLoadingState();
+        }
+
+        if (state.errorMessage != null) {
+          return _buildErrorState(theme, l10n, state);
+        }
+
+        if (state.query.isNotEmpty) {
+          return _buildDictionaryState(state);
+        }
+
+        if (state.result.isNotEmpty) {
+          return _buildResultText(theme, state);
+        }
+
+        return _buildEmptyState(theme, l10n);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.inversePrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: LanguageSelectorWidget(
-          onLanguageChanged: (pair) {
-            // Language pair changed, could trigger re-translation if needed
-          },
-        ),
-        leading: IconButton(
-          icon: const Icon(AppIcons.back, size: AppDesign.iconXs),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(AppIcons.settings, size: AppDesign.iconS),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const SettingsPage()),
-            ),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(theme, l10n),
       body: SafeArea(
         bottom: false,
         child: Padding(
@@ -327,165 +505,11 @@ class _QueryPageState extends State<QueryPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Search TextField with navigation
-              Builder(
-                builder: (context) {
-                  return StreamBuilder<QueryState>(
-                    stream: _bloc.stream,
-                    initialData: _bloc.state,
-                    builder: (context, snapshot) {
-                      final state = snapshot.data ?? _bloc.state;
-                      return TranslationInputWidget(
-                        controller: _controller,
-                        focusNode: _focusNode,
-                        hintText: l10n.enterTextToTranslate,
-                        detectedLanguage: _getLanguageDisplayName(
-                          _detectedLanguage,
-                        ),
-                        pronunciationUrl: state.inputPronunciationUrl,
-                        onPronunciationTap: () => _playPronunciation(
-                          text: state.query.isNotEmpty
-                              ? state.query
-                              : _controller.text,
-                          url: state.inputPronunciationUrl,
-                          languageCode:
-                              _detectedLanguage, // Pass language code (e.g., 'zh', 'en')
-                        ),
-                        onSubmitted: _handleQuerySubmitted,
-                        onSuggestionTap: (word) {
-                          // Auto-trigger query when suggestion is tapped
-                          if (word.trim().isNotEmpty) {
-                            final trimmedWord = word.trim();
-                            if (!_historyProvider.isCurrentQuery(trimmedWord)) {
-                              _historyProvider.addQuery(trimmedWord);
-                            }
-                            _bloc.add(QuerySearchSubmitted(trimmedWord));
-                            setState(() {}); // Update button states
-                          }
-                        },
-                        onNavigateBack: _handleNavigateBack,
-                        onNavigateForward: _handleNavigateForward,
-                        canNavigateBack: _historyProvider.canGoBack,
-                        canNavigateForward: _historyProvider.canGoForward,
-                      );
-                    },
-                  );
-                },
-              ),
+              _buildInputSection(l10n),
               const SizedBox(height: AppDesign.queryInputResultSpacing),
               // Results area
               Expanded(
-                child: StreamBuilder<QueryState>(
-                  stream: _bloc.stream,
-                  initialData: _bloc.state,
-                  builder: (context, snapshot) {
-                    final state = snapshot.data ?? _bloc.state;
-
-                    if (state.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (state.errorMessage != null) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              AppIcons.errorOutline,
-                              size: AppDesign.emptyStateIconSize,
-                              color: theme.colorScheme.error,
-                            ),
-                            const SizedBox(height: AppDesign.spaceL),
-                            Text(
-                              state.errorMessage!,
-                              style: TextStyle(
-                                color: theme.colorScheme.error,
-                                fontSize: AppDesign.fontSizeBodyL,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: AppDesign.spaceL),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (state.query.isNotEmpty) {
-                                  _bloc.add(QuerySearchSubmitted(state.query));
-                                }
-                              },
-                              child: Text(l10n.translation),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    // Show dictionary (multi-platform) when we have a query.
-                    // Each platform fetches via getDetailedResult(query); no
-                    // service-specific types (e.g. YoudaoResponse) in UI.
-                    if (state.query.isNotEmpty) {
-                      return DictionaryWidget(
-                        query: state.query,
-                        platforms: [
-                          TranslationServiceType.youdao,
-                          TranslationServiceType.bing,
-                          if (Platform.isIOS || Platform.isMacOS)
-                            TranslationServiceType.apple,
-                        ],
-                        onQueryTap: (queryText) {
-                          _controller.text = queryText;
-                          _bloc.add(QuerySearchSubmitted(queryText));
-                        },
-                      );
-                    }
-
-                    // Show simple text result if available
-                    if (state.result.isNotEmpty) {
-                      return SingleChildScrollView(
-                        child: Container(
-                          width: double.infinity,
-                          padding: AppDesign.paddingCard,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            borderRadius:
-                                BorderRadius.circular(AppDesign.radiusL),
-                          ),
-                          child: SelectableText(
-                            state.result,
-                            style: TextStyle(
-                              fontSize: AppDesign.fontSizeBodyL,
-                              color: theme.colorScheme.onSurface,
-                              height: AppDesign.lineHeightBody,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    // Show empty state if no result (ui_spec: icon 64, fontSize 18)
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            AppIcons.search,
-                            size: AppDesign.emptyStateIconSize,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: AppDesign.alphaEmptyIcon,
-                            ),
-                          ),
-                          const SizedBox(height: AppDesign.spaceL),
-                          Text(
-                            l10n.translation,
-                            style: TextStyle(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: AppDesign.alphaTertiary,
-                              ),
-                              fontSize: AppDesign.emptyStateFontSize,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                child: _buildResultsArea(theme, l10n),
               ),
             ],
           ),

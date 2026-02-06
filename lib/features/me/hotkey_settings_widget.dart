@@ -19,14 +19,142 @@ class HotkeySettingsWidget extends StatefulWidget {
 }
 
 class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
+  static const List<PhysicalKeyboardKey> _letterKeys = [
+    PhysicalKeyboardKey.keyA,
+    PhysicalKeyboardKey.keyB,
+    PhysicalKeyboardKey.keyC,
+    PhysicalKeyboardKey.keyD,
+    PhysicalKeyboardKey.keyE,
+    PhysicalKeyboardKey.keyF,
+    PhysicalKeyboardKey.keyG,
+    PhysicalKeyboardKey.keyH,
+    PhysicalKeyboardKey.keyI,
+    PhysicalKeyboardKey.keyJ,
+    PhysicalKeyboardKey.keyK,
+    PhysicalKeyboardKey.keyL,
+    PhysicalKeyboardKey.keyM,
+    PhysicalKeyboardKey.keyN,
+    PhysicalKeyboardKey.keyO,
+    PhysicalKeyboardKey.keyP,
+    PhysicalKeyboardKey.keyQ,
+    PhysicalKeyboardKey.keyR,
+    PhysicalKeyboardKey.keyS,
+    PhysicalKeyboardKey.keyT,
+    PhysicalKeyboardKey.keyU,
+    PhysicalKeyboardKey.keyV,
+    PhysicalKeyboardKey.keyW,
+    PhysicalKeyboardKey.keyX,
+    PhysicalKeyboardKey.keyY,
+    PhysicalKeyboardKey.keyZ,
+  ];
+
+  static const List<PhysicalKeyboardKey> _digitKeys = [
+    PhysicalKeyboardKey.digit0,
+    PhysicalKeyboardKey.digit1,
+    PhysicalKeyboardKey.digit2,
+    PhysicalKeyboardKey.digit3,
+    PhysicalKeyboardKey.digit4,
+    PhysicalKeyboardKey.digit5,
+    PhysicalKeyboardKey.digit6,
+    PhysicalKeyboardKey.digit7,
+    PhysicalKeyboardKey.digit8,
+    PhysicalKeyboardKey.digit9,
+  ];
+
+  static const List<PhysicalKeyboardKey> _symbolKeys = [
+    PhysicalKeyboardKey.quote, // ' or "
+    PhysicalKeyboardKey.comma, // ,
+    PhysicalKeyboardKey.period, // .
+    PhysicalKeyboardKey.slash, // /
+    PhysicalKeyboardKey.semicolon, // ;
+    PhysicalKeyboardKey.minus, // -
+    PhysicalKeyboardKey.equal, // =
+    PhysicalKeyboardKey.bracketLeft, // [
+    PhysicalKeyboardKey.bracketRight, // ]
+    PhysicalKeyboardKey.backslash, // \
+    PhysicalKeyboardKey.backquote, // `
+  ];
+
+  static const List<PhysicalKeyboardKey> _functionKeys = [
+    PhysicalKeyboardKey.f1,
+    PhysicalKeyboardKey.f2,
+    PhysicalKeyboardKey.f3,
+    PhysicalKeyboardKey.f4,
+    PhysicalKeyboardKey.f5,
+    PhysicalKeyboardKey.f6,
+    PhysicalKeyboardKey.f7,
+    PhysicalKeyboardKey.f8,
+    PhysicalKeyboardKey.f9,
+    PhysicalKeyboardKey.f10,
+    PhysicalKeyboardKey.f11,
+    PhysicalKeyboardKey.f12,
+    PhysicalKeyboardKey.f13,
+    PhysicalKeyboardKey.f14,
+    PhysicalKeyboardKey.f15,
+    PhysicalKeyboardKey.f16,
+    PhysicalKeyboardKey.f17,
+    PhysicalKeyboardKey.f18,
+    PhysicalKeyboardKey.f19,
+    PhysicalKeyboardKey.f20,
+  ];
+
+  static const List<PhysicalKeyboardKey> _commonKeys = [
+    ..._letterKeys,
+    ..._digitKeys,
+    PhysicalKeyboardKey.space,
+    PhysicalKeyboardKey.enter,
+    PhysicalKeyboardKey.escape,
+    ..._functionKeys,
+    ..._symbolKeys,
+  ];
+
+  final Map<PhysicalKeyboardKey, String> _symbolKeyNames = {
+    PhysicalKeyboardKey.quote: "'",
+    PhysicalKeyboardKey.comma: ',',
+    PhysicalKeyboardKey.period: '.',
+    PhysicalKeyboardKey.slash: '/',
+    PhysicalKeyboardKey.semicolon: ';',
+    PhysicalKeyboardKey.minus: '-',
+    PhysicalKeyboardKey.equal: '=',
+    PhysicalKeyboardKey.bracketLeft: '[',
+    PhysicalKeyboardKey.bracketRight: ']',
+    PhysicalKeyboardKey.backslash: '\\',
+    PhysicalKeyboardKey.backquote: '`',
+  };
+
   HotKey? _currentHotKey;
   bool _isRecording = false;
   String? _errorMessage;
+
+  bool get _isDesktop =>
+      Platform.isWindows || Platform.isMacOS || Platform.isLinux;
 
   @override
   void initState() {
     super.initState();
     _loadHotkey();
+  }
+
+  int _modifiersValueFromHotKey(HotKey hotkey) {
+    int modifiersValue = 0;
+    final mods = hotkey.modifiers;
+    if (mods == null) {
+      return modifiersValue;
+    }
+    if (mods.contains(HotKeyModifier.alt)) modifiersValue |= 1;
+    if (mods.contains(HotKeyModifier.control)) modifiersValue |= 2;
+    if (mods.contains(HotKeyModifier.shift)) modifiersValue |= 4;
+    if (mods.contains(HotKeyModifier.meta)) modifiersValue |= 8;
+    return modifiersValue;
+  }
+
+  List<HotKeyModifier> _modifiersFromValue(int modifiersValue) {
+    final modifiers = <HotKeyModifier>[];
+    if (modifiersValue & 1 != 0) modifiers.add(HotKeyModifier.alt);
+    if (modifiersValue & 2 != 0) modifiers.add(HotKeyModifier.control);
+    if (modifiersValue & 4 != 0) modifiers.add(HotKeyModifier.shift);
+    if (modifiersValue & 8 != 0) modifiers.add(HotKeyModifier.meta);
+    return modifiers;
   }
 
   Future<void> _loadHotkey() async {
@@ -43,81 +171,7 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
           // Find PhysicalKeyboardKey by keyId
           PhysicalKeyboardKey? physicalKey;
           // Try common keys first
-          final commonKeys = [
-            PhysicalKeyboardKey.keyA,
-            PhysicalKeyboardKey.keyB,
-            PhysicalKeyboardKey.keyC,
-            PhysicalKeyboardKey.keyD,
-            PhysicalKeyboardKey.keyE,
-            PhysicalKeyboardKey.keyF,
-            PhysicalKeyboardKey.keyG,
-            PhysicalKeyboardKey.keyH,
-            PhysicalKeyboardKey.keyI,
-            PhysicalKeyboardKey.keyJ,
-            PhysicalKeyboardKey.keyK,
-            PhysicalKeyboardKey.keyL,
-            PhysicalKeyboardKey.keyM,
-            PhysicalKeyboardKey.keyN,
-            PhysicalKeyboardKey.keyO,
-            PhysicalKeyboardKey.keyP,
-            PhysicalKeyboardKey.keyQ,
-            PhysicalKeyboardKey.keyR,
-            PhysicalKeyboardKey.keyS,
-            PhysicalKeyboardKey.keyT,
-            PhysicalKeyboardKey.keyU,
-            PhysicalKeyboardKey.keyV,
-            PhysicalKeyboardKey.keyW,
-            PhysicalKeyboardKey.keyX,
-            PhysicalKeyboardKey.keyY,
-            PhysicalKeyboardKey.keyZ,
-            PhysicalKeyboardKey.digit0,
-            PhysicalKeyboardKey.digit1,
-            PhysicalKeyboardKey.digit2,
-            PhysicalKeyboardKey.digit3,
-            PhysicalKeyboardKey.digit4,
-            PhysicalKeyboardKey.digit5,
-            PhysicalKeyboardKey.digit6,
-            PhysicalKeyboardKey.digit7,
-            PhysicalKeyboardKey.digit8,
-            PhysicalKeyboardKey.digit9,
-            PhysicalKeyboardKey.space,
-            PhysicalKeyboardKey.enter,
-            PhysicalKeyboardKey.escape,
-            PhysicalKeyboardKey.f1,
-            PhysicalKeyboardKey.f2,
-            PhysicalKeyboardKey.f3,
-            PhysicalKeyboardKey.f4,
-            PhysicalKeyboardKey.f5,
-            PhysicalKeyboardKey.f6,
-            PhysicalKeyboardKey.f7,
-            PhysicalKeyboardKey.f8,
-            PhysicalKeyboardKey.f9,
-            PhysicalKeyboardKey.f10,
-            PhysicalKeyboardKey.f11,
-            PhysicalKeyboardKey.f12,
-            PhysicalKeyboardKey.f13,
-            PhysicalKeyboardKey.f14,
-            PhysicalKeyboardKey.f15,
-            PhysicalKeyboardKey.f16,
-            PhysicalKeyboardKey.f17,
-            PhysicalKeyboardKey.f18,
-            PhysicalKeyboardKey.f19,
-            PhysicalKeyboardKey.f20,
-            // Symbol keys on the right side of the keyboard or near Enter
-            PhysicalKeyboardKey.quote, // ' or "
-            PhysicalKeyboardKey.comma, // ,
-            PhysicalKeyboardKey.period, // .
-            PhysicalKeyboardKey.slash, // /
-            PhysicalKeyboardKey.semicolon, // ;
-            PhysicalKeyboardKey.minus, // -
-            PhysicalKeyboardKey.equal, // =
-            PhysicalKeyboardKey.bracketLeft, // [
-            PhysicalKeyboardKey.bracketRight, // ]
-            PhysicalKeyboardKey.backslash, // \
-            PhysicalKeyboardKey.backquote, // `
-          ];
-
-          for (final key in commonKeys) {
+          for (final key in _commonKeys) {
             if (key.usbHidUsage == keyId) {
               physicalKey = key;
               break;
@@ -130,11 +184,7 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
           }
 
           // Parse modifiers
-          final modifiers = <HotKeyModifier>[];
-          if (modifiersValue & 1 != 0) modifiers.add(HotKeyModifier.alt);
-          if (modifiersValue & 2 != 0) modifiers.add(HotKeyModifier.control);
-          if (modifiersValue & 4 != 0) modifiers.add(HotKeyModifier.shift);
-          if (modifiersValue & 8 != 0) modifiers.add(HotKeyModifier.meta);
+          final modifiers = _modifiersFromValue(modifiersValue);
 
           hotkey = HotKey(
             key: physicalKey,
@@ -170,16 +220,7 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
   }
 
   Future<void> _saveHotkey(HotKey hotkey) async {
-    // Calculate modifiers value
-    int modifiersValue = 0;
-    final mods = hotkey.modifiers;
-    if (mods != null) {
-      if (mods.contains(HotKeyModifier.alt)) modifiersValue |= 1;
-      if (mods.contains(HotKeyModifier.control)) modifiersValue |= 2;
-      if (mods.contains(HotKeyModifier.shift)) modifiersValue |= 4;
-      if (mods.contains(HotKeyModifier.meta)) modifiersValue |= 8;
-    }
-
+    final modifiersValue = _modifiersValueFromHotKey(hotkey);
     final physicalKey = hotkey.key as PhysicalKeyboardKey;
     final hotkeyString = '${physicalKey.usbHidUsage}:$modifiersValue';
     await PreferencesStorage.saveShowWindowHotkey(hotkeyString);
@@ -214,21 +255,8 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
     if (key == PhysicalKeyboardKey.escape) return 'Esc';
 
     // Map symbol keys to readable names
-    final symbolKeyMap = {
-      PhysicalKeyboardKey.quote: "'",
-      PhysicalKeyboardKey.comma: ',',
-      PhysicalKeyboardKey.period: '.',
-      PhysicalKeyboardKey.slash: '/',
-      PhysicalKeyboardKey.semicolon: ';',
-      PhysicalKeyboardKey.minus: '-',
-      PhysicalKeyboardKey.equal: '=',
-      PhysicalKeyboardKey.bracketLeft: '[',
-      PhysicalKeyboardKey.bracketRight: ']',
-      PhysicalKeyboardKey.backslash: '\\',
-      PhysicalKeyboardKey.backquote: '`',
-    };
-    if (symbolKeyMap.containsKey(key)) {
-      return symbolKeyMap[key]!;
+    if (_symbolKeyNames.containsKey(key)) {
+      return _symbolKeyNames[key]!;
     }
 
     // Check for function keys F1-F20
@@ -279,71 +307,18 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
       return true;
     }
 
-    // Check if it's a letter (A-Z) - check common letter keys
-    final commonLetters = [
-      PhysicalKeyboardKey.keyA,
-      PhysicalKeyboardKey.keyB,
-      PhysicalKeyboardKey.keyC,
-      PhysicalKeyboardKey.keyD,
-      PhysicalKeyboardKey.keyE,
-      PhysicalKeyboardKey.keyF,
-      PhysicalKeyboardKey.keyG,
-      PhysicalKeyboardKey.keyH,
-      PhysicalKeyboardKey.keyI,
-      PhysicalKeyboardKey.keyJ,
-      PhysicalKeyboardKey.keyK,
-      PhysicalKeyboardKey.keyL,
-      PhysicalKeyboardKey.keyM,
-      PhysicalKeyboardKey.keyN,
-      PhysicalKeyboardKey.keyO,
-      PhysicalKeyboardKey.keyP,
-      PhysicalKeyboardKey.keyQ,
-      PhysicalKeyboardKey.keyR,
-      PhysicalKeyboardKey.keyS,
-      PhysicalKeyboardKey.keyT,
-      PhysicalKeyboardKey.keyU,
-      PhysicalKeyboardKey.keyV,
-      PhysicalKeyboardKey.keyW,
-      PhysicalKeyboardKey.keyX,
-      PhysicalKeyboardKey.keyY,
-      PhysicalKeyboardKey.keyZ,
-    ];
-    if (commonLetters.contains(key)) {
+    // Check if it's a letter (A-Z)
+    if (_letterKeys.contains(key)) {
       return true;
     }
 
     // Check if it's a digit (0-9)
-    final commonDigits = [
-      PhysicalKeyboardKey.digit0,
-      PhysicalKeyboardKey.digit1,
-      PhysicalKeyboardKey.digit2,
-      PhysicalKeyboardKey.digit3,
-      PhysicalKeyboardKey.digit4,
-      PhysicalKeyboardKey.digit5,
-      PhysicalKeyboardKey.digit6,
-      PhysicalKeyboardKey.digit7,
-      PhysicalKeyboardKey.digit8,
-      PhysicalKeyboardKey.digit9,
-    ];
-    if (commonDigits.contains(key)) {
+    if (_digitKeys.contains(key)) {
       return true;
     }
 
     // Check if it's a symbol key (on the right side of keyboard or near Enter)
-    final symbolKeys = [
-      PhysicalKeyboardKey.quote, // ' or "
-      PhysicalKeyboardKey.comma, // ,
-      PhysicalKeyboardKey.period, // .
-      PhysicalKeyboardKey.slash, // /
-      PhysicalKeyboardKey.semicolon, // ;
-      PhysicalKeyboardKey.minus, // -
-      PhysicalKeyboardKey.equal, // =
-      PhysicalKeyboardKey.bracketLeft, // [
-      PhysicalKeyboardKey.bracketRight, // ]
-      PhysicalKeyboardKey.backslash, // \
-      PhysicalKeyboardKey.backquote, // `
-    ];
-    if (symbolKeys.contains(key)) {
+    if (_symbolKeys.contains(key)) {
       return true;
     }
 
@@ -513,7 +488,7 @@ class _HotkeySettingsWidgetState extends State<HotkeySettingsWidget> {
     final l10n = AppLocalizations.of(context);
 
     // Only show on desktop platforms
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
+    if (!_isDesktop) {
       return const SizedBox.shrink();
     }
 
