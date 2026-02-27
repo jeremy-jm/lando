@@ -120,27 +120,27 @@ flutter build linux --release
 ### iPhone
 
 <div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iphone.png?raw=true" width="220" alt="iPhone overview" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_home.png?raw=true" width="220" alt="iPhone home" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting3.png?raw=true" width="220" alt="iPhone settings" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_home.png?raw=true" width="260" alt="iPhone home" />
+    <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_query.png?raw=true" width="260" alt="iPhone query" />
 </div>
 
 <div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting.png?raw=true" width="220" alt="iPhone screenshot 1" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting2.png?raw=true" width="220" alt="iPhone screenshot 2" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting3.png?raw=true" width="220" alt="iPhone screenshot 3" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting.png?raw=true" width="260" alt="iPhone screenshot 1" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting2.png?raw=true" width="260" alt="iPhone screenshot 2" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting3.png?raw=true" width="260" alt="iPhone screenshot 3" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iphone.png?raw=true" width="260" alt="iPhone overview" />
 </div>
 
 ### macOS
 
 <div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_home.png?raw=true" width="260" alt="macOS home" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_query.png?raw=true" width="260" alt="macOS query" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_home.png?raw=true" width="360" alt="macOS home" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_imaging.png?raw=true" width="360" alt="macOS imaging" />
 </div>
 
 <div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_imaging.png?raw=true" width="260" alt="macOS imaging" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_setting.png?raw=true" width="260" alt="macOS settings" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_query.png?raw=true" width="360" alt="macOS query" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/mac_os_setting.png?raw=true" width="360" alt="macOS settings" />
 </div>
 
 ---
