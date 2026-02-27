@@ -558,8 +558,8 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
                           Text(
                             suggestion.word,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
+                                fontWeight: FontWeight.w500,
+                                color: theme.colorScheme.onSurface),
                           ),
                           if (suggestion.explain != null &&
                               suggestion.explain!.isNotEmpty) ...[

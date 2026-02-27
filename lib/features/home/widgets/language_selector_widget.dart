@@ -312,7 +312,10 @@ class _LanguageDialog extends StatelessWidget {
 
     final theme = Theme.of(context);
     return AlertDialog(
-      title: Text(title),
+      title: Text(title,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onSurface,
+          )),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,

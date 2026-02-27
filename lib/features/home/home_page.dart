@@ -130,6 +130,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final isPortrait = mediaQuery.orientation == Orientation.portrait;
+    final isMobilePlatform = Theme.of(context).platform == TargetPlatform.iOS ||
+        Theme.of(context).platform == TargetPlatform.android;
+    final double topSpacing = AppDesign.homeTopSpacing +
+        (isMobilePlatform && isPortrait ? 80.0 : 0.0);
+
     return Scaffold(
       appBar: widget.showAppBar
           ? AppBar(
@@ -144,6 +151,8 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              SizedBox(height: topSpacing),
+              const SizedBox(height: AppDesign.homeTopSpacing),
               const SizedBox(height: AppDesign.homeTopSpacing),
               // Lando logo
               Image.asset(

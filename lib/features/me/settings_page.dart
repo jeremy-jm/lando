@@ -181,8 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               ListTile(
                 contentPadding: AppDesign.paddingListTile,
-                leading:
-                    Icon(AppIcons.book, color: theme.colorScheme.primary),
+                leading: Icon(AppIcons.book, color: theme.colorScheme.primary),
                 title: Text(l10n.dictionarySettings),
                 subtitle: Text(l10n.dictionarySettingsDescription),
                 trailing: const Icon(AppIcons.chevronRight),
@@ -325,8 +324,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   _buildGeneralSection(theme, l10n, mode, currentLocale),
                   _buildDictionarySection(theme, l10n),
-                  _buildAboutSection(theme, l10n),
                   _buildDataSection(theme, l10n),
+                  _buildAboutSection(theme, l10n),
                 ],
               );
             },
