@@ -126,14 +126,9 @@ flutter build linux --release
 </div>
 
 <div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/Simulator%20Screenshot%20-%20iPhone%2017%20-%202026-02-27%20at%2012.38.36.png?raw=true" width="220" alt="iPhone screenshot 1" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/Simulator%20Screenshot%20-%20iPhone%2017%20-%202026-02-27%20at%2012.44.59.png?raw=true" width="220" alt="iPhone screenshot 2" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/Simulator%20Screenshot%20-%20iPhone%2017%20-%202026-02-27%20at%2012.45.01.png?raw=true" width="220" alt="iPhone screenshot 3" />
-</div>
-
-<div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/Simulator%20Screenshot%20-%20iPhone%2017%20-%202026-02-27%20at%2012.45.03.png?raw=true" width="220" alt="iPhone screenshot 4" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/Simulator%20Screenshot%20-%20iPhone%2017%20-%202026-02-27%20at%2012.46.24.png?raw=true" width="220" alt="iPhone screenshot 5" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting.png?raw=true" width="220" alt="iPhone screenshot 1" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting2.png?raw=true" width="220" alt="iPhone screenshot 2" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting3.png?raw=true" width="220" alt="iPhone screenshot 3" />
 </div>
 
 ### macOS
