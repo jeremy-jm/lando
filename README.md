@@ -20,9 +20,9 @@
 ### iPhone
 
 <div align="center">
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_home.png?raw=true" width="260" alt="iPhone home" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_imagine.png?raw=true" width="260" alt="iPhone home" />
     <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_query.png?raw=true" width="260" alt="iPhone query" />
-  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_setting.png?raw=true" width="260" alt="iPhone screenshot 1" />
+  <img src="https://github.com/jeremy-jm/lando/blob/master/assets/screenshorts/iPhone17_history.png?raw=true" width="260" alt="iPhone screenshot 1" />
 </div>
 
 <div align="center">
