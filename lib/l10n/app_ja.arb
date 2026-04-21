@@ -147,5 +147,26 @@
   "localDataCleared": "ローカルデータがクリアされました",
   "@localDataCleared": {
     "description": "Message shown when local data is cleared"
-  }
+  },
+  "mdictOfflineDictionary": "オフライン辞書",
+  "mdictOfflineDictionaryDescription": "ローカルMDict辞書ファイルを管理し、オフライン検索をサポート",
+  "mdictSettings": "オフライン辞書",
+  "mdictStatus": "状態",
+  "mdictEnable": "オフライン辞書を有効にする",
+  "mdictEnableDescription": "ローカル辞書で単語を検索し、見つからない場合はオンラインにフォールバック",
+  "mdictImport": "辞書をインポート",
+  "mdictImportDescription": "カスタム.mdx辞書ファイルをインポート",
+  "mdictImportSuccess": "辞書のインポートに成功しました",
+  "mdictImportFailed": "辞書のインポートに失敗しました",
+  "mdictReset": "デフォルトに戻す",
+  "mdictResetDescription": "組み込みのデフォルト辞書を復元",
+  "mdictResetSuccess": "辞書がリセットされました",
+  "mdictResetFailed": "辞書のリセットに失敗しました",
+  "mdictLoading": "読み込み中...",
+  "mdictReady": "準備完了",
+  "mdictNotLoaded": "辞書が読み込まれていません",
+  "mdictNotInitialized": "初期化されていません",
+  "mdictWebNotSupported": "Webプラットフォームではオフライン辞書はサポートされていません",
+  "mdictInfoTitle": "ECDICTについて",
+  "mdictInfoDescription": "組み込みオフライン辞書はECDICT（英中辞書）で、MITライセンスのオープンソース辞書です。76万以上の見出し語、中華人民共和国翻訳、音標、例文が含まれています。"
 }

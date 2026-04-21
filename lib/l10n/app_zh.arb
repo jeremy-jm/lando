@@ -207,5 +207,26 @@
   "proxyInfoDescription": "配置本地代理服务器（例如：localhost:9091）以将所有网络请求通过它路由。启用后，所有 API 调用都将使用此代理。",
   "@proxyInfoDescription": {
     "description": "Description text for proxy information"
-  }
+  },
+  "mdictOfflineDictionary": "离线词典",
+  "mdictOfflineDictionaryDescription": "管理本地 MDict 词典文件，支持离线查词",
+  "mdictSettings": "离线词典",
+  "mdictStatus": "状态",
+  "mdictEnable": "启用离线词典",
+  "mdictEnableDescription": "使用本地词典查词，未找到时自动回退到在线服务",
+  "mdictImport": "导入词典",
+  "mdictImportDescription": "导入自定义 .mdx 词典文件",
+  "mdictImportSuccess": "词典导入成功",
+  "mdictImportFailed": "词典导入失败",
+  "mdictReset": "恢复默认",
+  "mdictResetDescription": "恢复内置默认词典",
+  "mdictResetSuccess": "词典已恢复",
+  "mdictResetFailed": "词典恢复失败",
+  "mdictLoading": "加载中...",
+  "mdictReady": "就绪",
+  "mdictNotLoaded": "未加载词典",
+  "mdictNotInitialized": "未初始化",
+  "mdictWebNotSupported": "Web 平台不支持离线词典",
+  "mdictInfoTitle": "关于 ECDICT",
+  "mdictInfoDescription": "内置离线词典为 ECDICT（英汉词典），采用 MIT 协议的开源词典。包含 76 万+词条，提供中文翻译、音标和例句。"
 }

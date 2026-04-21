@@ -351,4 +351,68 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get proxyInfoDescription =>
       '配置本地代理服务器（例如：localhost:9091）以将所有网络请求通过它路由。启用后，所有 API 调用都将使用此代理。';
+
+  @override
+  String get mdictOfflineDictionary => '离线词典';
+
+  @override
+  String get mdictOfflineDictionaryDescription => '管理本地 MDict 词典文件，支持离线查词';
+
+  @override
+  String get mdictSettings => '离线词典';
+
+  @override
+  String get mdictStatus => '状态';
+
+  @override
+  String get mdictEnable => '启用离线词典';
+
+  @override
+  String get mdictEnableDescription => '使用本地词典查词，未找到时自动回退到在线服务';
+
+  @override
+  String get mdictImport => '导入词典';
+
+  @override
+  String get mdictImportDescription => '导入自定义 .mdx 词典文件';
+
+  @override
+  String get mdictImportSuccess => '词典导入成功';
+
+  @override
+  String get mdictImportFailed => '词典导入失败';
+
+  @override
+  String get mdictReset => '恢复默认';
+
+  @override
+  String get mdictResetDescription => '恢复内置默认词典';
+
+  @override
+  String get mdictResetSuccess => '词典已恢复';
+
+  @override
+  String get mdictResetFailed => '词典恢复失败';
+
+  @override
+  String get mdictLoading => '加载中...';
+
+  @override
+  String get mdictReady => '就绪';
+
+  @override
+  String get mdictNotLoaded => '未加载词典';
+
+  @override
+  String get mdictNotInitialized => '未初始化';
+
+  @override
+  String get mdictWebNotSupported => 'Web 平台不支持离线词典';
+
+  @override
+  String get mdictInfoTitle => '关于 ECDICT';
+
+  @override
+  String get mdictInfoDescription =>
+      '内置离线词典为 ECDICT（英汉词典），采用 MIT 协议的开源词典。包含 76 万+词条，提供中文翻译、音标和例句。';
 }

@@ -13,6 +13,7 @@ import 'package:lando/services/analytics/analytics_navigator_observer.dart';
 import 'package:lando/services/analytics/analytics_service.dart';
 import 'package:lando/services/analytics/analytics_tap_capture.dart';
 import 'package:lando/services/hotkey/hotkey_service.dart';
+import 'package:lando/services/mdict/mdict_manager.dart';
 import 'package:lando/services/translation/bing_token_service.dart';
 import 'package:lando/services/window/window_visibility_service.dart';
 import 'package:lando/storage/preferences_storage.dart';
@@ -106,6 +107,18 @@ Future<void> _runAppInit() async {
       debugPrint('Analytics init failed (app will still run): $e');
       debugPrint('Stack: $stackTrace');
     }
+  }
+
+  // Initialize MDict offline dictionary (async, non-blocking)
+  // Skip on web platform (mdict_reader doesn't support web)
+  if (!kIsWeb) {
+    unawaited(
+      MdictManager.instance.initDefault().then((_) {
+        debugPrint('MDict offline dictionary initialized');
+      }).catchError((e, stack) {
+        debugPrint('MDict init failed (app will use online fallback): $e');
+      }),
+    );
   }
 }
 

@@ -147,5 +147,26 @@
   "localDataCleared": "Локальные данные очищены",
   "@localDataCleared": {
     "description": "Message shown when local data is cleared"
-  }
+  },
+  "mdictOfflineDictionary": "Автономный словарь",
+  "mdictOfflineDictionaryDescription": "Управление локальными файлами словаря MDict для автономного поиска",
+  "mdictSettings": "Автономный словарь",
+  "mdictStatus": "Статус",
+  "mdictEnable": "Включить автономный словарь",
+  "mdictEnableDescription": "Использовать локальный словарь для поиска слов, резервный переход в онлайн при отсутствии результата",
+  "mdictImport": "Импорт словаря",
+  "mdictImportDescription": "Импорт пользовательского файла словаря .mdx",
+  "mdictImportSuccess": "Словарь успешно импортирован",
+  "mdictImportFailed": "Не удалось импортировать словарь",
+  "mdictReset": "Сбросить на стандартный",
+  "mdictResetDescription": "Восстановить встроенный словарь по умолчанию",
+  "mdictResetSuccess": "Словарь успешно сброшен",
+  "mdictResetFailed": "Не удалось сбросить словарь",
+  "mdictLoading": "Загрузка...",
+  "mdictReady": "Готово",
+  "mdictNotLoaded": "Словарь не загружен",
+  "mdictNotInitialized": "Не инициализирован",
+  "mdictWebNotSupported": "Автономный словарь не поддерживается в веб-версии",
+  "mdictInfoTitle": "О ECDICT",
+  "mdictInfoDescription": "Встроенный автономный словарь — ECDICT (Англо-китайский словарь) с открытым исходным кодом по лицензии MIT. Содержит более 760 000 статей с китайскими переводами, транскрипцией и примерами предложений."
 }

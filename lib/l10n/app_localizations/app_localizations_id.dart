@@ -365,4 +365,70 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get proxyInfoDescription =>
       'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.';
+
+  @override
+  String get mdictOfflineDictionary => 'Kamus Offline';
+
+  @override
+  String get mdictOfflineDictionaryDescription =>
+      'Kelola file kamus MDict lokal untuk pencarian offline';
+
+  @override
+  String get mdictSettings => 'Kamus Offline';
+
+  @override
+  String get mdictStatus => 'Status';
+
+  @override
+  String get mdictEnable => 'Aktifkan Kamus Offline';
+
+  @override
+  String get mdictEnableDescription =>
+      'Gunakan kamus lokal untuk pencarian kata, fallback ke online jika tidak ditemukan';
+
+  @override
+  String get mdictImport => 'Impor Kamus';
+
+  @override
+  String get mdictImportDescription => 'Impor file kamus .mdx khusus';
+
+  @override
+  String get mdictImportSuccess => 'Kamus berhasil diimpor';
+
+  @override
+  String get mdictImportFailed => 'Gagal mengimpor kamus';
+
+  @override
+  String get mdictReset => 'Kembalikan ke Default';
+
+  @override
+  String get mdictResetDescription => 'Pulihkan kamus bawaan default';
+
+  @override
+  String get mdictResetSuccess => 'Kamus berhasil direset';
+
+  @override
+  String get mdictResetFailed => 'Gagal mereset kamus';
+
+  @override
+  String get mdictLoading => 'Memuat...';
+
+  @override
+  String get mdictReady => 'Siap';
+
+  @override
+  String get mdictNotLoaded => 'Tidak ada kamus dimuat';
+
+  @override
+  String get mdictNotInitialized => 'Tidak diinisialisasi';
+
+  @override
+  String get mdictWebNotSupported => 'Kamus offline tidak didukung di web';
+
+  @override
+  String get mdictInfoTitle => 'Tentang ECDICT';
+
+  @override
+  String get mdictInfoDescription =>
+      'Kamus offline bawaan adalah ECDICT (Kamus Inggris-Cina), kamus open-source dengan lisensi MIT. Berisi 760.000+ entri dengan terjemahan Cina, fonetik, dan contoh kalimat.';
 }

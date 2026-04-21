@@ -368,4 +368,72 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get proxyInfoDescription =>
       'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.';
+
+  @override
+  String get mdictOfflineDictionary => 'Dicionário Offline';
+
+  @override
+  String get mdictOfflineDictionaryDescription =>
+      'Gerenciar arquivos de dicionário MDict local para pesquisa offline';
+
+  @override
+  String get mdictSettings => 'Dicionário Offline';
+
+  @override
+  String get mdictStatus => 'Status';
+
+  @override
+  String get mdictEnable => 'Ativar Dicionário Offline';
+
+  @override
+  String get mdictEnableDescription =>
+      'Usar dicionário local para pesquisa de palavras, fallback para online quando não encontrado';
+
+  @override
+  String get mdictImport => 'Importar Dicionário';
+
+  @override
+  String get mdictImportDescription =>
+      'Importar um arquivo de dicionário .mdx personalizado';
+
+  @override
+  String get mdictImportSuccess => 'Dicionário importado com sucesso';
+
+  @override
+  String get mdictImportFailed => 'Falha ao importar dicionário';
+
+  @override
+  String get mdictReset => 'Restaurar Padrão';
+
+  @override
+  String get mdictResetDescription => 'Restaurar o dicionário padrão integrado';
+
+  @override
+  String get mdictResetSuccess => 'Dicionário restaurado com sucesso';
+
+  @override
+  String get mdictResetFailed => 'Falha ao restaurar dicionário';
+
+  @override
+  String get mdictLoading => 'Carregando...';
+
+  @override
+  String get mdictReady => 'Pronto';
+
+  @override
+  String get mdictNotLoaded => 'Nenhum dicionário carregado';
+
+  @override
+  String get mdictNotInitialized => 'Não inicializado';
+
+  @override
+  String get mdictWebNotSupported =>
+      'Dicionário offline não é suportado na web';
+
+  @override
+  String get mdictInfoTitle => 'Sobre ECDICT';
+
+  @override
+  String get mdictInfoDescription =>
+      'O dicionário offline integrado é ECDICT (Inglês-Chinês), um dicionário de código aberto com licença MIT.';
 }

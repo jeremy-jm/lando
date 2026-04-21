@@ -12,6 +12,10 @@ class StorageKeys {
   static const String proxyEnabled = 'proxy_enabled';
   static const String proxyHost = 'proxy_host';
   static const String proxyPort = 'proxy_port';
+  // MDict offline dictionary settings
+  static const String mdictEnabled = 'mdict_enabled';
+  static const String mdictCustomPath = 'mdict_custom_path';
+  static const String mdictDefaultEnabled = 'mdict_default_enabled';
 }
 
 /// Storage service for managing user preferences
@@ -166,6 +170,41 @@ class PreferencesStorage {
   /// Get proxy port (default: 9091)
   static int getProxyPort() {
     return prefs.getInt(StorageKeys.proxyPort) ?? 9091;
+  }
+
+  // ==================== MDict Offline Dictionary ====================
+
+  /// Save MDict enabled state
+  static Future<bool> saveMdictEnabled(bool enabled) async {
+    return await prefs.setBool(StorageKeys.mdictEnabled, enabled);
+  }
+
+  /// Get MDict enabled state (default: true)
+  static bool isMdictEnabled() {
+    return prefs.getBool(StorageKeys.mdictEnabled) ?? true;
+  }
+
+  /// Save MDict default dictionary enabled state
+  static Future<bool> saveMdictDefaultEnabled(bool enabled) async {
+    return await prefs.setBool(StorageKeys.mdictDefaultEnabled, enabled);
+  }
+
+  /// Get MDict default dictionary enabled state (default: true)
+  static bool isMdictDefaultEnabled() {
+    return prefs.getBool(StorageKeys.mdictDefaultEnabled) ?? true;
+  }
+
+  /// Save custom MDict dictionary path
+  static Future<bool> saveMdictCustomPath(String? path) async {
+    if (path == null || path.isEmpty) {
+      return await prefs.remove(StorageKeys.mdictCustomPath);
+    }
+    return await prefs.setString(StorageKeys.mdictCustomPath, path);
+  }
+
+  /// Get custom MDict dictionary path
+  static String? getMdictCustomPath() {
+    return prefs.getString(StorageKeys.mdictCustomPath);
   }
 
   // ==================== Clear ====================

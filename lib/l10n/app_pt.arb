@@ -147,5 +147,26 @@
   "localDataCleared": "Dados locais limpos",
   "@localDataCleared": {
     "description": "Message shown when local data is cleared"
-  }
+  },
+  "mdictOfflineDictionary": "Dicionário Offline",
+  "mdictOfflineDictionaryDescription": "Gerenciar arquivos de dicionário MDict local para pesquisa offline",
+  "mdictSettings": "Dicionário Offline",
+  "mdictStatus": "Status",
+  "mdictEnable": "Ativar Dicionário Offline",
+  "mdictEnableDescription": "Usar dicionário local para pesquisa de palavras, fallback para online quando não encontrado",
+  "mdictImport": "Importar Dicionário",
+  "mdictImportDescription": "Importar um arquivo de dicionário .mdx personalizado",
+  "mdictImportSuccess": "Dicionário importado com sucesso",
+  "mdictImportFailed": "Falha ao importar dicionário",
+  "mdictReset": "Restaurar Padrão",
+  "mdictResetDescription": "Restaurar o dicionário padrão integrado",
+  "mdictResetSuccess": "Dicionário restaurado com sucesso",
+  "mdictResetFailed": "Falha ao restaurar dicionário",
+  "mdictLoading": "Carregando...",
+  "mdictReady": "Pronto",
+  "mdictNotLoaded": "Nenhum dicionário carregado",
+  "mdictNotInitialized": "Não inicializado",
+  "mdictWebNotSupported": "Dicionário offline não é suportado na web",
+  "mdictInfoTitle": "Sobre ECDICT",
+  "mdictInfoDescription": "O dicionário offline integrado é ECDICT (Inglês-Chinês), um dicionário de código aberto com licença MIT."
 }

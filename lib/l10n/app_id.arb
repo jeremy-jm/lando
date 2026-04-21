@@ -147,5 +147,26 @@
   "localDataCleared": "Data lokal telah dihapus",
   "@localDataCleared": {
     "description": "Message shown when local data is cleared"
-  }
+  },
+  "mdictOfflineDictionary": "Kamus Offline",
+  "mdictOfflineDictionaryDescription": "Kelola file kamus MDict lokal untuk pencarian offline",
+  "mdictSettings": "Kamus Offline",
+  "mdictStatus": "Status",
+  "mdictEnable": "Aktifkan Kamus Offline",
+  "mdictEnableDescription": "Gunakan kamus lokal untuk pencarian kata, fallback ke online jika tidak ditemukan",
+  "mdictImport": "Impor Kamus",
+  "mdictImportDescription": "Impor file kamus .mdx khusus",
+  "mdictImportSuccess": "Kamus berhasil diimpor",
+  "mdictImportFailed": "Gagal mengimpor kamus",
+  "mdictReset": "Kembalikan ke Default",
+  "mdictResetDescription": "Pulihkan kamus bawaan default",
+  "mdictResetSuccess": "Kamus berhasil direset",
+  "mdictResetFailed": "Gagal mereset kamus",
+  "mdictLoading": "Memuat...",
+  "mdictReady": "Siap",
+  "mdictNotLoaded": "Tidak ada kamus dimuat",
+  "mdictNotInitialized": "Tidak diinisialisasi",
+  "mdictWebNotSupported": "Kamus offline tidak didukung di web",
+  "mdictInfoTitle": "Tentang ECDICT",
+  "mdictInfoDescription": "Kamus offline bawaan adalah ECDICT (Kamus Inggris-Cina), kamus open-source dengan lisensi MIT. Berisi 760.000+ entri dengan terjemahan Cina, fonetik, dan contoh kalimat."
 }

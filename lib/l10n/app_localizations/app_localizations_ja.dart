@@ -354,4 +354,69 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get proxyInfoDescription =>
       'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.';
+
+  @override
+  String get mdictOfflineDictionary => 'オフライン辞書';
+
+  @override
+  String get mdictOfflineDictionaryDescription =>
+      'ローカルMDict辞書ファイルを管理し、オフライン検索をサポート';
+
+  @override
+  String get mdictSettings => 'オフライン辞書';
+
+  @override
+  String get mdictStatus => '状態';
+
+  @override
+  String get mdictEnable => 'オフライン辞書を有効にする';
+
+  @override
+  String get mdictEnableDescription => 'ローカル辞書で単語を検索し、見つからない場合はオンラインにフォールバック';
+
+  @override
+  String get mdictImport => '辞書をインポート';
+
+  @override
+  String get mdictImportDescription => 'カスタム.mdx辞書ファイルをインポート';
+
+  @override
+  String get mdictImportSuccess => '辞書のインポートに成功しました';
+
+  @override
+  String get mdictImportFailed => '辞書のインポートに失敗しました';
+
+  @override
+  String get mdictReset => 'デフォルトに戻す';
+
+  @override
+  String get mdictResetDescription => '組み込みのデフォルト辞書を復元';
+
+  @override
+  String get mdictResetSuccess => '辞書がリセットされました';
+
+  @override
+  String get mdictResetFailed => '辞書のリセットに失敗しました';
+
+  @override
+  String get mdictLoading => '読み込み中...';
+
+  @override
+  String get mdictReady => '準備完了';
+
+  @override
+  String get mdictNotLoaded => '辞書が読み込まれていません';
+
+  @override
+  String get mdictNotInitialized => '初期化されていません';
+
+  @override
+  String get mdictWebNotSupported => 'Webプラットフォームではオフライン辞書はサポートされていません';
+
+  @override
+  String get mdictInfoTitle => 'ECDICTについて';
+
+  @override
+  String get mdictInfoDescription =>
+      '組み込みオフライン辞書はECDICT（英中辞書）で、MITライセンスのオープンソース辞書です。76万以上の見出し語、中華人民共和国翻訳、音標、例文が含まれています。';
 }

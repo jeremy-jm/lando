@@ -457,5 +457,86 @@
   "proxyInfoDescription": "Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.",
   "@proxyInfoDescription": {
     "description": "Description text for proxy information"
+  },
+  "mdictOfflineDictionary": "Offline Dictionary",
+  "@mdictOfflineDictionary": {
+    "description": "Offline dictionary settings menu item"
+  },
+  "mdictOfflineDictionaryDescription": "Manage local MDict dictionary files for offline lookup",
+  "mdictSettings": "Offline Dictionary",
+  "@mdictSettings": {
+    "description": "Offline dictionary settings page title"
+  },
+  "mdictStatus": "Status",
+  "@mdictStatus": {
+    "description": "Dictionary status label"
+  },
+  "mdictEnable": "Enable Offline Dictionary",
+  "@mdictEnable": {
+    "description": "Enable offline dictionary toggle"
+  },
+  "mdictEnableDescription": "Use local dictionary for word lookup, fallback to online when not found",
+  "@mdictEnableDescription": {
+    "description": "Description for offline dictionary toggle"
+  },
+  "mdictImport": "Import Dictionary",
+  "@mdictImport": {
+    "description": "Import custom dictionary button"
+  },
+  "mdictImportDescription": "Import a custom .mdx dictionary file",
+  "@mdictImportDescription": {
+    "description": "Description for import button"
+  },
+  "mdictImportSuccess": "Dictionary imported successfully",
+  "@mdictImportSuccess": {
+    "description": "Success message after import"
+  },
+  "mdictImportFailed": "Failed to import dictionary",
+  "@mdictImportFailed": {
+    "description": "Error message after failed import"
+  },
+  "mdictReset": "Reset to Default",
+  "@mdictReset": {
+    "description": "Reset to default dictionary button"
+  },
+  "mdictResetDescription": "Restore the default built-in dictionary",
+  "@mdictResetDescription": {
+    "description": "Description for reset button"
+  },
+  "mdictResetSuccess": "Dictionary reset successfully",
+  "@mdictResetSuccess": {
+    "description": "Success message after reset"
+  },
+  "mdictResetFailed": "Failed to reset dictionary",
+  "@mdictResetFailed": {
+    "description": "Error message after failed reset"
+  },
+  "mdictLoading": "Loading...",
+  "@mdictLoading": {
+    "description": "Loading indicator text"
+  },
+  "mdictReady": "Ready",
+  "@mdictReady": {
+    "description": "Dictionary ready status"
+  },
+  "mdictNotLoaded": "No dictionary loaded",
+  "@mdictNotLoaded": {
+    "description": "Dictionary not loaded status"
+  },
+  "mdictNotInitialized": "Not initialized",
+  "@mdictNotInitialized": {
+    "description": "Dictionary not initialized status"
+  },
+  "mdictWebNotSupported": "Offline dictionary is not supported on web",
+  "@mdictWebNotSupported": {
+    "description": "Web platform not supported message"
+  },
+  "mdictInfoTitle": "About ECDICT",
+  "@mdictInfoTitle": {
+    "description": "About ECDICT dictionary section title"
+  },
+  "mdictInfoDescription": "The built-in offline dictionary is ECDICT (English-Chinese Dictionary), an open-source dictionary with MIT license. It contains 760,000+ entries with Chinese translations, phonetics, and example sentences.",
+  "@mdictInfoDescription": {
+    "description": "ECDICT dictionary information"
   }
 }

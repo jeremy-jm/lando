@@ -1,5 +1,6 @@
 /// Enumeration of available translation service types.
 enum TranslationServiceType {
+  mdict,
   youdao,
   google,
   bing,
@@ -10,6 +11,8 @@ enum TranslationServiceType {
 extension TranslationServiceTypeExtension on TranslationServiceType {
   String get displayName {
     switch (this) {
+      case TranslationServiceType.mdict:
+        return 'MDict';
       case TranslationServiceType.youdao:
         return 'Youdao';
       case TranslationServiceType.google:

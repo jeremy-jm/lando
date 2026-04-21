@@ -2,6 +2,7 @@ import 'package:lando/network/api_client.dart';
 import 'package:lando/services/translation/apple_translate_service.dart';
 import 'package:lando/services/translation/bing_translation_service.dart';
 import 'package:lando/services/translation/google_translation_service.dart';
+import 'package:lando/services/translation/mdict_translation_service.dart';
 import 'package:lando/services/translation/translation_service.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
 import 'package:lando/services/translation/youdao_translation_service.dart';
@@ -21,6 +22,8 @@ class TranslationServiceFactory {
   /// Creates a translation service instance based on the given [type].
   TranslationService create(TranslationServiceType type) {
     switch (type) {
+      case TranslationServiceType.mdict:
+        return MdictTranslationService();
       case TranslationServiceType.youdao:
         return YoudaoTranslationService(_apiClient);
       case TranslationServiceType.google:
@@ -35,6 +38,7 @@ class TranslationServiceFactory {
   /// Creates all available translation services.
   List<TranslationService> createAll() {
     return [
+      create(TranslationServiceType.mdict),
       create(TranslationServiceType.youdao),
       create(TranslationServiceType.google),
       create(TranslationServiceType.bing),

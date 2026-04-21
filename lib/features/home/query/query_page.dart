@@ -45,12 +45,13 @@ class _QueryPageState extends State<QueryPage> {
   @override
   void initState() {
     super.initState();
-    // Default to Youdao service, can be changed later via settings
-    _bloc = QueryBloc(
-      QueryRepository(serviceType: TranslationServiceType.youdao),
-    );
-    _controller = TextEditingController(text: widget.initialQuery ?? '');
+    // Initialize controller first before any listeners
+    _controller = TextEditingController();
     _controller.addListener(() => _detectLanguage());
+    // Default to MDict offline dictionary
+    _bloc = QueryBloc(
+      QueryRepository(serviceType: TranslationServiceType.mdict),
+    );
     _detectLanguage();
 
     // Listen to window visibility changes (for desktop platforms)
@@ -68,6 +69,7 @@ class _QueryPageState extends State<QueryPage> {
         _focusNode.unfocus();
         Future.delayed(const Duration(milliseconds: 100), () {
           if (_isDisposed || !mounted) return;
+          _controller.text = trimmedQuery;
           _historyProvider.addQuery(trimmedQuery);
           _bloc.add(QuerySearchSubmitted(trimmedQuery));
           if (mounted) setState(() {});
@@ -403,6 +405,7 @@ class _QueryPageState extends State<QueryPage> {
     return DictionaryWidget(
       query: state.query,
       platforms: [
+        TranslationServiceType.mdict,
         TranslationServiceType.youdao,
         TranslationServiceType.bing,
         if (Platform.isIOS || Platform.isMacOS) TranslationServiceType.apple,

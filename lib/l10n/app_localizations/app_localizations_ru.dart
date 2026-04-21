@@ -367,4 +367,73 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get proxyInfoDescription =>
       'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.';
+
+  @override
+  String get mdictOfflineDictionary => 'Автономный словарь';
+
+  @override
+  String get mdictOfflineDictionaryDescription =>
+      'Управление локальными файлами словаря MDict для автономного поиска';
+
+  @override
+  String get mdictSettings => 'Автономный словарь';
+
+  @override
+  String get mdictStatus => 'Статус';
+
+  @override
+  String get mdictEnable => 'Включить автономный словарь';
+
+  @override
+  String get mdictEnableDescription =>
+      'Использовать локальный словарь для поиска слов, резервный переход в онлайн при отсутствии результата';
+
+  @override
+  String get mdictImport => 'Импорт словаря';
+
+  @override
+  String get mdictImportDescription =>
+      'Импорт пользовательского файла словаря .mdx';
+
+  @override
+  String get mdictImportSuccess => 'Словарь успешно импортирован';
+
+  @override
+  String get mdictImportFailed => 'Не удалось импортировать словарь';
+
+  @override
+  String get mdictReset => 'Сбросить на стандартный';
+
+  @override
+  String get mdictResetDescription =>
+      'Восстановить встроенный словарь по умолчанию';
+
+  @override
+  String get mdictResetSuccess => 'Словарь успешно сброшен';
+
+  @override
+  String get mdictResetFailed => 'Не удалось сбросить словарь';
+
+  @override
+  String get mdictLoading => 'Загрузка...';
+
+  @override
+  String get mdictReady => 'Готово';
+
+  @override
+  String get mdictNotLoaded => 'Словарь не загружен';
+
+  @override
+  String get mdictNotInitialized => 'Не инициализирован';
+
+  @override
+  String get mdictWebNotSupported =>
+      'Автономный словарь не поддерживается в веб-версии';
+
+  @override
+  String get mdictInfoTitle => 'О ECDICT';
+
+  @override
+  String get mdictInfoDescription =>
+      'Встроенный автономный словарь — ECDICT (Англо-китайский словарь) с открытым исходным кодом по лицензии MIT. Содержит более 760 000 статей с китайскими переводами, транскрипцией и примерами предложений.';
 }

@@ -779,6 +779,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.'**
   String get proxyInfoDescription;
+
+  /// Offline dictionary settings menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Dictionary'**
+  String get mdictOfflineDictionary;
+
+  /// No description provided for @mdictOfflineDictionaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage local MDict dictionary files for offline lookup'**
+  String get mdictOfflineDictionaryDescription;
+
+  /// Offline dictionary settings page title
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Dictionary'**
+  String get mdictSettings;
+
+  /// Dictionary status label
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get mdictStatus;
+
+  /// Enable offline dictionary toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Offline Dictionary'**
+  String get mdictEnable;
+
+  /// Description for offline dictionary toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Use local dictionary for word lookup, fallback to online when not found'**
+  String get mdictEnableDescription;
+
+  /// Import custom dictionary button
+  ///
+  /// In en, this message translates to:
+  /// **'Import Dictionary'**
+  String get mdictImport;
+
+  /// Description for import button
+  ///
+  /// In en, this message translates to:
+  /// **'Import a custom .mdx dictionary file'**
+  String get mdictImportDescription;
+
+  /// Success message after import
+  ///
+  /// In en, this message translates to:
+  /// **'Dictionary imported successfully'**
+  String get mdictImportSuccess;
+
+  /// Error message after failed import
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to import dictionary'**
+  String get mdictImportFailed;
+
+  /// Reset to default dictionary button
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Default'**
+  String get mdictReset;
+
+  /// Description for reset button
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the default built-in dictionary'**
+  String get mdictResetDescription;
+
+  /// Success message after reset
+  ///
+  /// In en, this message translates to:
+  /// **'Dictionary reset successfully'**
+  String get mdictResetSuccess;
+
+  /// Error message after failed reset
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reset dictionary'**
+  String get mdictResetFailed;
+
+  /// Loading indicator text
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get mdictLoading;
+
+  /// Dictionary ready status
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get mdictReady;
+
+  /// Dictionary not loaded status
+  ///
+  /// In en, this message translates to:
+  /// **'No dictionary loaded'**
+  String get mdictNotLoaded;
+
+  /// Dictionary not initialized status
+  ///
+  /// In en, this message translates to:
+  /// **'Not initialized'**
+  String get mdictNotInitialized;
+
+  /// Web platform not supported message
+  ///
+  /// In en, this message translates to:
+  /// **'Offline dictionary is not supported on web'**
+  String get mdictWebNotSupported;
+
+  /// About ECDICT dictionary section title
+  ///
+  /// In en, this message translates to:
+  /// **'About ECDICT'**
+  String get mdictInfoTitle;
+
+  /// ECDICT dictionary information
+  ///
+  /// In en, this message translates to:
+  /// **'The built-in offline dictionary is ECDICT (English-Chinese Dictionary), an open-source dictionary with MIT license. It contains 760,000+ entries with Chinese translations, phonetics, and example sentences.'**
+  String get mdictInfoDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -365,4 +365,71 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get proxyInfoDescription =>
       'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.';
+
+  @override
+  String get mdictOfflineDictionary => 'ऑफ़लाइन शब्दकोश';
+
+  @override
+  String get mdictOfflineDictionaryDescription =>
+      'ऑफ़लाइन खोज के लिए स्थानीय MDict शब्दकोश फ़ाइलें प्रबंधित करें';
+
+  @override
+  String get mdictSettings => 'ऑफ़लाइन शब्दकोश';
+
+  @override
+  String get mdictStatus => 'स्थिति';
+
+  @override
+  String get mdictEnable => 'ऑफ़लाइन शब्दकोश सक्षम करें';
+
+  @override
+  String get mdictEnableDescription =>
+      'शब्द खोज के लिए स्थानीय शब्दकोश का उपयोग करें, न मिलने पर ऑनलाइन पर वापस जाएं';
+
+  @override
+  String get mdictImport => 'शब्दकोश आयात करें';
+
+  @override
+  String get mdictImportDescription => 'कस्टम .mdx शब्दकोश फ़ाइल आयात करें';
+
+  @override
+  String get mdictImportSuccess => 'शब्दकोश सफलतापूर्वक आयात किया गया';
+
+  @override
+  String get mdictImportFailed => 'शब्दकोश आयात करने में विफल';
+
+  @override
+  String get mdictReset => 'डिफ़ॉल्ट पर रीसेट करें';
+
+  @override
+  String get mdictResetDescription =>
+      'डिफ़ॉल्ट बिल्ट-इन शब्दकोश पुनर्स्थापित करें';
+
+  @override
+  String get mdictResetSuccess => 'शब्दकोश सफलतापूर्वक रीसेट किया गया';
+
+  @override
+  String get mdictResetFailed => 'शब्दकोश रीसेट करने में विफल';
+
+  @override
+  String get mdictLoading => 'लोड हो रहा है...';
+
+  @override
+  String get mdictReady => 'तैयार';
+
+  @override
+  String get mdictNotLoaded => 'कोई शब्दकोश लोड नहीं';
+
+  @override
+  String get mdictNotInitialized => 'आरंभीकृत नहीं';
+
+  @override
+  String get mdictWebNotSupported => 'ऑफ़लाइन शब्दकोश वेब पर समर्थित नहीं है';
+
+  @override
+  String get mdictInfoTitle => 'ECDICT के बारे में';
+
+  @override
+  String get mdictInfoDescription =>
+      'बिल्ट-इन ऑफ़लाइन शब्दकोश ECDICT (अंग्रेज़ी-चीनी शब्दकोश) है, MIT लाइसेंस वाला ओपन-सोर्स शब्दकोश। इसमें चीनी अनुवाद, ध्वनि-लिपि और उदाहरण वाक्यों के साथ 760,000+ प्रविष्टियाँ हैं।';
 }

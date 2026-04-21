@@ -10,6 +10,7 @@ import 'package:lando/storage/preferences_storage.dart';
 import 'package:lando/theme/theme_controller.dart';
 import 'package:lando/localization/locale_controller.dart';
 import 'package:lando/features/me/dictionary_settings_page.dart';
+import 'package:lando/features/me/mdict_settings_page.dart';
 import 'package:lando/features/me/proxy_settings_page.dart';
 import 'package:lando/features/me/about_page.dart';
 import 'package:lando/features/me/hotkey_settings_widget.dart';
@@ -182,6 +183,27 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 contentPadding: AppDesign.paddingListTile,
                 leading: Icon(AppIcons.book, color: theme.colorScheme.primary),
+                title: Text(l10n.mdictOfflineDictionary),
+                subtitle: Text(l10n.mdictOfflineDictionaryDescription),
+                trailing: const Icon(AppIcons.chevronRight),
+                onTap: AnalyticsService.instance.wrapTap(
+                  'tap_settings_mdict',
+                  () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const MdictSettingsPage(),
+                        settings: const RouteSettings(
+                          name: AppRoutes.mdictSettings,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              ListTile(
+                contentPadding: AppDesign.paddingListTile,
+                leading: Icon(AppIcons.settingsEthernet,
+                    color: theme.colorScheme.primary),
                 title: Text(l10n.dictionarySettings),
                 subtitle: Text(l10n.dictionarySettingsDescription),
                 trailing: const Icon(AppIcons.chevronRight),

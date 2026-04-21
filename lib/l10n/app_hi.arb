@@ -147,5 +147,26 @@
   "localDataCleared": "स्थानीय डेटा साफ कर दिया गया",
   "@localDataCleared": {
     "description": "Message shown when local data is cleared"
-  }
+  },
+  "mdictOfflineDictionary": "ऑफ़लाइन शब्दकोश",
+  "mdictOfflineDictionaryDescription": "ऑफ़लाइन खोज के लिए स्थानीय MDict शब्दकोश फ़ाइलें प्रबंधित करें",
+  "mdictSettings": "ऑफ़लाइन शब्दकोश",
+  "mdictStatus": "स्थिति",
+  "mdictEnable": "ऑफ़लाइन शब्दकोश सक्षम करें",
+  "mdictEnableDescription": "शब्द खोज के लिए स्थानीय शब्दकोश का उपयोग करें, न मिलने पर ऑनलाइन पर वापस जाएं",
+  "mdictImport": "शब्दकोश आयात करें",
+  "mdictImportDescription": "कस्टम .mdx शब्दकोश फ़ाइल आयात करें",
+  "mdictImportSuccess": "शब्दकोश सफलतापूर्वक आयात किया गया",
+  "mdictImportFailed": "शब्दकोश आयात करने में विफल",
+  "mdictReset": "डिफ़ॉल्ट पर रीसेट करें",
+  "mdictResetDescription": "डिफ़ॉल्ट बिल्ट-इन शब्दकोश पुनर्स्थापित करें",
+  "mdictResetSuccess": "शब्दकोश सफलतापूर्वक रीसेट किया गया",
+  "mdictResetFailed": "शब्दकोश रीसेट करने में विफल",
+  "mdictLoading": "लोड हो रहा है...",
+  "mdictReady": "तैयार",
+  "mdictNotLoaded": "कोई शब्दकोश लोड नहीं",
+  "mdictNotInitialized": "आरंभीकृत नहीं",
+  "mdictWebNotSupported": "ऑफ़लाइन शब्दकोश वेब पर समर्थित नहीं है",
+  "mdictInfoTitle": "ECDICT के बारे में",
+  "mdictInfoDescription": "बिल्ट-इन ऑफ़लाइन शब्दकोश ECDICT (अंग्रेज़ी-चीनी शब्दकोश) है, MIT लाइसेंस वाला ओपन-सोर्स शब्दकोश। इसमें चीनी अनुवाद, ध्वनि-लिपि और उदाहरण वाक्यों के साथ 760,000+ प्रविष्टियाँ हैं।"
 }

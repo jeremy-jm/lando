@@ -79,6 +79,8 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
   String? _error;
   bool _loading = false;
   bool _isFavorite = false;
+  /// True when MDict returned no result and we fell back to Youdao.
+  bool _isMdictFallback = false;
   final PronunciationServiceManager _pronunciationManager =
       PronunciationServiceManager();
 
@@ -201,13 +203,22 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
       _loading = true;
       _error = null;
       _result = null;
+      _isMdictFallback = false;
     });
 
+    final factory =
+        widget.translationServiceFactory ?? TranslationServiceFactory();
+
     try {
-      final factory =
-          widget.translationServiceFactory ?? TranslationServiceFactory();
       final service = factory.create(widget.platform);
       final result = await service.getDetailedResult(widget.query);
+
+      // MDict returned no result → fall back to Youdao
+      if (result == null &&
+          widget.platform == TranslationServiceType.mdict) {
+        await _fetchFallback(factory);
+        return;
+      }
 
       if (mounted) {
         final isFav = await FavoritesStorage.isFavorite(widget.query);
@@ -221,12 +232,52 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
         });
       }
     } catch (e) {
+      debugPrint(
+          '[DictionaryWidget] ${widget.platform.displayName} error: $e');
+      // MDict threw an exception → fall back to Youdao
+      if (widget.platform == TranslationServiceType.mdict) {
+        await _fetchFallback(factory);
+        return;
+      }
       if (mounted) {
         setState(() {
           _error =
               'Failed to fetch translation from ${widget.platform.displayName}: ${e.toString()}';
           _loading = false;
           _result = null;
+        });
+      }
+    }
+  }
+
+  /// Fallback: fetch from Youdao when MDict has no result.
+  Future<void> _fetchFallback(TranslationServiceFactory factory) async {
+    debugPrint(
+        '[DictionaryWidget] MDict has no result, falling back to Youdao');
+    try {
+      final fallback = factory.create(TranslationServiceType.youdao);
+      final result = await fallback.getDetailedResult(widget.query);
+      if (mounted) {
+        final isFav = await FavoritesStorage.isFavorite(widget.query);
+        setState(() {
+          _result = result;
+          _loading = false;
+          _isMdictFallback = result != null;
+          _error = result == null
+              ? 'No translation result available from ${widget.platform.displayName}'
+              : null;
+          _isFavorite = isFav;
+        });
+      }
+    } catch (e) {
+      debugPrint('[DictionaryWidget] Youdao fallback also failed: $e');
+      if (mounted) {
+        setState(() {
+          _error =
+              'Failed to fetch translation from ${widget.platform.displayName}: ${e.toString()}';
+          _loading = false;
+          _result = null;
+          _isMdictFallback = false;
         });
       }
     }
@@ -358,6 +409,9 @@ class _PlatformDictionaryWidgetState extends State<PlatformDictionaryWidget> {
           DictionaryPlatformHeader(
             platformName: widget.platform.displayName,
             loading: _loading,
+            fallbackName: _isMdictFallback
+                ? TranslationServiceType.youdao.displayName
+                : null,
           ),
           const SizedBox(height: AppDesign.spaceL),
           if (_loading)

@@ -365,4 +365,71 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get proxyInfoDescription =>
       'Configure a local proxy server (e.g., localhost:9091) to route all network requests through it. The proxy will be used for all API calls when enabled.';
+
+  @override
+  String get mdictOfflineDictionary => 'Offline Dictionary';
+
+  @override
+  String get mdictOfflineDictionaryDescription =>
+      'Manage local MDict dictionary files for offline lookup';
+
+  @override
+  String get mdictSettings => 'Offline Dictionary';
+
+  @override
+  String get mdictStatus => 'Status';
+
+  @override
+  String get mdictEnable => 'Enable Offline Dictionary';
+
+  @override
+  String get mdictEnableDescription =>
+      'Use local dictionary for word lookup, fallback to online when not found';
+
+  @override
+  String get mdictImport => 'Import Dictionary';
+
+  @override
+  String get mdictImportDescription => 'Import a custom .mdx dictionary file';
+
+  @override
+  String get mdictImportSuccess => 'Dictionary imported successfully';
+
+  @override
+  String get mdictImportFailed => 'Failed to import dictionary';
+
+  @override
+  String get mdictReset => 'Reset to Default';
+
+  @override
+  String get mdictResetDescription => 'Restore the default built-in dictionary';
+
+  @override
+  String get mdictResetSuccess => 'Dictionary reset successfully';
+
+  @override
+  String get mdictResetFailed => 'Failed to reset dictionary';
+
+  @override
+  String get mdictLoading => 'Loading...';
+
+  @override
+  String get mdictReady => 'Ready';
+
+  @override
+  String get mdictNotLoaded => 'No dictionary loaded';
+
+  @override
+  String get mdictNotInitialized => 'Not initialized';
+
+  @override
+  String get mdictWebNotSupported =>
+      'Offline dictionary is not supported on web';
+
+  @override
+  String get mdictInfoTitle => 'About ECDICT';
+
+  @override
+  String get mdictInfoDescription =>
+      'The built-in offline dictionary is ECDICT (English-Chinese Dictionary), an open-source dictionary with MIT license. It contains 760,000+ entries with Chinese translations, phonetics, and example sentences.';
 }

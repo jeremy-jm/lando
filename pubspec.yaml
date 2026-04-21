@@ -70,6 +70,18 @@ dependencies:
   # Umeng APM for crash/error tracking (Android/iOS)
   umeng_apm_sdk: ^2.3.5
 
+# MDict dictionary reader for offline dictionary support
+  mdict_reader: ^1.0.0
+
+  # Path provider for accessing app directories
+  path_provider: ^2.1.2
+
+  # File picker for importing custom dictionaries
+  file_picker: ^8.0.0+1
+
+  # HTML parser for MDict content parsing
+  html: ^0.15.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -102,6 +114,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/mdict/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

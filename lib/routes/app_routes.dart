@@ -11,6 +11,7 @@ import 'package:lando/features/me/me_page.dart';
 import 'package:lando/features/me/favorites_page.dart';
 import 'package:lando/features/me/history_page.dart';
 import 'package:lando/features/me/dictionary_settings_page.dart';
+import 'package:lando/features/me/mdict_settings_page.dart';
 import 'package:lando/features/me/proxy_settings_page.dart';
 
 /// Route name constants class
@@ -29,6 +30,7 @@ class AppRoutes {
   static const String favorites = '/favorites';
   static const String history = '/history';
   static const String dictionarySettings = '/dictionary-settings';
+  static const String mdictSettings = '/mdict-settings';
   static const String proxySettings = '/proxy-settings';
 
   /// Route generator
@@ -80,6 +82,11 @@ class AppRoutes {
       case dictionarySettings:
         return MaterialPageRoute(
           builder: (_) => const DictionarySettingsPage(),
+          settings: routeSettings,
+        );
+      case mdictSettings:
+        return MaterialPageRoute(
+          builder: (_) => const MdictSettingsPage(),
           settings: routeSettings,
         );
       case proxySettings:
