@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
+import 'package:lando/theme/app_design.dart';
 import 'package:lando/theme/app_icons.dart';
 import 'package:lando/models/result_model.dart';
 import 'package:lando/features/dictionary/widgets/dictionary_pronunciation_button.dart';
@@ -14,8 +16,6 @@ class DictionaryResultContent extends StatelessWidget {
   const DictionaryResultContent({
     super.key,
     required this.result,
-    required this.isFavorite,
-    required this.onFavoriteTap,
     required this.onUsPronunciationTap,
     required this.onUkPronunciationTap,
     required this.onQueryTap,
@@ -23,8 +23,6 @@ class DictionaryResultContent extends StatelessWidget {
   });
 
   final ResultModel result;
-  final bool isFavorite;
-  final VoidCallback onFavoriteTap;
   final VoidCallback onUsPronunciationTap;
   final VoidCallback onUkPronunciationTap;
   final ValueChanged<String>? onQueryTap;
@@ -38,34 +36,50 @@ class DictionaryResultContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Query word + favorite
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                result.query,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
+        // Simple explanation (when no POS)
+        if (result.simpleExplanation != null &&
+            result.translationsByPos == null) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  result.simpleExplanation!,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: Icon(
-                isFavorite ? AppIcons.star : AppIcons.starBorder,
-                color: isFavorite
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              IconButton(
+                icon: Icon(
+                  AppIcons.copy,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                  size: AppDesign.iconM,
+                ),
+                tooltip: l10n?.copy ?? 'Copy',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 40,
+                  minHeight: 40,
+                ),
+                onPressed: () async {
+                  final text = result.simpleExplanation!;
+                  await Clipboard.setData(ClipboardData(text: text));
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        l10n?.copiedToClipboard ?? 'Copied to clipboard',
+                      ),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
               ),
-              onPressed: onFavoriteTap,
-              tooltip: isFavorite
-                  ? (l10n?.removedFromFavorites ?? 'Remove from favorites')
-                  : (l10n?.addedToFavorites ?? 'Add to favorites'),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 12.0),
+        ],
 
         // US/UK pronunciation
         if (result.usPronunciationUrl != null ||
@@ -89,18 +103,6 @@ class DictionaryResultContent extends StatelessWidget {
                   onTap: onUkPronunciationTap,
                 ),
             ],
-          ),
-        ],
-
-        // Simple explanation (when no POS)
-        if (result.simpleExplanation != null &&
-            result.translationsByPos == null) ...[
-          const SizedBox(height: 12.0),
-          Text(
-            result.simpleExplanation!,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.primary,
-            ),
           ),
         ],
 

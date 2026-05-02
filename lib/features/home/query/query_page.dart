@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:lando/features/home/query/query_repository.dart';
@@ -11,9 +12,11 @@ import 'package:lando/features/dictionary/widgets/dictionary_widget.dart';
 import 'package:lando/features/home/providers/query_history_provider.dart';
 import 'package:lando/l10n/app_localizations/app_localizations.dart';
 import 'package:lando/services/audio/pronunciation_service_manager.dart';
+import 'package:lando/models/query_history_item.dart';
+import 'package:lando/models/result_model.dart';
 import 'package:lando/services/translation/translation_language_resolver.dart';
 import 'package:lando/services/translation/translation_service_type.dart';
-import 'package:lando/storage/preferences_storage.dart';
+import 'package:lando/storage/favorites_storage.dart';
 
 /// Query / translation result page.
 ///
@@ -41,17 +44,24 @@ class _QueryPageState extends State<QueryPage> {
   bool _isNavigating =
       false; // Flag to prevent adding to history during navigation
   bool _isDisposed = false;
+  StreamSubscription<QueryState>? _favoriteBlocSubscription;
+  int _favoriteSyncToken = 0;
+  bool _isFavoriteForQueryBar = false;
 
   @override
   void initState() {
     super.initState();
     // Initialize controller first before any listeners
     _controller = TextEditingController();
-    _controller.addListener(() => _detectLanguage());
+    _controller.addListener(() {
+      _detectLanguage();
+      _enqueueFavoriteBadgeSync(_bloc.state);
+    });
     // Default to MDict offline dictionary
     _bloc = QueryBloc(
       QueryRepository(serviceType: TranslationServiceType.mdict),
     );
+    _favoriteBlocSubscription = _bloc.stream.listen(_enqueueFavoriteBadgeSync);
     _detectLanguage();
 
     // Listen to window visibility changes (for desktop platforms)
@@ -189,6 +199,116 @@ class _QueryPageState extends State<QueryPage> {
     }
   }
 
+  /// Submitted lookup word when [state.query] matches the input field (avoid
+  /// starring a different word while the user has edited text before searching).
+  String? _syncedSubmittedWord(QueryState state) {
+    final c = _controller.text.trim();
+    final q = state.query.trim();
+    if (q.isEmpty || c.isEmpty || q != c) return null;
+    return q;
+  }
+
+  bool _canShowFavoriteInBar(QueryState state) {
+    if (state.isLoading || state.errorMessage != null) return false;
+    return _syncedSubmittedWord(state) != null;
+  }
+
+  void _enqueueFavoriteBadgeSync(QueryState state) {
+    unawaited(_syncFavoriteBadgeForState(state));
+  }
+
+  Future<void> _syncFavoriteBadgeForState(QueryState state) async {
+    final token = ++_favoriteSyncToken;
+    final word = _syncedSubmittedWord(state);
+    if (word == null || word.isEmpty) {
+      if (mounted && token == _favoriteSyncToken) {
+        setState(() => _isFavoriteForQueryBar = false);
+      }
+      return;
+    }
+    try {
+      final fav = await FavoritesStorage.isFavorite(word);
+      if (!mounted || token != _favoriteSyncToken) return;
+      setState(() => _isFavoriteForQueryBar = fav);
+    } catch (_) {
+      if (!mounted || token != _favoriteSyncToken) return;
+      setState(() => _isFavoriteForQueryBar = false);
+    }
+  }
+
+  Future<void> _toggleFavoriteFromInputBar() async {
+    final state = _bloc.state;
+    final word = _syncedSubmittedWord(state);
+    if (word == null || word.isEmpty) return;
+
+    final l10n = AppLocalizations.of(context);
+    String meaning = '';
+
+    final ResultModel? detailed = state.detailedResult;
+    if (detailed != null) {
+      meaning = detailed.favoriteMeaning();
+    }
+    if (meaning.isEmpty && state.result.trim().isNotEmpty) {
+      meaning = state.result.trim();
+    }
+    if (meaning.isEmpty) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n?.cannotFavorite ??
+                'Cannot favorite: no translation available',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    try {
+      if (_isFavoriteForQueryBar) {
+        final success = await FavoritesStorage.deleteFavorite(word);
+        if (success && mounted) {
+          setState(() => _isFavoriteForQueryBar = false);
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(
+              content: Text(
+                  l10n?.removedFromFavorites ?? 'Removed from favorites'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        final item = QueryHistoryItem(
+          word: word,
+          meaning: meaning,
+          timestamp: DateTime.now().millisecondsSinceEpoch,
+        );
+        final success = await FavoritesStorage.saveFavorite(item);
+        if (success && mounted) {
+          setState(() => _isFavoriteForQueryBar = true);
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(
+              content:
+                  Text(l10n?.addedToFavorites ?? 'Added to favorites'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n?.errorWithDetails(e.toString()) ?? 'Error: $e',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
   /// Converts language code to display name for UI
   String? _getLanguageDisplayName(String? languageCode) {
     if (languageCode == null) return null;
@@ -228,6 +348,8 @@ class _QueryPageState extends State<QueryPage> {
       // );
     }
 
+    _favoriteBlocSubscription?.cancel();
+    _favoriteBlocSubscription = null;
     _bloc.dispose();
     _controller.dispose();
     _focusNode.dispose();
@@ -235,10 +357,7 @@ class _QueryPageState extends State<QueryPage> {
     super.dispose();
   }
 
-  /// Plays pronunciation for the given text or URL.
-  ///
-  /// If [url] is provided and the current service is not system TTS,
-  /// it will use the URL. Otherwise, it will use system TTS with the [text].
+  /// Plays pronunciation using system text-to-speech ([text]).
   Future<void> _playPronunciation({
     required String text,
     String? url,
@@ -264,15 +383,10 @@ class _QueryPageState extends State<QueryPage> {
     try {
       await _pronunciationManager.stop();
 
-      // Get current service type to determine if we should use URL or text
-      final serviceType = PreferencesStorage.getPronunciationServiceType();
-      final isSystemTts = serviceType == null || serviceType == 'system';
-
-      // For system TTS, use text directly. For others, use URL if available.
       final success = await _pronunciationManager.speak(
         text: text,
         languageCode: languageCode,
-        url: isSystemTts ? null : url,
+        url: null,
       );
 
       if (!success && mounted) {
@@ -355,6 +469,10 @@ class _QueryPageState extends State<QueryPage> {
           onNavigateForward: _handleNavigateForward,
           canNavigateBack: _historyProvider.canGoBack,
           canNavigateForward: _historyProvider.canGoForward,
+          isFavorite: _isFavoriteForQueryBar,
+          onFavoriteTap: _canShowFavoriteInBar(state)
+              ? _toggleFavoriteFromInputBar
+              : null,
         );
       },
     );
@@ -406,8 +524,8 @@ class _QueryPageState extends State<QueryPage> {
       query: state.query,
       platforms: [
         TranslationServiceType.mdict,
-        TranslationServiceType.youdao,
-        TranslationServiceType.bing,
+        // TranslationServiceType.youdao,
+        // TranslationServiceType.bing,
         if (Platform.isIOS || Platform.isMacOS) TranslationServiceType.apple,
       ],
       onQueryTap: (queryText) {

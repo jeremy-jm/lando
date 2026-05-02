@@ -80,25 +80,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get pronunciationSourceDescription =>
-      'Selecione o serviço de pronúncia a ser usado';
+      'O texto da consulta é lido em voz alta pela síntese de fala integrada do dispositivo.';
 
   @override
   String get pronunciationSystem => 'Sistema';
-
-  @override
-  String get pronunciationYoudao => 'Youdao';
-
-  @override
-  String get pronunciationBaidu => 'Baidu';
-
-  @override
-  String get pronunciationBing => 'Bing';
-
-  @override
-  String get pronunciationGoogle => 'Google';
-
-  @override
-  String get pronunciationApple => 'Apple';
 
   @override
   String get me => 'Eu';

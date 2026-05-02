@@ -80,25 +80,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get pronunciationSourceDescription =>
-      'उपयोग करने के लिए उच्चारण सेवा चुनें';
+      'क्वेरी पाठ आपके डिवाइस के अंतर्निहित टेक्स्ट-टू-स्पीच का उपयोग करके पढ़ा जाता है।';
 
   @override
   String get pronunciationSystem => 'सिस्टम';
-
-  @override
-  String get pronunciationYoudao => 'Youdao';
-
-  @override
-  String get pronunciationBaidu => 'Baidu';
-
-  @override
-  String get pronunciationBing => 'Bing';
-
-  @override
-  String get pronunciationGoogle => 'Google';
-
-  @override
-  String get pronunciationApple => 'Apple';
 
   @override
   String get me => 'मैं';

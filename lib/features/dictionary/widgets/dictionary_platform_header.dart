@@ -30,22 +30,22 @@ class DictionaryPlatformHeader extends StatelessWidget {
             color: theme.colorScheme.primary,
           ),
         ),
-        if (fallbackName != null) ...[
-          const SizedBox(width: 8.0),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              'via $fallbackName',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSecondaryContainer,
-              ),
-            ),
-          ),
-        ],
+        // if (fallbackName != null) ...[
+        //   const SizedBox(width: 8.0),
+        //   Container(
+        //     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        //     decoration: BoxDecoration(
+        //       color: theme.colorScheme.secondaryContainer,
+        //       borderRadius: BorderRadius.circular(4),
+        //     ),
+        //     child: Text(
+        //       'via $fallbackName',
+        //       style: theme.textTheme.labelSmall?.copyWith(
+        //         color: theme.colorScheme.onSecondaryContainer,
+        //       ),
+        //     ),
+        //   ),
+        // ],
         if (loading) ...[
           const SizedBox(width: 12.0),
           const SizedBox(

@@ -80,25 +80,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get pronunciationSourceDescription =>
-      'Pilih layanan pengucapan yang akan digunakan';
+      'Teks kueri dibacakan menggunakan text-to-speech bawaan perangkat Anda.';
 
   @override
   String get pronunciationSystem => 'Sistem';
-
-  @override
-  String get pronunciationYoudao => 'Youdao';
-
-  @override
-  String get pronunciationBaidu => 'Baidu';
-
-  @override
-  String get pronunciationBing => 'Bing';
-
-  @override
-  String get pronunciationGoogle => 'Google';
-
-  @override
-  String get pronunciationApple => 'Apple';
 
   @override
   String get me => 'Saya';

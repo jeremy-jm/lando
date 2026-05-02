@@ -78,25 +78,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pronunciationSource => '发音来源';
 
   @override
-  String get pronunciationSourceDescription => '选择要使用的发音服务';
+  String get pronunciationSourceDescription => '使用设备自带的语音合成朗读查询内容。';
 
   @override
   String get pronunciationSystem => '系统';
-
-  @override
-  String get pronunciationYoudao => '有道';
-
-  @override
-  String get pronunciationBaidu => '百度';
-
-  @override
-  String get pronunciationBing => '必应';
-
-  @override
-  String get pronunciationGoogle => '谷歌';
-
-  @override
-  String get pronunciationApple => '苹果';
 
   @override
   String get me => '我的';

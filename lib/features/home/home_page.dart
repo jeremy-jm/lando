@@ -85,6 +85,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _navigateToQueryPage(String? query) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    _focusNode.unfocus();
+
     Navigator.of(context)
         .push(
       PageRouteBuilder(

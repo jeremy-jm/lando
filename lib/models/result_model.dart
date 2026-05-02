@@ -38,3 +38,27 @@ class ResultModel {
     this.webTranslations,
   });
 }
+
+/// Meaning text used when saving this result to favorites.
+extension ResultModelFavoriteMeaning on ResultModel {
+  String favoriteMeaning() {
+    if (simpleExplanation != null && simpleExplanation!.trim().isNotEmpty) {
+      return simpleExplanation!.trim();
+    }
+    if (translationsByPos != null && translationsByPos!.isNotEmpty) {
+      final meanings = translationsByPos!
+          .map((t) => '${t['name'] ?? ''} ${t['value'] ?? ''}')
+          .where((s) => s.trim().isNotEmpty)
+          .join('; ');
+      if (meanings.isNotEmpty) return meanings;
+    }
+    if (webTranslations != null && webTranslations!.isNotEmpty) {
+      final meanings = webTranslations!
+          .map((t) => '${t['key'] ?? ''} ${t['value'] ?? ''}')
+          .where((s) => s.trim().isNotEmpty)
+          .join('; ');
+      if (meanings.isNotEmpty) return meanings;
+    }
+    return '';
+  }
+}

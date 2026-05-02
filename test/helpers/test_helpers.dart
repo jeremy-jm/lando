@@ -36,11 +36,13 @@ class TestHelpers {
     await Future.delayed(const Duration(milliseconds: 100));
   }
 
-  /// Pump widget and wait for async operations.
+  /// Pumps a bounded time window (avoids [pumpAndSettle] hanging when HTTP
+  /// or animations never go idle in widget tests).
   static Future<void> pumpAndSettleAsync(
     WidgetTester tester, {
     Duration? duration,
   }) async {
-    await tester.pumpAndSettle(duration ?? const Duration(milliseconds: 100));
+    await tester.pump();
+    await tester.pump(duration ?? const Duration(milliseconds: 350));
   }
 }

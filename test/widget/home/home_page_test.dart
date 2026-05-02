@@ -101,7 +101,8 @@ void main() {
       // Enter text
       await tester.enterText(textField, 'hello');
       await tester.testTextInput.receiveAction(TextInputAction.search);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       // Should navigate to query page
       // Note: This test may need adjustment based on actual navigation implementation
@@ -120,7 +121,8 @@ void main() {
       final textField = find.byType(TextField);
       await tester.enterText(textField, '');
       await tester.testTextInput.receiveAction(TextInputAction.search);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       // Should still be on home page or handle gracefully
       // Note: Empty submission may navigate to query page with empty query

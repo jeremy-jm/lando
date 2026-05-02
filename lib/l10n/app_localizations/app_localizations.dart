@@ -246,10 +246,10 @@ abstract class AppLocalizations {
   /// **'Pronunciation Source'**
   String get pronunciationSource;
 
-  /// Pronunciation source setting description
+  /// Explains that pronunciation uses device system TTS
   ///
   /// In en, this message translates to:
-  /// **'Select the pronunciation service to use'**
+  /// **'Query text is read aloud using your device\'s built-in text-to-speech.'**
   String get pronunciationSourceDescription;
 
   /// System TTS pronunciation option
@@ -257,36 +257,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System'**
   String get pronunciationSystem;
-
-  /// Youdao pronunciation option
-  ///
-  /// In en, this message translates to:
-  /// **'Youdao'**
-  String get pronunciationYoudao;
-
-  /// Baidu pronunciation option
-  ///
-  /// In en, this message translates to:
-  /// **'Baidu'**
-  String get pronunciationBaidu;
-
-  /// Bing pronunciation option
-  ///
-  /// In en, this message translates to:
-  /// **'Bing'**
-  String get pronunciationBing;
-
-  /// Google pronunciation option
-  ///
-  /// In en, this message translates to:
-  /// **'Google'**
-  String get pronunciationGoogle;
-
-  /// Apple pronunciation option
-  ///
-  /// In en, this message translates to:
-  /// **'Apple'**
-  String get pronunciationApple;
 
   /// Me page title
   ///

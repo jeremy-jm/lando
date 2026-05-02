@@ -92,33 +92,13 @@
   "@pronunciationSource": {
     "description": "Pronunciation source setting title"
   },
-  "pronunciationSourceDescription": "Select the pronunciation service to use",
+  "pronunciationSourceDescription": "Query text is read aloud using your device's built-in text-to-speech.",
   "@pronunciationSourceDescription": {
-    "description": "Pronunciation source setting description"
+    "description": "Explains that pronunciation uses device system TTS"
   },
   "pronunciationSystem": "System",
   "@pronunciationSystem": {
     "description": "System TTS pronunciation option"
-  },
-  "pronunciationYoudao": "Youdao",
-  "@pronunciationYoudao": {
-    "description": "Youdao pronunciation option"
-  },
-  "pronunciationBaidu": "Baidu",
-  "@pronunciationBaidu": {
-    "description": "Baidu pronunciation option"
-  },
-  "pronunciationBing": "Bing",
-  "@pronunciationBing": {
-    "description": "Bing pronunciation option"
-  },
-  "pronunciationGoogle": "Google",
-  "@pronunciationGoogle": {
-    "description": "Google pronunciation option"
-  },
-  "pronunciationApple": "Apple",
-  "@pronunciationApple": {
-    "description": "Apple pronunciation option"
   },
   "me": "Me",
   "@me": {

@@ -80,25 +80,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pronunciationSourceDescription =>
-      'Select the pronunciation service to use';
+      'Query text is read aloud using your device\'s built-in text-to-speech.';
 
   @override
   String get pronunciationSystem => 'System';
-
-  @override
-  String get pronunciationYoudao => 'Youdao';
-
-  @override
-  String get pronunciationBaidu => 'Baidu';
-
-  @override
-  String get pronunciationBing => 'Bing';
-
-  @override
-  String get pronunciationGoogle => 'Google';
-
-  @override
-  String get pronunciationApple => 'Apple';
 
   @override
   String get me => 'Me';

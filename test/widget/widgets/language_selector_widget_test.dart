@@ -45,7 +45,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       expect(find.byType(LanguageSelectorWidget), findsOneWidget);
     });
@@ -54,7 +55,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       // Should display some language text (auto or default)
       expect(find.byType(LanguageSelectorWidget), findsOneWidget);
@@ -69,7 +71,8 @@ void main() {
 
       await tester.pumpWidget(createTestWidget());
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       // Should display the saved languages
       expect(find.byType(LanguageSelectorWidget), findsOneWidget);
@@ -83,7 +86,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       // Tap on language selector to open dialog
       // Note: This test may need adjustment based on actual implementation
@@ -94,7 +98,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget(showBackground: true));
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       expect(find.byType(LanguageSelectorWidget), findsOneWidget);
     });
@@ -103,7 +108,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget(showBackground: false));
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       expect(find.byType(LanguageSelectorWidget), findsOneWidget);
     });

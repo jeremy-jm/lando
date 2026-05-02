@@ -78,25 +78,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get pronunciationSource => '発音ソース';
 
   @override
-  String get pronunciationSourceDescription => '使用する発音サービスを選択';
+  String get pronunciationSourceDescription => 'クエリのテキストは端末の音声読み上げで読み上げられます。';
 
   @override
   String get pronunciationSystem => 'システム';
-
-  @override
-  String get pronunciationYoudao => '有道';
-
-  @override
-  String get pronunciationBaidu => '百度';
-
-  @override
-  String get pronunciationBing => 'Bing';
-
-  @override
-  String get pronunciationGoogle => 'Google';
-
-  @override
-  String get pronunciationApple => 'Apple';
 
   @override
   String get me => '私';

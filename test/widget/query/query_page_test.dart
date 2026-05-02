@@ -41,10 +41,10 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget(initialQuery: 'hello'));
 
-      // Wait for initial setup and async operations
+      // Fixed-duration pumps: QueryPage triggers network (400 in tests), so
+      // pumpAndSettle never completes.
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 350));
 
       // Should display the initial query in the text field
       expect(find.text('hello'), findsOneWidget);
@@ -54,10 +54,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
 
-      // Wait for initial setup
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 350));
 
       // TextField should be present
       expect(find.byType(TextField), findsOneWidget);
@@ -107,13 +105,15 @@ void main() {
 
       // Navigate to query page
       await tester.tap(find.text('Navigate'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       expect(find.byType(QueryPage), findsOneWidget);
 
       // Tap back button
       await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
 
       // Should be back to previous page
       expect(find.text('Navigate'), findsOneWidget);
@@ -131,10 +131,8 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestWidget());
 
-      // Wait for initial setup
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 350));
 
       final textField = find.byType(TextField);
       await tester.enterText(textField, 'test query');

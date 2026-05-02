@@ -80,25 +80,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pronunciationSourceDescription =>
-      'Выберите службу произношения для использования';
+      'Текст запроса озвучивается встроенным синтезом речи устройства.';
 
   @override
   String get pronunciationSystem => 'Система';
-
-  @override
-  String get pronunciationYoudao => 'Youdao';
-
-  @override
-  String get pronunciationBaidu => 'Baidu';
-
-  @override
-  String get pronunciationBing => 'Bing';
-
-  @override
-  String get pronunciationGoogle => 'Google';
-
-  @override
-  String get pronunciationApple => 'Apple';
 
   @override
   String get me => 'Я';

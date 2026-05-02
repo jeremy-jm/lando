@@ -29,6 +29,8 @@ class TranslationInputWidget extends StatefulWidget {
     this.onNavigateForward,
     this.canNavigateBack = false,
     this.canNavigateForward = false,
+    this.isFavorite = false,
+    this.onFavoriteTap,
   });
 
   final TextEditingController controller;
@@ -47,6 +49,8 @@ class TranslationInputWidget extends StatefulWidget {
   final VoidCallback? onNavigateForward;
   final bool canNavigateBack;
   final bool canNavigateForward;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteTap;
 
   @override
   State<TranslationInputWidget> createState() => _TranslationInputWidgetState();
@@ -194,20 +198,29 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
 
     try {
       final response = await _suggestionService!.getSuggestions(query);
-      if (mounted && widget.controller.text.trim() == query) {
-        setState(() {
-          if (response != null) {
-            _suggestions = response.suggestions;
-            _isNotFound = response.isNotFound;
-          } else {
-            _suggestions = [];
-            _isNotFound = false;
-          }
-          _isLoadingSuggestions = false;
-        });
+      if (!mounted || widget.controller.text.trim() != query) {
+        return;
       }
+      if (_isSelectingSuggestion || _isNavigating) {
+        if (mounted) {
+          setState(() {
+            _isLoadingSuggestions = false;
+          });
+        }
+        return;
+      }
+      setState(() {
+        if (response != null) {
+          _suggestions = response.suggestions;
+          _isNotFound = response.isNotFound;
+        } else {
+          _suggestions = [];
+          _isNotFound = false;
+        }
+        _isLoadingSuggestions = false;
+      });
     } catch (e) {
-      if (mounted) {
+      if (mounted && !_isSelectingSuggestion && !_isNavigating) {
         setState(() {
           _suggestions = [];
           _isLoadingSuggestions = false;
@@ -222,9 +235,11 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
 
     // Cancel any pending suggestion requests
     _debounceTimer?.cancel();
+    _navigationResetTimer?.cancel();
 
     // Set flag to prevent re-fetching suggestions when text changes
     _isSelectingSuggestion = true;
+    _isNavigating = true;
 
     // Clear suggestions and reset all suggestion-related states first
     setState(() {
@@ -234,18 +249,28 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
       _lastQuery = word; // Set to current word to prevent re-fetching
     });
 
-    // Update controller text (this will trigger _onTextChanged, but it will be ignored due to _isSelectingSuggestion flag)
+    widget.focusNode.unfocus();
+
+    // Update controller text (this will trigger _onTextChanged, but it will be ignored due to flags)
     widget.controller.text = word;
     widget.controller.selection = TextSelection.fromPosition(
       TextPosition(offset: word.length),
     );
 
-    // Reset flag after a delay to allow text change and focus handling to complete
+    // Reset flags after delays (same pattern as history navigation).
     _suggestionResetTimer?.cancel();
     _suggestionResetTimer = Timer(const Duration(milliseconds: 200), () {
       if (mounted) {
         setState(() {
           _isSelectingSuggestion = false;
+        });
+      }
+    });
+    _navigationResetTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+          _lastQuery = widget.controller.text.trim();
         });
       }
     });
@@ -451,6 +476,24 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
+          if (widget.onFavoriteTap != null) ...[
+            const SizedBox(width: AppDesign.spaceMd),
+            IconButton(
+              icon: Icon(
+                widget.isFavorite ? AppIcons.star : AppIcons.starBorder,
+                size: AppDesign.iconXs,
+                color: widget.isFavorite
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              onPressed: widget.onFavoriteTap,
+              tooltip: widget.isFavorite
+                  ? (l10n?.removedFromFavorites ?? 'Remove from favorites')
+                  : (l10n?.addedToFavorites ?? 'Add to favorites'),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
           const Spacer(),
           if (!widget.readOnly &&
               (widget.onNavigateBack != null ||
@@ -645,12 +688,12 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final hasText = widget.controller.text.isNotEmpty;
-    final showSuggestions = widget.enableSuggestions &&
-        !widget.readOnly &&
-        _suggestions.isNotEmpty &&
-        hasText;
-    final showNotFound = widget.enableSuggestions &&
-        !widget.readOnly &&
+    final hasInputFocus =
+        widget.enableSuggestions && widget.focusNode.hasFocus;
+    final showSuggestions =
+        !widget.readOnly && hasInputFocus && _suggestions.isNotEmpty && hasText;
+    final showNotFound = !widget.readOnly &&
+        hasInputFocus &&
         _isNotFound &&
         hasText &&
         !_isLoadingSuggestions;
@@ -674,8 +717,11 @@ class _TranslationInputWidgetState extends State<TranslationInputWidget> {
             _buildSuggestionsList(context, theme),
           ],
 
-          // Loading indicator for suggestions
-          if (_isLoadingSuggestions && hasText && !widget.readOnly) ...[
+          // Loading indicator for suggestions (only while field is focused)
+          if (_isLoadingSuggestions &&
+              hasText &&
+              !widget.readOnly &&
+              hasInputFocus) ...[
             const SizedBox(height: AppDesign.spaceS),
             _buildLoadingIndicator(theme),
           ],
